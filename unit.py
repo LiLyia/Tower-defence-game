@@ -23,3 +23,33 @@ class Unit:
     def findPath(self):
         ...
 
+
+#UvsU, UvsB, UvsO, all of them have the same attributes. Can they be connected via another superclass?
+class UvsU(Unit):
+    def __init__(self, unit_img, pos, scale, screen, damage=100, attack_range=20, health=600, speed=50, price=100):
+        self.damage = damage
+        self.range = attack_range
+        Unit.__init__(self, unit_img, pos, scale, screen, health, speed, price)
+
+    def attack(self):
+        ...
+
+
+class UvsB(Unit):
+    def __init__(self, unit_img, pos, scale, screen, damage=100, attack_range=20, health=600, speed=50, price=100):
+        self.damage = damage
+        self.range = attack_range
+        Unit.__init__(self, unit_img, pos, scale, screen, health, speed, price)
+
+    def attack(self):
+        ...
+
+
+class UvsO(Unit):
+    def __init__(self, unit_img, pos, scale, screen, damage=100, attack_range=20, health=600, speed=50, price=100):
+        self.damage = damage
+        self.range = attack_range
+        Unit.__init__(self, unit_img, pos, scale, screen, health, speed, price)
+
+    def attack(self):
+        ...
