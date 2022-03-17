@@ -89,15 +89,16 @@ class AttackingUnit(Unit):
 class UvsU(AttackingUnit):
     def __init__(self, img, pos, scale, screen):
         AttackingUnit.__init__(self, img, pos, scale, screen, health=800,
-                               max_health=800, price=100, S
-        damage = 100, attack_range = 50)
+                               max_health=800, price=100, damage=100, attack_range=50)
 
-        class UvsB(AttackingUnit):
-            def __init__(self, img, pos, scale, screen):
-                AttackingUnit.__init__(self, img, pos, scale, screen, health=800,
-                                       max_health=800, price=100, damage=100, attack_range=50)
 
-        class UvsO(AttackingUnit):
-            def __init__(self, img, pos, scale, screen):
-                AttackingUnit.__init__(self, img, pos, scale, screen, health=800,
-                                       max_health=800, price=00, damage=100, attack_range=50)
+class UvsB(AttackingUnit):
+    def __init__(self, img, pos, scale, screen):
+        AttackingUnit.__init__(self, img, pos, scale, screen, health=800,
+                               max_health=800, price=100, damage=100, attack_range=50)
+
+
+class UvsO(AttackingUnit):
+    def __init__(self, img, pos, scale, screen):
+        AttackingUnit.__init__(self, img, pos, scale, screen, health=800,
+                               max_health=800, price=00, damage=100, attack_range=50)
