@@ -98,8 +98,8 @@ class Tower:
 
     def upgrade(self, upgrade_percent: float = DEFAULT_UPGRADE_PERCENT):
         self.setLevel(self.getLevel + 1)
-        self.setMaxHealth(self.getMaxHealth * upgrade_percent)
-        self.setHealth(self.getHealth * upgrade_percent)
+        self.setMaxHealth(self.getMaxHealth * (1 + upgrade_percent))
+        self.setHealth(self.getHealth * (1 + upgrade_percent))
         self.declareHealthLevel()
 
     def remove(self):
