@@ -166,4 +166,9 @@ class FireTower :
     def attack(self,enemy:unit):
         if (enemy.get_pos() - self.range) <= self.getPos() :
             self.reduceHealth(enemy)
+    """
+    def projectile(self):
+        pass
+        
+    """
 
