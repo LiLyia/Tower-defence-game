@@ -2,6 +2,7 @@ import pygame
 from pygame.locals import *
 from castle import Castle
 from game_map import GameMap
+from unit import Unit
 import random
 
 
@@ -42,6 +43,8 @@ position_castle2 = random.choice(castle2_pos)
 castle1 = Castle(castle1_100_img,castle1_50_img,castle1_25_img, position_castle1, 0.09, screen)
 castle2 = Castle(castle2_100_img,castle2_50_img,castle2_25_img, position_castle2, 0.09, screen)
 
+soldier_img = pygame.image.load('Images/soldier.png')
+soldier = Unit(soldier_img, (100, 400), 0.07, screen)
 # ------------creating grid for game map --------------#
 tile_size = 50
 # def create_grid():
@@ -73,6 +76,7 @@ while is_game:
     screen.blit(bg_img, (0, 0))
     castle1.draw_castle()
     castle2.draw_castle()
+    soldier.draw()
     # create_grid()
     game_map.draw_tiles()
     for event in pygame.event.get():
