@@ -1,10 +1,13 @@
 import pygame
+
 """
 Unit class, functions as a 'Basic Unit' and is the base class of all the units.
 Only the position and the screen is required to create it.
 """
+
+
 class Unit:
-    def __init__(self, pos, screen, image_path = 'Images/basic.png', scale=0.07, health=800, max_health=800, price=100):
+    def __init__(self, pos, screen, image_path='Images/basic.png', scale=0.07, health=800, max_health=800, price=100):
         self.health = health
         self.max_health = max_health
         self.price = price
@@ -20,18 +23,15 @@ class Unit:
         self.rect.x, self.rect.y = pos
         self.screen = screen
 
-
     def move(self):
         """
         Make the unit move only 1 block according to the path it has.
         """
         goal_pos = self.findPath(self.pos)
-        if (goal_pos != self.pos):
-            #self.erase()
+        if goal_pos != self.pos:
             self.pos = goal_pos
             self.rect = self.img.get_rect()
             self.rect.x, self.rect.y = self.pos
-            #self.draw()
 
     def heal(self):
         """
@@ -42,7 +42,6 @@ class Unit:
         else:
             self.health = self.max_health
 
-
     def get_pos(self):
         """
         :return pos: Current position of the unit
@@ -51,7 +50,7 @@ class Unit:
 
     def reduceHealth(self, enemy):
         """
-        Reduce health; if their health is not enough, delete.
+        Reduce health. If the health is not enough, delete.
         :param enemy: type of Unit
         :return: None
         """
@@ -62,10 +61,9 @@ class Unit:
 
     def draw(self):
         """
-        Draws the enemy with the given images
+        Draws the unit with the given images
         """
         self.screen.blit(self.img, self.rect)
-
 
     def draw_health_bar(self, win):
         """
@@ -89,7 +87,8 @@ class Unit:
     def findPath(self, castle_pos):
         """
         Take the current position, calculate the shortest path possible to the enemy castle from the game map.
-        :param castle_pos is type Base, and has the position of the enemy castle
+        :param castle_pos: the position of the enemy castle
+        :return next available step's coordinates
         """
         pass
 
@@ -106,11 +105,19 @@ class Unit:
 AttackingUnit Class is a superclass for UvsU, UvsB and UvsO and also subclass of Unit. 
 Includes attacking function.
 """
+
+
 class AttackingUnit(Unit):
-    def __init__(self, pos,screen, image_path, scale, health=800, max_health=800, price=100, damage=100, attack_range=50):
+    def __init__(self, pos, screen, image_path, scale,
+                 health=800,
+                 max_health=800,
+                 price=100,
+                 damage=100,
+                 attack_range=50):
+
         self.damage = damage
         self.attack_range = attack_range
-        Unit.__init__(self, pos,screen, image_path, scale, health, max_health, price)
+        Unit.__init__(self, pos, screen, image_path, scale, health, max_health, price)
 
     def attack(self, enemy):
         """
@@ -125,24 +132,47 @@ class AttackingUnit(Unit):
 """
  UvsU is subclass of AttackingUnit. Meaning UnitvsUnit, it can attack and destroy the enemy units.
 """
+
+
 class UvsU(AttackingUnit):
-    def __init__(self, pos, screen, image_path = 'Images/uvsu.png', scale = 0.07):
-        super().__init__(self, pos, screen, image_path, scale, health=800,
-                               max_health=800, price=100, damage=100, attack_range=50)
+    def __init__(self, pos, screen, image_path='Images/uvsu.png', scale=0.07):
+
+        super().__init__(self, pos, screen, image_path, scale,
+                         health=500,
+                         max_health=500,
+                         price=100,
+                         damage=100,
+                         attack_range=50)
 
 
 """
  UvsB is subclass of AttackingUnit. Meaning UnitvsBuilding, it can attack and destroy enemy towers.
 """
+
+
 class UvsB(AttackingUnit):
-    def __init__(self, pos, screen, image_path = 'Images/uvso', scale = 0.07):
-        super().__init__(self, pos, screen, image_path, scale, health=800,
-                               max_health=800, price=100, damage=100, attack_range=50)
+
+    def __init__(self, pos, screen, image_path='Images/uvsb.png', scale=0.07):
+
+        super().__init__(self, pos, screen, image_path, scale,
+                         health=800,
+                         max_health=800,
+                         price=150,
+                         damage=100,
+                         attack_range=50)
+
 
 """
  UvsO is subclass of AttackingUnit. Meaning UnitvsObstacle, it can attack and destroy the obstacles
 """
+
+
 class UvsO(AttackingUnit):
-    def __init__(self, pos, screen, image_path = 'Images/uvso', scale = 0.07):
-        super().__init__(self, pos, screen, image_path, scale, health=800,
-                               max_health=800, price=00, damage=100, attack_range=50)
+    def __init__(self, pos, screen, image_path='Images/uvso', scale=0.07):
+
+        super().__init__(self, pos, screen, image_path, scale,
+                         health=800,
+                         max_health=400,
+                         price=100,
+                         damage=100,
+                         attack_range=50)
