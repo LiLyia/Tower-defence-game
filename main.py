@@ -2,7 +2,12 @@ import pygame
 from pygame.locals import *
 from castle import Castle
 from game_map import GameMap
+<<<<<<< main.py
 from tower import *
+from unit import Unit
+=======
+from unit import Unit
+>>>>>>> main.py
 import random
 
 
@@ -34,6 +39,7 @@ castle2_100_img = pygame.image.load('Images/Castle/castle2_100.png').convert_alp
 castle2_50_img = pygame.image.load('Images/Castle/castle2_50.png').convert_alpha()
 # image of castle2 with 25% health
 castle2_25_img = pygame.image.load('Images/Castle/castle2_25.png')
+<<<<<<< main.py
 
 # declearing tower positions
 tower_pos = [(150, 150), (200, 200), (300, 300), (400, 400), (200, 500)]
@@ -49,6 +55,8 @@ tower_2 = Tower.createTower(position_tower_2, tower_images, screen)
 tower_2.setHealth(14)
 tower_2.declareHealthLevel()
 
+=======
+>>>>>>> main.py
 # randomly picking the position of castle 1 position
 castle1_pos = [(150, 100), (200, 100), (250, 100), (300, 100), (350, 100), (400, 100), (450, 100)]
 position_castle1 = random.choice(castle1_pos)
@@ -58,6 +66,13 @@ position_castle2 = random.choice(castle2_pos)
 castle1 = Castle(castle1_100_img,castle1_50_img,castle1_25_img, position_castle1, 0.09, screen)
 castle2 = Castle(castle2_100_img,castle2_50_img,castle2_25_img, position_castle2, 0.09, screen)
 
+<<<<<<< main.py
+soldier_img = pygame.image.load('Images/soldier.png')
+soldier = Unit(soldier_img, (100, 400), 0.07, screen)
+=======
+soldier_img = pygame.image.load('Images/soldier.png')
+soldier = Unit(soldier_img, (100, 400), 0.07, screen)
+>>>>>>> main.py
 # ------------creating grid for game map --------------#
 tile_size = 50
 # def create_grid():
@@ -89,8 +104,13 @@ while is_game:
     screen.blit(bg_img, (0, 0))
     castle1.draw_castle()
     castle2.draw_castle()
+<<<<<<< main.py
     tower.draw_tower()
     tower_2.draw_tower()
+    soldier.draw()
+=======
+    soldier.draw()
+>>>>>>> main.py
     # create_grid()
     game_map.draw_tiles()
     for event in pygame.event.get():
