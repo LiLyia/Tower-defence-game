@@ -2,6 +2,7 @@ import pygame
 from pygame.locals import *
 from castle import Castle
 from game_map import GameMap
+from tower import *
 import random
 
 
@@ -33,6 +34,21 @@ castle2_100_img = pygame.image.load('Images/Castle/castle2_100.png').convert_alp
 castle2_50_img = pygame.image.load('Images/Castle/castle2_50.png').convert_alpha()
 # image of castle2 with 25% health
 castle2_25_img = pygame.image.load('Images/Castle/castle2_25.png')
+
+# declearing tower positions
+tower_pos = [(150, 150), (200, 200), (300, 300), (400, 400), (200, 500)]
+position_tower = random.choice(tower_pos)
+position_tower_2 = random.choice(tower_pos)
+while position_tower_2 == position_tower:
+    position_tower_2 = random.choice(tower_pos)
+
+# creating towers
+tower_images = [[pygame.image.load('Images/Towers/tower_100.png'),pygame.image.load('Images/Towers/tower_50.png'),pygame.image.load('Images/Towers/tower_25.png')],[None,None,None],[None,None,None]]
+tower = Tower.createTower(position_tower, tower_images, screen)
+tower_2 = Tower.createTower(position_tower_2, tower_images, screen)
+tower_2.setHealth(14)
+tower_2.declareHealthLevel()
+
 # randomly picking the position of castle 1 position
 castle1_pos = [(150, 100), (200, 100), (250, 100), (300, 100), (350, 100), (400, 100), (450, 100)]
 position_castle1 = random.choice(castle1_pos)
@@ -73,6 +89,8 @@ while is_game:
     screen.blit(bg_img, (0, 0))
     castle1.draw_castle()
     castle2.draw_castle()
+    tower.draw_tower()
+    tower_2.draw_tower()
     # create_grid()
     game_map.draw_tiles()
     for event in pygame.event.get():
