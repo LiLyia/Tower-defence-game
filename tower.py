@@ -48,6 +48,7 @@ class Tower:
         temp_image: pygame.Surface = image_list[self.getLevel][self.getHealthLevel]
         self._towerImage: pygame.Surface = self.scaleImage(temp_image, scale)
 
+        self._pos = tuple()
         self._rect = self.getTowerImage.get_rect()
         self._rect.x, self._rect.y = pos
 
@@ -90,6 +91,9 @@ class Tower:
         :return:
         '''
         self._health_level = health_level
+
+    def setPos(self,pos):
+        self._pos = pos
 
     @property
     def getHealth(self) -> int:
@@ -162,6 +166,11 @@ class Tower:
         :return:pygame.Rect
         '''
         return self._rect
+    
+    @property
+    def getPos(self) -> tuple():
+
+        return self._pos
 
     def reduceHealth(self, reduce_amount: int = DEFAULT_HIT) -> None:
         '''
@@ -191,11 +200,7 @@ class Tower:
         self.declareHealthLevel()
 
     def remove(self):
-        '''
-        Function that removes the tower
-        :return:
-        '''
-        pass
+        self._screen.fill((255,255,255)) ##Temporary deletion
 
     def declareHealthLevel(self) -> int:
         '''
