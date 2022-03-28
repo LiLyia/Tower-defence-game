@@ -62,11 +62,13 @@ class FireTower() :
         temp_image: pygame.Surface = image_list[self.getLevel][self.getHealthLevel] #How the Tower will look is determined by its Level and Health.
         self._towerImage: pygame.Surface = self.scaleImage(temp_image, scale)
 
+        self._pos = tuple()
         self._rect = self.getTowerImage.get_rect()
         self._rect.x, self._rect.y = pos
-        self.pos = pos
         self.range = range
         self.damage = damage
+
+        
 
 
     #Constructors
@@ -92,6 +94,10 @@ class FireTower() :
     #Ramge for Attacking
     def setRange(self,range) -> None:
         self.range = range
+
+    def setPos(self,pos):
+        self._pos = pos
+
 
     @property
     def getHealth(self) -> int: #Returns the Health
@@ -124,6 +130,9 @@ class FireTower() :
     @property
     def getTowerImage(self) -> pygame.Surface:
         return self.scaleImage(self.getTowerList[self.getLevel][self.getHealthLevel])
+
+    def getPos(self) -> tuple():
+        return self._pos
     '''
     getRect function returns the position of the tower
     '''
@@ -139,9 +148,6 @@ class FireTower() :
 
     def getRange(self) -> int:
         return self.range
-
-    def getPos(self) -> int:
-        self.pos
 
 
     def reduceHealth(self, reduce_amount: int = DEFAULT_HIT) -> None:
@@ -164,7 +170,7 @@ class FireTower() :
         self.declareHealthLevel()
 
     def remove(self):
-        pass
+        self._screen.fill((255,255,255))
 
 
     '''
