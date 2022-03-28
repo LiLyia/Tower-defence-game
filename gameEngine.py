@@ -2,8 +2,9 @@ import pygame
 from pygame.locals import *
 from castle import Castle
 from game_map import GameMap
-from tower import *
+from Tower import *
 from unit import Unit
+from FireTower import *
 import random
 
 
@@ -44,7 +45,7 @@ while position_tower_2 == position_tower:
 
 # creating towers
 tower_images = [[pygame.image.load('Images/Towers/tower_100.png'),pygame.image.load('Images/Towers/tower_50.png'),pygame.image.load('Images/Towers/tower_25.png')],[None,None,None],[None,None,None]]
-tower = Tower.createTower(position_tower, tower_images, screen)
+tower1 = Tower.createTower(position_tower, tower_images, screen)
 tower_2 = Tower.createTower(position_tower_2, tower_images, screen)
 tower_2.setHealth(14)
 tower_2.declareHealthLevel()
@@ -58,8 +59,8 @@ position_castle2 = random.choice(castle2_pos)
 castle1 = Castle(castle1_100_img,castle1_50_img,castle1_25_img, position_castle1, 0.09, screen)
 castle2 = Castle(castle2_100_img,castle2_50_img,castle2_25_img, position_castle2, 0.09, screen)
 
-soldier_img = pygame.image.load('Images/soldier.png')
-soldier = Unit(soldier_img, (100, 400), 0.07, screen)
+#soldier_img = pygame.image.load('Images/soldier.png')
+#soldier = Unit(soldier_img, (100, 400), 0.07, screen)
 # ------------creating grid for game map --------------#
 tile_size = 50
 # def create_grid():
@@ -85,22 +86,47 @@ game_map_data = [
 ]
 game_map = GameMap(game_map_data, tile_size, screen)
 # make sure screen continue
+towers = []
+towers.append(tower1)
+towers.append(tower_2)
 is_game = True
 while is_game:
     clock.tick(FPS)
     screen.blit(bg_img, (0, 0))
     castle1.draw_castle()
     castle2.draw_castle()
-    tower.draw_tower()
-    tower_2.draw_tower()
-    soldier.draw()
+    #soldier.draw()
     # create_grid()
     game_map.draw_tiles()
     for event in pygame.event.get():
         if event.type == QUIT:
             is_game = False
-        elif event.type == MOUSEBUTTONDOWN:
-            print(pygame.mouse.get_pos())
+        elif event.type == MOUSEBUTTONDOWN or event.type == MOUSEBUTTONUP:
+            # adds position to list
+            if event.button == 1 :
+                for tower in towers :
+                    if ( -4 > tower.getPos[0] - event.pos[0] > -23 ) and (-5 >tower.getPos[1] - event.pos[1] > -38):
+                        towers.remove(tower)
+            elif event.button == 3:
+                if (600>event.pos[0] >50) and (600>event.pos[1] >50) :
 
-    pygame.display.update()
+                    towerBuy = Tower.createTower(event.pos, tower_images, screen)
+
+                    towers.append(towerBuy)
+
+            elif event.button == 2:
+                if (600 > event.pos[0] > 50) and (600 > event.pos[1] > 50):
+                    fire_towerBuy = FireTower.createTower(event.pos,tower_images,screen)
+                    fire_towerBuy.setHealth(35)
+                    fire_towerBuy.declareHealthLevel()
+                    towers.append(fire_towerBuy)
+            #print(pygame.mouse.get_pos())
+        # draw images at positions
+
+        for obj in towers:
+            screen.blit(obj.getTowerImage,obj.getPos)
+
+        pygame.display.flip()
+
+        pygame.display.update()
 pygame.quit()
