@@ -2,7 +2,7 @@ import pygame
 from pygame.locals import *
 from castle import Castle
 from game_map import GameMap
-from Tower import *
+from tower import *
 from unit import Unit
 from FireTower import *
 import random
