@@ -43,8 +43,7 @@ class Tower:
         self._health: int = health
         self._max_health: int = max_health
         self._level: int = level
-        self._health_level: int = None
-        self.declareHealthLevel()
+        self._health_level: int = 0
         temp_image: pygame.Surface = image_list[self.level][self.healthLevel]
         self._towerImage: pygame.Surface = self.scaleImage(temp_image, scale)
 
@@ -234,4 +233,4 @@ class Tower:
         The function for drawing the tower to the map
         :return:
         '''
-        self.screen.blit(self.towerImage, self.getRect)
+        self.screen.blit(self.towerImage, self.rect)
