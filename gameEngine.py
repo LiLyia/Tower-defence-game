@@ -2,7 +2,7 @@ import pygame
 from pygame.locals import *
 from castle import Castle
 from game_map import GameMap
-from tower import *
+from Tower import *
 from unit import Unit
 from FireTower import *
 import random
@@ -59,8 +59,8 @@ position_castle2 = random.choice(castle2_pos)
 castle1 = Castle(castle1_100_img,castle1_50_img,castle1_25_img, position_castle1, 0.09, screen)
 castle2 = Castle(castle2_100_img,castle2_50_img,castle2_25_img, position_castle2, 0.09, screen)
 
-#soldier_img = pygame.image.load('Images/soldier.png')
-#soldier = Unit(soldier_img, (100, 400), 0.07, screen)
+
+#soldier = Unit((100, 400),screen,'Images/soldier.png', 0.07 )
 # ------------creating grid for game map --------------#
 tile_size = 50
 # def create_grid():
@@ -120,11 +120,19 @@ while is_game:
                     fire_towerBuy.setHealth(35)
                     fire_towerBuy.declareHealthLevel()
                     towers.append(fire_towerBuy)
+            else :
+                if (600 > event.pos[0] > 50) and (600 > event.pos[1] > 50):
+                    soldier = Unit(event.pos,screen,'Images/soldier.png', 0.04 )
+                    towers.append(soldier)
             #print(pygame.mouse.get_pos())
         # draw images at positions
 
         for obj in towers:
-            screen.blit(obj.towerImage,obj.pos)
+            if type(obj) == Tower or type(obj) == FireTower:
+                screen.blit(obj.towerImage,obj.pos)
+            else:
+                screen.blit(obj.img,obj.rect)
+
 
         pygame.display.flip()
 
