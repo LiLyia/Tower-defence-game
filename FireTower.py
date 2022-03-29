@@ -61,7 +61,7 @@ class FireTower:
         temp_image: pygame.Surface = image_list[self.getLevel][self.getHealthLevel]  # How the Tower will look is determined by its Level and Health.
         self._towerImage: pygame.Surface = self.scaleImage(temp_image, scale)
 
-        self._pos = tuple()
+        self._pos: tuple[int] = pos
         self._rect = self.getTowerImage.get_rect()
         self._rect.x, self._rect.y = pos
 
@@ -96,39 +96,39 @@ class FireTower:
         self._pos = pos
 
     @property
-    def getHealth(self) -> int:  # Returns the Health
+    def health(self) -> int:  # Returns the Health
         return self._health
 
     @property
-    def getMaxHealth(self) -> int:  # Returns the Max Health
+    def maxHealth(self) -> int:  # Returns the Max Health
         return self._max_health
 
     @property
-    def getPrice(self) -> int:  # Return the Price
+    def price(self) -> int:  # Return the Price
         return self._price
 
     @property
-    def getLevel(self) -> int:  # Returns the Level
+    def level(self) -> int:  # Returns the Level
         return self._level
 
     @property
-    def getHealthLevel(self) -> int:  # Returns the Health Level for image of Tower
+    def healthLevel(self) -> int:  # Returns the Health Level for image of Tower
         return self._health_level
 
     @property
-    def getScreen(self) -> pygame.Surface:
+    def screen(self) -> pygame.Surface:
         return self._screen
 
     @property
-    def getTowerList(self) -> list[[pygame.Surface]]:
+    def towerList(self) -> list[[pygame.Surface]]:
         return self.image_list
 
     @property
-    def getTowerImage(self) -> pygame.Surface:
+    def towerImage(self) -> pygame.Surface:
         return self.scaleImage(self.getTowerList[self.getLevel][self.getHealthLevel])
 
     @property
-    def getPos(self) -> tuple():
+    def pos(self) -> tuple():
         return self._pos
 
     '''
@@ -136,15 +136,16 @@ class FireTower:
     '''
 
     @property
-    def getRect(self) -> pygame.Rect:
+    def rect(self) -> pygame.Rect:
         return self._rect
 
     # ---------Extras for Attack Tower---------#
     @property
-    def getDamage(self) -> int:
+    def damage(self) -> int:
         return self.damage
-
-    def getRange(self) -> int:
+    
+    @property
+    def range(self) -> int:
         return self.range
 
     def reduceHealth(self, reduce_amount: int = DEFAULT_HIT) -> None:
