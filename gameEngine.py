@@ -105,7 +105,7 @@ while is_game:
             # adds position to list
             if event.button == 1 :
                 for tower in towers :
-                    if ( -4 > tower.getPos[0] - event.pos[0] > -23 ) and (-5 >tower.getPos[1] - event.pos[1] > -38):
+                    if ( -4 > tower.pos[0] - event.pos[0] > -23 ) and (-5 >tower.pos[1] - event.pos[1] > -38):
                         towers.remove(tower)
             elif event.button == 3:
                 if (600>event.pos[0] >50) and (600>event.pos[1] >50) :
@@ -124,7 +124,7 @@ while is_game:
         # draw images at positions
 
         for obj in towers:
-            screen.blit(obj.getTowerImage,obj.getPos)
+            screen.blit(obj.towerImage,obj.pos)
 
         pygame.display.flip()
 
