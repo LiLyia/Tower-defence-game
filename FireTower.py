@@ -55,18 +55,17 @@ class FireTower:
         self._max_health: int = max_health
 
         self._level: int = level
-        self._health_level: int = None
-        self.declareHealthLevel()  # The function we use to determine which image we use
+        self._health_level: int = 0
 
-        temp_image: pygame.Surface = image_list[self.getLevel][self.getHealthLevel]  # How the Tower will look is determined by its Level and Health.
+        temp_image: pygame.Surface = image_list[self.level][self.healthLevel]  # How the Tower will look is determined by its Level and Health.
         self._towerImage: pygame.Surface = self.scaleImage(temp_image, scale)
 
-        self._pos = tuple()
-        self._rect = self.getTowerImage.get_rect()
+        self._pos: tuple[int] = pos
+        self._rect = self.towerImage.get_rect()
         self._rect.x, self._rect.y = pos
 
-        self.range = range
-        self.damage = damage
+        self._range = range
+        self._damage = damage
 
     # Constructors
 
@@ -86,83 +85,84 @@ class FireTower:
         self._health_level = health_level
 
     def setDamage(self, damage) -> None:  # Set damage of Attack Tower
-        self.damage = damage
+        self._damage = damage
 
     # Ramge for Attacking
     def setRange(self, range) -> None:
-        self.range = range
+        self._range = range
 
     def setPos(self, pos):
         self._pos = pos
 
     @property
-    def getHealth(self) -> int:  # Returns the Health
+    def health(self) -> int:  # Returns the Health
         return self._health
 
     @property
-    def getMaxHealth(self) -> int:  # Returns the Max Health
+    def maxHealth(self) -> int:  # Returns the Max Health
         return self._max_health
 
     @property
-    def getPrice(self) -> int:  # Return the Price
+    def price(self) -> int:  # Return the Price
         return self._price
 
     @property
-    def getLevel(self) -> int:  # Returns the Level
+    def level(self) -> int:  # Returns the Level
         return self._level
 
     @property
-    def getHealthLevel(self) -> int:  # Returns the Health Level for image of Tower
+    def healthLevel(self) -> int:  # Returns the Health Level for image of Tower
         return self._health_level
 
     @property
-    def getScreen(self) -> pygame.Surface:
+    def screen(self) -> pygame.Surface:
         return self._screen
 
     @property
-    def getTowerList(self) -> list[[pygame.Surface]]:
+    def towerList(self) -> list[[pygame.Surface]]:
         return self.image_list
 
     @property
-    def getTowerImage(self) -> pygame.Surface:
-        return self.scaleImage(self.getTowerList[self.getLevel][self.getHealthLevel])
+    def towerImage(self) -> pygame.Surface:
+        return self.scaleImage(self.towerList[self.level][self.healthLevel])
 
     @property
-    def getPos(self) -> tuple():
+    def pos(self) -> tuple[int]:
         return self._pos
 
     '''
-    getRect function returns the position of the tower
+    rect function returns the position of the tower
     '''
 
     @property
-    def getRect(self) -> pygame.Rect:
+    def rect(self) -> pygame.Rect:
         return self._rect
 
     # ---------Extras for Attack Tower---------#
     @property
-    def getDamage(self) -> int:
-        return self.damage
+    def damage(self) -> int:
+        return self._damage
 
-    def getRange(self) -> int:
-        return self.range
+    @property
+    def range(self) -> int:
+        return self._range
 
     def reduceHealth(self, reduce_amount: int = DEFAULT_HIT) -> None:
-        self.setHealth(self.getHealth - reduce_amount)
+        self.setHealth(self.health - reduce_amount)
         self.declareHealthLevel()
 
     def isDead(self) -> bool:
-        return not self.getHealth > 0
+        return not self.health > 0
 
     # According to the percentages given, the tower's health, range, level, and
     # level-appropriate picture are determined here.
 
     def upgrade(self, upgrade_percent: float = DEFAULT_UPGRADE_PERCENT):
-        self.setDamage(self.getDamage * (1 + DEFAULT_DAMAGE_UPGRADE_PERCENT))
-        self.setRange(self.getRange * (1 + DEFAULT_RANGE_UPGRAGE_PERCENT))
-        self.setLevel(self.getLevel + 1)
-        self.setMaxHealth(self.getMaxHealth * (1 + upgrade_percent))
-        self.setHealth(self.getHealth * (1 + upgrade_percent))
+        self.setDamage(self.damage * (1 + DEFAULT_DAMAGE_UPGRADE_PERCENT))
+        self.setRange(self.range * (1 + DEFAULT_RANGE_UPGRAGE_PERCENT))
+        self.setLevel(self.level + 1)
+        self.setMaxHealth(self.maxHealth * (1 + upgrade_percent))
+        self.setHealth(self.health * (1 + upgrade_percent))
         self.declareHealthLevel()
 
     def remove(self):
@@ -181,9 +181,9 @@ class FireTower:
     '''
 
     def declareHealthLevel(self) -> int:
-        if self.getHealth > self.getMaxHealth / 2:
+        if self.health > self.maxHealth / 2:
             self.setHealthLevel(0)
-        elif self.getHealth > self.getMaxHealth / 4:
+        elif self.health > self.maxHealth / 4:
             self.setHealthLevel(1)
         else:
             self.setHealthLevel(2)
@@ -198,7 +198,7 @@ class FireTower:
     '''
 
     def draw_tower(self):
-        self.getScreen.blit(self.getTowerImage, self.getRect)
+        self.screen.blit(self.towerImage, self.rect)
 
     # Functions to be used for attack.
     # Extra features will be added for Shooting and Hitbox
@@ -217,6 +217,6 @@ class FireTower:
     ##To be continued
 
     def attack(self, enemy: unit):
-        if (enemy.get_pos() - self.range) <= self.getPos():
+        if (enemy.get_pos() - self.range) <= self.pos:
             self.reduceHealth(enemy)
 
