@@ -45,11 +45,11 @@ class Tower:
         self._level: int = level
         self._health_level: int = None
         self.declareHealthLevel()
-        temp_image: pygame.Surface = image_list[self.getLevel][self.getHealthLevel]
+        temp_image: pygame.Surface = image_list[self.level][self.healthLevel]
         self._towerImage: pygame.Surface = self.scaleImage(temp_image, scale)
 
-        self._pos = tuple()
-        self._rect = self.getTowerImage.get_rect()
+        self._pos: tuple[int] = pos
+        self._rect: pygame.Rect = self.towerImage.get_rect()
         self._rect.x, self._rect.y = pos
 
     def setHealth(self, health: int) -> None:
@@ -92,11 +92,8 @@ class Tower:
         '''
         self._health_level = health_level
 
-    def setPos(self,pos):
-        self._pos = pos
-
     @property
-    def getHealth(self) -> int:
+    def health(self) -> int:
         '''
         Returns the health of tower
         :return: int
@@ -104,7 +101,7 @@ class Tower:
         return self._health
 
     @property
-    def getMaxHealth(self) -> int:
+    def maxHealth(self) -> int:
         '''
         Returns the maximum health of tower
         :return: int
@@ -112,7 +109,7 @@ class Tower:
         return self._max_health
 
     @property
-    def getPrice(self) -> int:
+    def price(self) -> int:
         '''
         Returns the price of tower
         :return: int
@@ -120,7 +117,7 @@ class Tower:
         return self._price
 
     @property
-    def getLevel(self) -> int:
+    def level(self) -> int:
         '''
         Returns the level of tower
         :return: int
@@ -128,7 +125,7 @@ class Tower:
         return self._level
 
     @property
-    def getHealthLevel(self) -> int:
+    def healthLevel(self) -> int:
         '''
         Returns the health level of tower
         :return: int
@@ -136,7 +133,7 @@ class Tower:
         return self._health_level
 
     @property
-    def getScreen(self) -> pygame.Surface:
+    def screen(self) -> pygame.Surface:
         '''
         Returns the screen of the game
         :return:
@@ -144,7 +141,7 @@ class Tower:
         return self._screen
 
     @property
-    def getTowerList(self) -> list[list[pygame.Surface]]:
+    def towerList(self) -> list[list[pygame.Surface]]:
         '''
         Returns the list of possible Towers
         :return: list[list[pygame.Surface]]
@@ -152,24 +149,27 @@ class Tower:
         return self.image_list
 
     @property
-    def getTowerImage(self) -> pygame.Surface:
+    def towerImage(self) -> pygame.Surface:
         '''
         Returns the image of tower
         :return: pygame.Surface
         '''
-        return self.scaleImage(self.getTowerList[self.getLevel][self.getHealthLevel])
+        return self.scaleImage(self.towerList[self.level][self.healthLevel])
 
     @property
-    def getRect(self) -> pygame.Rect:
+    def rect(self) -> pygame.Rect:
         '''
-        Returns the position of tower
+        Returns the Rect of tower
         :return:pygame.Rect
         '''
         return self._rect
-    
-    @property
-    def getPos(self) -> tuple():
 
+    @property
+    def pos(self) -> tuple[int]:
+        '''
+        Returns the position of tower
+        :return: tuple[int]
+        '''
         return self._pos
 
     def reduceHealth(self, reduce_amount: int = DEFAULT_HIT) -> None:
@@ -178,7 +178,7 @@ class Tower:
         :param reduce_amount: int
         :return:
         '''
-        self.setHealth(self.getHealth - reduce_amount)
+        self.setHealth(self.health - reduce_amount)
         self.declareHealthLevel()
 
     def isDead(self) -> bool:
@@ -186,7 +186,7 @@ class Tower:
         The function that checks if the tower is that or not
         :return: bool
         '''
-        return not self.getHealth > 0
+        return not self.health > 0
 
     def upgrade(self, upgrade_percent: float = DEFAULT_UPGRADE_PERCENT):
         '''
@@ -194,12 +194,16 @@ class Tower:
         :param upgrade_percent: float
         :return:
         '''
-        self.setLevel(self.getLevel + 1)
-        self.setMaxHealth(self.getMaxHealth * (1 + upgrade_percent))
-        self.setHealth(self.getHealth * (1 + upgrade_percent))
+        self.setLevel(self.level + 1)
+        self.setMaxHealth(self.maxHealth * (1 + upgrade_percent))
+        self.setHealth(self.health * (1 + upgrade_percent))
         self.declareHealthLevel()
 
-    def remove(self):
+    def remove(self) -> None:
+        '''
+        Function that removes the tower
+        :return:
+        '''
         self._screen.fill((255,255,255)) ##Temporary deletion
 
     def declareHealthLevel(self) -> int:
@@ -207,9 +211,9 @@ class Tower:
         The function that generates health level to be able to choose correct tower image according to tower health
         :return: int
         '''
-        if self.getHealth > self.getMaxHealth/2:
+        if self.health > self.maxHealth/2:
             self.setHealthLevel(0)
-        elif self.getHealth > self.getMaxHealth/4:
+        elif self.health > self.maxHealth/4:
             self.setHealthLevel(1)
         else:
             self.setHealthLevel(2)
@@ -230,4 +234,4 @@ class Tower:
         The function for drawing the tower to the map
         :return:
         '''
-        self.getScreen.blit(self.getTowerImage, self.getRect)
+        self.screen.blit(self.towerImage, self.getRect)
