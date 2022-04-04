@@ -28,11 +28,19 @@ class Unit:
         """
         Make the unit move only 1 block according to the path it has.
         """
+        #TODO: how to move player without filling the background? / animate
         goal_pos = self.findPath(self.pos)
         if goal_pos != self.pos:
             self.pos = goal_pos
             self.rect = self.img.get_rect()
             self.rect.x, self.rect.y = self.pos
+
+            position = self.get_rect()
+            for x in range(100):  # animate 100 frames
+                self.screen.blit(background, position)  # erase
+                self.position = goal_pos[::-1] # move player
+                self.screen.blit(self.img, position)  # draw new unit
+                pygame.display.update()
 
     def heal(self):
         """
