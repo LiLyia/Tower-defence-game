@@ -1,4 +1,5 @@
 import pygame
+import collections
 
 """
 Unit class, functions as a 'Basic Unit' and is the base class of all the units.
@@ -84,13 +85,29 @@ class Unit:
         """
         pass
 
-    def findPath(self, castle_pos):
+    def findPath(self, castle_pos, game_map):
         """
         Take the current position, calculate the shortest path possible to the enemy castle from the game map.
         :param castle_pos: the position of the enemy castle
+        :param game_map : matrix of the map
         :return next available step's coordinates
+        If its already at the final location, it again returns the final location. ( as (x,y). ve give matrix [y][x])
         """
-        pass
+        w, h = pygame.display.get_surface().get_size()
+        unit_pos = self.pos
+        obstacle = 1 #Change this to the obstacle's number in game map matrix.
+
+        queue = collections.deque([[unit_pos]])
+        seen = set([unit_pos])
+        while queue:
+            path = queue.popleft()
+            x, y = path[-1]
+            if (y, x) == castle_pos:
+                return path[1]
+            for x2, y2 in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):
+                if 0 <= x2 < w and 0 <= y2 < h and game_map[y2][x2] != obstacle and (x2, y2) not in seen:
+                    queue.append(path + [(x2, y2)])
+                    seen.add((x2, y2))
 
     """"
     def train(self, img, scale):
