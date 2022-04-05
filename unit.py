@@ -144,7 +144,7 @@ class AttackingUnit(Unit):
         self.attack_range = attack_range
         Unit.__init__(self, pos, screen, image_path, scale, health, max_health, price)
 
-    def attack(self, enemy):
+    def attack(self, enemy, game_map, selfDigit):
         """
         Attack and reduceHealth of the enemy if is in attack_range.
         :param enemy: is of type Unit.
