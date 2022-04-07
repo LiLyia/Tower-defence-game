@@ -44,7 +44,7 @@ castle1 = Castle(castle1_100_img,castle1_50_img,castle1_25_img, position_castle1
 castle2 = Castle(castle2_100_img,castle2_50_img,castle2_25_img, position_castle2, 0.09, screen)
 
 soldier_img = pygame.image.load('Images/soldier.png')
-soldier = Unit(soldier_img, (100, 400), 0.07, screen)
+
 # ------------creating grid for game map --------------#
 tile_size = 50
 # def create_grid():
@@ -69,6 +69,7 @@ game_map_data = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]
 game_map = GameMap(game_map_data, tile_size, screen)
+soldier = Unit((0, 0), screen, game_map_data)
 # make sure screen continue
 is_game = True
 while is_game:
@@ -77,13 +78,19 @@ while is_game:
     castle1.draw_castle()
     castle2.draw_castle()
     soldier.draw()
+
     # create_grid()
     game_map.draw_tiles()
     for event in pygame.event.get():
         if event.type == QUIT:
             is_game = False
+        elif event.type == MOUSEBUTTONDOWN or event.type == MOUSEBUTTONUP:
+            soldier.move()
         elif event.type == MOUSEBUTTONDOWN:
             print(pygame.mouse.get_pos())
+
+    soldier.move((5,5))
+    pygame.time.delay(100)
 
     pygame.display.update()
 pygame.quit()
