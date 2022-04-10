@@ -78,7 +78,7 @@ while is_game:
     castle1.draw_castle()
     castle2.draw_castle()
     soldier.draw()
-
+    soldier.draw_health_bar()
     # create_grid()
     game_map.draw_tiles()
     for event in pygame.event.get():
@@ -88,6 +88,7 @@ while is_game:
             soldier.move()
         elif event.type == MOUSEBUTTONDOWN:
             print(pygame.mouse.get_pos())
+
 
     soldier.move((5,5))
     pygame.time.delay(100)

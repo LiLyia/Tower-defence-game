@@ -86,18 +86,25 @@ class Unit:
         """
         self.screen.blit(self.img, self.rect)
 
-    def draw_health_bar(self, win):
+    def draw_health_bar(self):
         """
         draw health bar above unit
-        :param win: surface...unit_position?
+        :param win: surface
         :return: None
         """
-        length = 50
-        move_by = round(length / self.max_health)
-        health_bar = move_by * self.health
+        def draw_health_bar(screen, pos, size, borderC, backC, healthC, progress):
+            pygame.draw.rect(screen, backC, (*pos, *size))
+            pygame.draw.rect(screen, borderC, (*pos, *size), 1)
+            innerPos = (pos[0] + 1, pos[1] + 1)
+            innerSize = ((size[0] - 2) * progress, size[1] - 2)
+            rect = (round(innerPos[0]), round(innerPos[1]), round(innerSize[0]), round(innerSize[1]))
+            pygame.draw.rect(screen, healthC, rect)
 
-        pygame.draw.rect(win, (255, 0, 0), (self.rect.x - 30, self.rect.y - 75, length, 10), 0)
-        pygame.draw.rect(win, (0, 255, 0), (self.rect.x - 30, self.rect.y - 75, health_bar, 10), 0)
+        health_rect = pygame.Rect(0, 0, self.img.get_width(), 7)
+        health_rect.midbottom = self.rect.centerx, self.rect.top
+
+        draw_health_bar(self.screen, health_rect.topleft, health_rect.size,
+                (0, 0, 0), (255, 0, 0), (0, 255, 0), self.health/self.max_health)
 
     def delete(self):
         """
