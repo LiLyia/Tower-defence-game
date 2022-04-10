@@ -1,7 +1,8 @@
 from __future__ import annotations
 import pygame
 import unit
-
+from projectile import *
+import projectile
 # -------FireTower Basic Features-------------------------#
 '''
 @Elbir Erberk
@@ -16,7 +17,7 @@ DEFAULT_SCALE = 0.09
 
 # -----------------Extra features for FireTower-------------------------------#
 DEFAULT_RANGE = 40
-DEFAULT_DAMAGE = 20
+DEFAULT_DAMAGE = 40
 DEFAULT_DAMAGE_UPGRADE_PERCENT: float = 0.27
 DEFAULT_RANGE_UPGRAGE_PERCENT: float = 0.02
 
@@ -66,7 +67,12 @@ class FireTower:
 
         self._range = range
         self._damage = damage
-
+        self.hitbox = pygame.Rect(self._pos[0] - 35, self._pos[1] - 25, 100, 100)
+        self.targetList = []
+        self.bulletList = []
+        self.current_target = None
+        self.current_cd = 0
+        self.cd = 150
     # Constructors
 
     def setHealth(self, health) -> None:  # Sets the health
@@ -173,7 +179,7 @@ class FireTower:
     '''
 
     '''
-    Imagine : Tower -> Max Health = 100
+    e.g : Tower -> Max Health = 100
 
     Tower = 100 HP -> healthLevel = 0
     Tower = 25HP<x<50  HP -> healthLevel = 1
@@ -199,6 +205,8 @@ class FireTower:
 
     def draw_tower(self):
         self.screen.blit(self.towerImage, self.rect)
+        self.hitbox = pygame.Rect(self._pos[0] - 35, self._pos[1] - 25, 100, 100)
+        pygame.draw.rect(self.screen, (255, 0, 0), self.hitbox, 1)
 
     # Functions to be used for attack.
     # Extra features will be added for Shooting and Hitbox
@@ -210,13 +218,32 @@ class FireTower:
 
     def reduceHealthEnemy(self, enemy: unit):
         if (enemy.health - self.damage) < 0:
-            enemy.Delete()
+            enemy.health = 0
         else:
             enemy.health -= self.damage
 
-    ##To be continued
 
-    def attack(self, enemy: unit):
-        if (enemy.get_pos() - self.range) <= self.pos:
-            self.reduceHealth(enemy)
+    def check_cd(self):
+        if self.current_cd > 0:
+            return False
+        return True
+
+    
+    def shoot(self):
+        if self.check_cd() and self.current_target != None:
+            self.bulletList.append(Projectile(self.pos[0],self.pos[1],self.current_target,self.damage))
+            self.current_cd = self.cd
+        else :
+            self.current_cd -= 1
+        for i in self.bulletList:
+            if self.current_target != None :
+                i.drawToTarget()
+                i.hitEnemy()
+
+
+
+
+
+
+
 
