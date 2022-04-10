@@ -45,6 +45,8 @@ while position_tower_2 == position_tower:
 
 # creating towers
 tower_images = [[pygame.image.load('Images/Towers/tower_100.png'),pygame.image.load('Images/Towers/tower_50.png'),pygame.image.load('Images/Towers/tower_25.png')],[None,None,None],[None,None,None]]
+fire_tower_images = [[pygame.image.load('Images/Towers/firetower.png'),pygame.image.load('Images/Towers/firetower.png'),pygame.image.load('Images/Towers/firetower.png')],[None,None,None],[None,None,None]]
+
 tower1 = Tower.createTower(position_tower, tower_images, screen)
 tower_2 = Tower.createTower(position_tower_2, tower_images, screen)
 tower_2.setHealth(14)
@@ -87,15 +89,75 @@ game_map_data = [
 game_map = GameMap(game_map_data, tile_size, screen)
 # make sure screen continue
 towers = []
-towers.append(tower1)
-towers.append(tower_2)
+units =[]
+position_of_towers = []
+position_of_units = []
+soldier = Unit((150,200),screen,'Images/soldier.png',0.04)
+#towers.append(tower_2)
 is_game = True
+#Draw bullets
+def displayBullets(building_list):
+    for b in building_list:
+        if type(b) == FireTower:
+            for p in b.bulletList:
+                pygame.draw.rect(screen, (255,0,0), (p.x, p.y, 4, 4))
+#Clear the bullets from the map.If bullets hits or miss the enemy , they will be deleted.
+def clearBullets(towerList):
+    for i in towerList:
+        if type(i) == FireTower:
+            for j in i.bulletList:
+                if j.hitEnemy == True:
+                    i.bulletList.remove(j)
+                if i.current_target == None:
+                    i.bulletList.remove(j)
+
+def clearMonsters(unit_list):
+    for e in unit_list:
+        if e.health <= 0:
+            unit_list.remove(e)
+# Get the target for each tower in the list of targetable units.
+
+def findTargetforTowers(unit_list, tower_list):
+    for b in tower_list:
+        if type(b) == FireTower:
+            b.targetList = []
+            for m in unit_list:
+                if b.hitbox.colliderect(m.hitbox) == True:
+                    b.targetList.append(m)
+
+# Get the target for each tower in the list of targetable units.
+def currentTowerTarget(building_list):
+    for b in building_list:
+        if type(b) == FireTower:
+            for m in b.targetList:
+                if b.current_target == None:
+                   b.current_target = m
+                   if b.current_target.health < 0:
+                        print("Yes")
+                        b.targetList.remove(m)
+                if b.current_target.pos[0] <= m.pos[0]:
+                    b.current_target = m
+
+            if len(b.targetList) == 0:
+               b.current_target = None
+
+#If tower detects an enemy , this function will be activated and shoot to the enemies.
+
+def shootTowers(towerList):
+    for i in towerList:
+        if type(i) == FireTower:
+            if i.current_target != None:
+                i.shoot()
+                if i.current_target.health <0:
+                    i.current_target = None
+
+
+
 while is_game:
     clock.tick(FPS)
     screen.blit(bg_img, (0, 0))
     castle1.draw_castle()
     castle2.draw_castle()
-    #soldier.draw()
     # create_grid()
     game_map.draw_tiles()
     for event in pygame.event.get():
@@ -104,37 +166,48 @@ while is_game:
         elif event.type == MOUSEBUTTONDOWN or event.type == MOUSEBUTTONUP:
             # adds position to list
             if event.button == 1 :
-                for tower in towers :
+                for tower in towers:
                     if ( -4 > tower.pos[0] - event.pos[0] > -23 ) and (-5 >tower.pos[1] - event.pos[1] > -38):
                         towers.remove(tower)
+
             elif event.button == 3:
-                if (600>event.pos[0] >50) and (600>event.pos[1] >50) :
+                if (600 > event.pos[0] > 50) and (600 > event.pos[1] > 50):
+                    soldier = Unit(event.pos,screen,'Images/soldier.png',0.04)
+                    position_of_units.append(soldier.pos)
+                    units.append(soldier)
 
-                    towerBuy = Tower.createTower(event.pos, tower_images, screen)
-
-                    towers.append(towerBuy)
 
             elif event.button == 2:
                 if (600 > event.pos[0] > 50) and (600 > event.pos[1] > 50):
-                    fire_towerBuy = FireTower.createTower(event.pos,tower_images,screen)
-                    fire_towerBuy.setHealth(35)
-                    fire_towerBuy.declareHealthLevel()
+                    fire_towerBuy = FireTower.createTower(event.pos,fire_tower_images,screen)
                     towers.append(fire_towerBuy)
             else :
-                if (600 > event.pos[0] > 50) and (600 > event.pos[1] > 50):
-                    soldier = Unit(event.pos,screen,'Images/soldier.png', 0.04 )
-                    towers.append(soldier)
-            #print(pygame.mouse.get_pos())
+                if (600>event.pos[0] >50) and (600>event.pos[1] >50) :
+                    towerBuy = Tower.createTower(event.pos, tower_images, screen)
+                    towers.append(towerBuy)
+            print(pygame.mouse.get_pos())
+
         # draw images at positions
 
-        for obj in towers:
-            if type(obj) == Tower or type(obj) == FireTower:
-                screen.blit(obj.towerImage,obj.pos)
-            else:
-                screen.blit(obj.img,obj.rect)
 
 
-        pygame.display.flip()
+    findTargetforTowers(units,towers)
+    currentTowerTarget(towers)
 
-        pygame.display.update()
+    shootTowers(towers)
+    for tower in towers:
+        tower.draw_tower()
+    for unit in units:
+        unit.draw()
+
+    displayBullets(towers)
+    clearBullets(towers)
+    clearMonsters(units)
+
+
+
+
+    pygame.display.flip()
+
+    pygame.display.update()
 pygame.quit()
