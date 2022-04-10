@@ -15,14 +15,14 @@ class Unit:
         self.img = pygame.image.load(image_path)
 
         # Scale the image
-        width = self.img.get_width()
-        height = self.img.get_height()
+        self.width = self.img.get_width()
+        self.height = self.img.get_height()
         self.img = pygame.transform.scale(self.img, (int(width * scale), int(height * scale)))
 
         self.rect = self.img.get_rect()
         self.rect.x, self.rect.y = pos
         self.screen = screen
-
+        self.hitbox = pygame.Rect(self.pos[0]+3, self.pos[1]+8, 40, 40) #Hitbox area for the units
     def move(self):
         """
         Make the unit move only 1 block according to the path it has.
