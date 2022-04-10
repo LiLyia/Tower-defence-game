@@ -15,7 +15,7 @@ class Unit:
         self.pos = pos
         self.img = pygame.image.load(image_path)
         self.game_map_data = game_map_data
-        self.map_pos = (pos[0]/50, pos[1]/50)
+        self.map_pos = (int(pos[0]/50), int(pos[1]/50))
 
         # Scale the image
         width = self.img.get_width()
@@ -30,7 +30,6 @@ class Unit:
         """
         Make the unit move only 1 block according to the path it has.
         """
-        #TODO: how to move player without filling the background? / animate
         goal_pos = self.findPath(castle_pos)
 
         if goal_pos != self.pos:
@@ -43,11 +42,16 @@ class Unit:
             if(self.pos[1] > goal_pos[1]):
                 self.rect.y -= 10
             self.pos = (self.rect.x, self.rect.y)
-
+        print(self.pos)
+        print(self.map_pos)
         if(self.pos[0]%50 == 0):
-            self.map_pos[0] == self.pos[0]/50
+            x,y = self.map_pos
+            x = int(self.pos[0]/50)
+            self.map_pos = (x,y)
         if(self.pos[1]%50 == 0):
-            self.map_pos[1] == self.pos[1]/50
+            x,y = self.map_pos
+            y = int(self.pos[1]/50)
+            self.map_pos = (x, y)
 
 
     def heal(self):
@@ -112,24 +116,34 @@ class Unit:
         def create_coord(matrix):
             return (matrix[0] * 50, matrix[1] * 50)
 
-        w, h = pygame.display.get_surface().get_size()
-        w = w/50
-        h = h/50
         unit_pos = self.map_pos
-        obstacle = 1  # Change this to the obstacle's number in game map matrix.
+        # cx, cy = castle_pos
+        # cx = int(cx/50)
+        # cy = int(cy/50)
+        # end = (cx,cy)
+        end = castle_pos
+
+        w, h = pygame.display.get_surface().get_size()
+        w = int(w/50)
+        h = int(h/50)
 
         queue = collections.deque([[unit_pos]])
         seen = set([unit_pos])
+        obstacle = 1
+
         while queue:
             path = queue.popleft()
             x, y = path[-1]
-            if (y, x) == castle_pos:
-                return create_coord(path[1][::-1])
-            for x2, y2 in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):
+            if (y,x) == end:
+                if (len(path) > 1 ):
+                    return create_coord(path[1][::-1])
+                else:
+                    return create_coord(path[0][::-1])
+            for x2, y2 in ((x+1,y), (x-1,y), (x,y+1), (x,y-1)):
                 if 0 <= x2 < w and 0 <= y2 < h and self.game_map_data[y2][x2] != obstacle and (x2, y2) not in seen:
+
                     queue.append(path + [(x2, y2)])
                     seen.add((x2, y2))
-
     """"
     def train(self, img, scale):
         self.max_health += 200

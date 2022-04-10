@@ -69,7 +69,7 @@ game_map_data = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]
 game_map = GameMap(game_map_data, tile_size, screen)
-soldier = Unit((0, 0), screen, game_map_data)
+soldier = Unit((150, 150), screen, game_map_data)
 # make sure screen continue
 is_game = True
 while is_game:
