@@ -1,4 +1,6 @@
+from __future__ import annotations
 import pygame
+from projectile import Projectile
 
 """
 Unit class, functions as a 'Basic Unit' and is the base class of all the units.
@@ -17,7 +19,7 @@ class Unit:
         # Scale the image
         self.width = self.img.get_width()
         self.height = self.img.get_height()
-        self.img = pygame.transform.scale(self.img, (int(width * scale), int(height * scale)))
+        self.img = pygame.transform.scale(self.img, (int(self.width * scale), int(self.height * scale)))
 
         self.rect = self.img.get_rect()
         self.rect.x, self.rect.y = pos
@@ -78,11 +80,11 @@ class Unit:
         pygame.draw.rect(win, (255, 0, 0), (self.rect.x - 30, self.rect.y - 75, length, 10), 0)
         pygame.draw.rect(win, (0, 255, 0), (self.rect.x - 30, self.rect.y - 75, health_bar, 10), 0)
 
-    def delete(self):
+    def remove(self):
         """
         Make the unit disappear from the game.
         """
-        pass
+        self.screen.fill((255, 255, 255))
 
     def findPath(self, castle_pos):
         """
@@ -112,21 +114,31 @@ class AttackingUnit(Unit):
                  health=800,
                  max_health=800,
                  price=100,
-                 damage=100,
+                 damage=50,
                  attack_range=50):
 
         self.damage = damage
         self.attack_range = attack_range
         Unit.__init__(self, pos, screen, image_path, scale, health, max_health, price)
 
-    def attack(self, enemy):
+    def attack(self, type):
         """
         Attack and reduceHealth of the enemy if is in attack_range.
         :param enemy: is of type Unit.
         :return: None
         """
-        if (enemy.get_pos() - self.attack_range) <= self.pos:
-            enemy.reduceHealth(self)
+        if self.current_cd <= 0 and self.current_target != None:
+            self.attackList.append(Projectile(self.pos[0],self.pos[1],self.current_target,self.damage))
+            self.current_cd = self.cd
+        else:
+            self.current_cd -= 1
+        for e in self.attackList:
+            if type == UvsB:
+                if self.current_target != None:
+                    e.hitTower()
+            else:
+                if self.current_target != None:
+                    e.hitEnemy()
 
 
 """
@@ -136,13 +148,7 @@ class AttackingUnit(Unit):
 
 class UvsU(AttackingUnit):
     def __init__(self, pos, screen, image_path='Images/uvsu.png', scale=0.07):
-
-        super().__init__(self, pos, screen, image_path, scale,
-                         health=500,
-                         max_health=500,
-                         price=100,
-                         damage=100,
-                         attack_range=50)
+        super().__init__(pos, screen, image_path, scale, 500, 500, 100, 50, 50)
 
 
 """
@@ -153,13 +159,7 @@ class UvsU(AttackingUnit):
 class UvsB(AttackingUnit):
 
     def __init__(self, pos, screen, image_path='Images/uvsb.png', scale=0.07):
-
-        super().__init__(self, pos, screen, image_path, scale,
-                         health=800,
-                         max_health=800,
-                         price=150,
-                         damage=100,
-                         attack_range=50)
+        super().__init__(pos, screen, image_path, scale, 800, 800, 150, 50, 50)
 
 
 """
@@ -169,10 +169,4 @@ class UvsB(AttackingUnit):
 
 class UvsO(AttackingUnit):
     def __init__(self, pos, screen, image_path='Images/uvso', scale=0.07):
-
-        super().__init__(self, pos, screen, image_path, scale,
-                         health=800,
-                         max_health=400,
-                         price=100,
-                         damage=100,
-                         attack_range=50)
+        super().__init__(pos, screen, image_path, scale, 800, 400, 100, 50, 50)
