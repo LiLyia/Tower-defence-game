@@ -1,5 +1,7 @@
 import pygame
 import collections
+from projectile import *
+import projectile
 
 """
 Unit class, functions as a 'Basic Unit' and is the base class of all the units.
@@ -167,7 +169,7 @@ Includes attacking function.
 
 
 class AttackingUnit(Unit):
-    def __init__(self, pos, screen, image_path, scale,
+    def __init__(self, pos, screen, image_path, scale, targetList, attackList,
                  health=800,
                  max_health=800,
                  price=100,
@@ -176,16 +178,65 @@ class AttackingUnit(Unit):
 
         self.damage = damage
         self.attack_range = attack_range
+        self.targetList = []
+        self.attackList = []
+        self.current_cd = 0
+        self.cd = 150
+        self.hitbox = pygame.Rect(self._pos[0] - 35, self._pos[1] - 25, 80, 80)
         Unit.__init__(self, pos, screen, image_path, scale, health, max_health, price)
 
-    def attack(self, enemy, game_map, selfDigit):
+    def findTargetforUnits(unit_list, tower_list, obstacle_list):
+        for u in unit_list:
+            u.targetList = []
+            if type(u) == UvsU:
+                for m in unit_list:
+                    if u.hitbox.colliderect(m.hitbox) == True:
+                        u.targetList.append(m)
+            if type(u) == UvsB:
+                for m in tower_list:
+                    if u.hitbox.colliderect(m.hitbox) == True:
+                        u.targetList.append(m)
+            if type(u) == UvsO:
+                for m in obstacle_list:
+                    if u.hitbox.colliderect(m.hitbox) == True:
+                        u.targetList.append(m)
+                    
+    def currentUnitTarget(unit_list):
+        for u in unit_list:
+            if type(u) == UvsU or type(u) == UvsB or type(u) == UvsO:
+                for t in u.targetList:
+                    if u.current_target == None:
+                        u.current_target = t
+                        if u.current_target.health < 0:
+                            #("Yes")
+                            u.targetList.remove(t)
+                    if u.current_target.pos[0] <= t.pos[0]:
+                       u.current_target = t
+            
+            if len(u.targetList) == 0:
+               u.current_target = None
+             
+    def shootUnits(unit_list):
+        for u in unit_list:
+            if type(u) == UvsU or type(u) == UvsB or type(u) == UvsO:
+                if u.current_target != None:
+                    u.attack()
+                    if u.current_target.health <0:
+                        u.current_target = None
+    def attack(self):
         """
         Attack and reduceHealth of the enemy if is in attack_range.
         :param enemy: is of type Unit.
         :return: None
         """
-        if (enemy.get_pos() - self.attack_range) <= self.pos:
-            enemy.reduceHealth(self)
+        if self.current_cd <= 0 and self.current_target != None:
+            self.attackList.append(Projectile(self.pos[0],self.pos[1],self.current_target,self.damage))
+            self.current_cd = self.cd
+        else:
+            self.current_cd -= 1
+        for e in self.attackList:
+            if self.current_target != None :
+                e.hitEnemy()
 
 
 """
