@@ -17,7 +17,7 @@ DEFAULT_SCALE = 0.09
 
 # -----------------Extra features for FireTower-------------------------------#
 DEFAULT_RANGE = 40
-DEFAULT_DAMAGE = 40
+DEFAULT_DAMAGE = 0.5
 DEFAULT_DAMAGE_UPGRADE_PERCENT: float = 0.27
 DEFAULT_RANGE_UPGRAGE_PERCENT: float = 0.02
 
@@ -72,7 +72,7 @@ class FireTower:
         self.bulletList = []
         self.current_target = None
         self.current_cd = 0
-        self.cd = 150
+        self.cd = 300
     # Constructors
 
     def setHealth(self, health) -> None:  # Sets the health
@@ -228,7 +228,7 @@ class FireTower:
             return False
         return True
 
-    
+
     def shoot(self):
         if self.check_cd() and self.current_target != None:
             self.bulletList.append(Projectile(self.pos[0],self.pos[1],self.current_target,self.damage))
@@ -239,6 +239,9 @@ class FireTower:
             if self.current_target != None :
                 i.drawToTarget()
                 i.hitEnemy()
+                if self.current_target.health  - self.damage < 0 :
+                    self.current_target = None
+                    self.bulletList = []
 
 
 
