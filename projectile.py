@@ -44,3 +44,11 @@ class Projectile:
             if self.target.health - self.damage <0 :
                 self.target.health = 0
                 self.status = False
+
+    def hitTower(self):
+        if self.hitbox.colliderect(self.target.hitbox):
+            if (self.target.health - self.damage) < 0:
+                self.target.setHealth(0)
+                self.status = False
+            else:
+                self.target.setHealth(self.target.health-self.damage)
