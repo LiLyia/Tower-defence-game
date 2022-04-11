@@ -19,6 +19,8 @@ DEFAULT_HIT : int = 20
 DEFAULT_SLOW_RATE = 0.3
 DEFAULT_SLOW_RATE_UPGRADE_PERCENT : float = 0.3
 
+
+
 class IceTower:
     '''
         The function that creates the tower
@@ -58,7 +60,7 @@ class IceTower:
         self.hitbox = pygame.Rect(self._pos[0] - 35, self._pos[1] - 25, 100, 100)
 
         self.slowRate = slowRate
-
+        self.isSlowed = False
 
     def setHealth(self, health) -> None:  # Sets the health
         self._health = health
@@ -148,6 +150,7 @@ class IceTower:
         self.setMaxHealth(self.maxHealth * (1 + upgrade_percent))
         self.setHealth(self.health * (1 + upgrade_percent))
         self.declareHealthLevel()
+        self.isSlowed = False
 
     def remove(self):
         self.screens.fill((255, 255, 255))
@@ -175,6 +178,11 @@ class IceTower:
         self.screen.blit(self.towerImage, self.rect)
         self.hitbox = pygame.Rect(self._pos[0] - 35, self._pos[1] - 25, 100, 100)
         pygame.draw.rect(self.screen, (255, 0, 0), self.hitbox, 1)
+
+    def checkNumOfSlow(self,enemy:unit):
+        if self.isSlowed == False:
+            reduceEnemySpeed(enemy)
+            self.isSlowed = True
 
     def reduceEnemySpeed(self,enemy:unit):
         """
