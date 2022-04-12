@@ -213,7 +213,7 @@ while is_game:
 
             elif event.button == 3:
                 if (600 > event.pos[0] > 50) and (600 > event.pos[1] > 50):
-                    soldier = Unit(event.pos,screen,'Images/soldier.png',0.04)
+                    soldier = Unit(event.pos,screen,'Images/Units/soldier.png',0.04)
                     position_of_units.append(soldier.pos)
                     units.append(soldier)
 
