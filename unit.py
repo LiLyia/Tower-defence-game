@@ -1,7 +1,8 @@
+from __future__ import annotations
 import pygame
+from projectile import Projectile
 import collections
-from projectile import *
-import projectile
+
 
 """
 Unit class, functions as a 'Basic Unit' and is the base class of all the units.
@@ -10,24 +11,23 @@ Only the position and the screen is required to create it.
 
 
 class Unit:
-    def __init__(self, pos, screen,game_map_data, image_path='Images/basic.png', scale=0.3, health=800, max_health=800, price=100):
+    def __init__(self, pos: tuple[int], 
+                 screen, image_path='Images/basic.png', scale=0.07, health=800, max_health=800, price=100):
         self.health = health
         self.max_health = max_health
         self.price = price
         self.pos = pos
         self.img = pygame.image.load(image_path)
-        self.game_map_data = game_map_data
-        self.map_pos = (int(pos[0]/50), int(pos[1]/50))
 
         # Scale the image
-        width = self.img.get_width()
-        height = self.img.get_height()
-        self.img = pygame.transform.scale(self.img, (int(width * scale), int(height * scale)))
+        self.width = self.img.get_width()
+        self.height = self.img.get_height()
+        self.img = pygame.transform.scale(self.img, (int(self.width * scale), int(self.height * scale)))
 
         self.rect = self.img.get_rect()
         self.rect.x, self.rect.y = pos
         self.screen = screen
-
+        self.hitbox = pygame.Rect(self.pos[0]+3, self.pos[1]+8, 40, 40) #Hitbox area for the units
     def move(self, castle_pos):
         """
         Make the unit move only 1 block according to the path it has.
@@ -88,39 +88,30 @@ class Unit:
         """
         self.screen.blit(self.img, self.rect)
 
-    def draw_health_bar(self):
+    def draw_health_bar(self, win):
         """
         draw health bar above unit
-        :param win: surface
+        :param win: surface...unit_position?
         :return: None
         """
-        def draw_health_bar(screen, pos, size, borderC, backC, healthC, progress):
-            pygame.draw.rect(screen, backC, (*pos, *size))
-            pygame.draw.rect(screen, borderC, (*pos, *size), 1)
-            innerPos = (pos[0] + 1, pos[1] + 1)
-            innerSize = ((size[0] - 2) * progress, size[1] - 2)
-            rect = (round(innerPos[0]), round(innerPos[1]), round(innerSize[0]), round(innerSize[1]))
-            pygame.draw.rect(screen, healthC, rect)
+        length = 50
+        move_by = round(length / self.max_health)
+        health_bar = move_by * self.health
 
-        health_rect = pygame.Rect(0, 0, self.img.get_width(), 7)
-        health_rect.midbottom = self.rect.centerx, self.rect.top
+        pygame.draw.rect(win, (255, 0, 0), (self.rect.x - 30, self.rect.y - 75, length, 10), 0)
+        pygame.draw.rect(win, (0, 255, 0), (self.rect.x - 30, self.rect.y - 75, health_bar, 10), 0)
 
-        draw_health_bar(self.screen, health_rect.topleft, health_rect.size,
-                (0, 0, 0), (255, 0, 0), (0, 255, 0), self.health/self.max_health)
-
-    def delete(self):
+    def remove(self):
         """
         Make the unit disappear from the game.
         """
-        pass
+        self.screen.fill((255, 255, 255))
 
     def findPath(self, castle_pos):
         """
         Take the current position, calculate the shortest path possible to the enemy castle from the game map.
         :param castle_pos: the position of the enemy castle
-        :param game_map : matrix of the map
         :return next available step's coordinates
-        If its already at the final location, it again returns the final location. ( as (x,y). ve give matrix [y][x])
         """
         def create_coord(matrix):
             return (matrix[0] * 50, matrix[1] * 50)
@@ -153,6 +144,8 @@ class Unit:
 
                     queue.append(path + [(x2, y2)])
                     seen.add((x2, y2))
+
+
     """"
     def train(self, img, scale):
         self.max_health += 200
@@ -169,61 +162,25 @@ Includes attacking function.
 
 
 class AttackingUnit(Unit):
-    def __init__(self, pos, screen, image_path, scale, targetList, attackList,
+    
+    def __init__(self, pos: tuple[int], screen, image_path, scale,
                  health=800,
                  max_health=800,
                  price=100,
-                 damage=100,
+                 damage=50,
                  attack_range=50):
-
+        self.pos = pos
         self.damage = damage
         self.attack_range = attack_range
         self.targetList = []
         self.attackList = []
+        self.current_target = None;
         self.current_cd = 0
         self.cd = 150
-        self.hitbox = pygame.Rect(self._pos[0] - 35, self._pos[1] - 25, 80, 80)
+        self.hitbox = pygame.Rect(self.pos[0] - 35, self.pos[1] - 25, 100, 100)
         Unit.__init__(self, pos, screen, image_path, scale, health, max_health, price)
 
-    def findTargetforUnits(unit_list, tower_list, obstacle_list):
-        for u in unit_list:
-            u.targetList = []
-            if type(u) == UvsU:
-                for m in unit_list:
-                    if u.hitbox.colliderect(m.hitbox) == True:
-                        u.targetList.append(m)
-            if type(u) == UvsB:
-                for m in tower_list:
-                    if u.hitbox.colliderect(m.hitbox) == True:
-                        u.targetList.append(m)
-            if type(u) == UvsO:
-                for m in obstacle_list:
-                    if u.hitbox.colliderect(m.hitbox) == True:
-                        u.targetList.append(m)
-                    
-    def currentUnitTarget(unit_list):
-        for u in unit_list:
-            if type(u) == UvsU or type(u) == UvsB or type(u) == UvsO:
-                for t in u.targetList:
-                    if u.current_target == None:
-                        u.current_target = t
-                        if u.current_target.health < 0:
-                            #("Yes")
-                            u.targetList.remove(t)
-                    if u.current_target.pos[0] <= t.pos[0]:
-                       u.current_target = t
-            
-            if len(u.targetList) == 0:
-               u.current_target = None
-             
-    def shootUnits(unit_list):
-        for u in unit_list:
-            if type(u) == UvsU or type(u) == UvsB or type(u) == UvsO:
-                if u.current_target != None:
-                    u.attack()
-                    if u.current_target.health <0:
-                        u.current_target = None
-    def attack(self):
+    def attack(self, type):
         """
         Attack and reduceHealth of the enemy if is in attack_range.
         :param enemy: is of type Unit.
@@ -235,8 +192,13 @@ class AttackingUnit(Unit):
         else:
             self.current_cd -= 1
         for e in self.attackList:
-            if self.current_target != None :
-                e.hitEnemy()
+            if type == UvsB:
+                if self.current_target != None:
+                    e.hitTower()
+            else:
+                if self.current_target != None:
+                    e.hitEnemy()
+
 
 
 """
@@ -245,14 +207,8 @@ class AttackingUnit(Unit):
 
 
 class UvsU(AttackingUnit):
-    def __init__(self, pos, screen, image_path='Images/uvsu.png', scale=0.07):
-
-        super().__init__(self, pos, screen, image_path, scale,
-                         health=500,
-                         max_health=500,
-                         price=100,
-                         damage=100,
-                         attack_range=50)
+    def __init__(self, pos, screen, image_path, scale):
+        super().__init__(pos, screen, image_path, scale, 500,500,100,50,50)
 
 
 """
@@ -261,15 +217,8 @@ class UvsU(AttackingUnit):
 
 
 class UvsB(AttackingUnit):
-
-    def __init__(self, pos, screen, image_path='Images/uvsb.png', scale=0.07):
-
-        super().__init__(self, pos, screen, image_path, scale,
-                         health=800,
-                         max_health=800,
-                         price=150,
-                         damage=100,
-                         attack_range=50)
+    def __init__(self, pos: tuple[int], screen, image_path='Images/uvsb.png', scale=0.2):
+        super().__init__(pos, screen, image_path, scale,800,800,150,100,50)
 
 
 """
@@ -278,11 +227,5 @@ class UvsB(AttackingUnit):
 
 
 class UvsO(AttackingUnit):
-    def __init__(self, pos, screen, image_path='Images/uvso', scale=0.07):
-
-        super().__init__(self, pos, screen, image_path, scale,
-                         health=800,
-                         max_health=400,
-                         price=100,
-                         damage=100,
-                         attack_range=50)
+    def __init__(self, pos, screen, image_path='Images/uvso', scale=0.2):
+        super().__init__(pos, screen, image_path, scale,800,400,100,100,50)
