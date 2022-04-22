@@ -5,6 +5,8 @@ from game_map import GameMap
 from tower import *
 from unit import *
 from FireTower import *
+from imageCreator import *
+import menu
 import random
 
 
@@ -14,14 +16,21 @@ WHITE = (255, 255, 255)
 
 # ------------------game------------------#
 screen = pygame.init()
-SCREEN_HEIGHT, SCREEN_WIDTH = 650, 650
+SCREEN_HEIGHT, SCREEN_WIDTH = 650, 850
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Defence Tower")
 #  -----------Adjusting the Frame of the Game------------#
 clock = pygame.time.Clock()
 FPS = 60
 # -----------BG Image---------------------#
-bg_img = pygame.image.load("Images/bg.png")
+bg_img = pygame.image.load("Images/Background/bg_1.png")
+
+#--------------SideMenu--------------------
+imager = ImageCreator.createImageCreator('Images')
+sideMenu = menu.VerticalMenu(750, 120, pygame.transform.scale(pygame.image.load('Images/menu.png').convert_alpha(), (200, 650)))
+sideMenu.add_btn(imager.getTowerImage(0, 0, 0), "Towers", 0)
+sideMenu.add_btn(imager.getUnitImage(0, 0), "Units", 0)
+sideMenu.add_btn(pygame.transform.scale(pygame.image.load('Images/turns.png').convert_alpha(), (120, 50)), "Turn", 0)
 
 # -------------castle-class-----------------------
 # image of castle1 with 100% health
@@ -44,8 +53,8 @@ while position_tower_2 == position_tower:
     position_tower_2 = random.choice(tower_pos)
 
 # creating towers
-tower_images = [[pygame.image.load('Images/Tower/tower_100.png'),pygame.image.load('Images/Tower/tower_50.png'),pygame.image.load('Images/Tower/tower_25.png')],[None,None,None],[None,None,None]]
-fire_tower_images = [[pygame.image.load('Images/Tower/firetower.png'),pygame.image.load('Images/Tower/firetower.png'),pygame.image.load('Images/Tower/firetower.png')],[None,None,None],[None,None,None]]
+tower_images = [[pygame.image.load('Images/Towers/tower1.png'),pygame.image.load('Images/Towers/tower2.png'),pygame.image.load('Images/Towers/tower3.png')],[None,None,None],[None,None,None]]
+fire_tower_images = [[pygame.image.load('Images/Towers/firetower.png'),pygame.image.load('Images/Towers/firetower.png'),pygame.image.load('Images/Towers/firetower.png')],[None,None,None],[None,None,None]]
 
 tower1 = Tower.createTower(position_tower, tower_images, screen)
 tower_2 = Tower.createTower(position_tower_2, tower_images, screen)
@@ -93,9 +102,10 @@ units =[]
 obstacles = []
 position_of_towers = []
 position_of_units = []
-soldier = Unit((150,200),screen,'Images/soldier.png',0.04)
+soldier = Unit((150,200),screen,'Images/Units/soldier.png',0.04)
 #towers.append(tower_2)
 is_game = True
+moving_object = None
 #Draw bullets
 def displayBullets(building_list):
     for b in building_list:
@@ -112,16 +122,10 @@ def clearBullets(towerList):
                 if i.current_target == None:
                     i.bulletList.remove(j)
 
-def clearObjects(unit_list, tower_list):
+def clearMonsters(unit_list):
     for e in unit_list:
         if e.health <= 0:
             unit_list.remove(e)
-            e.remove()
-    for t in tower_list:
-        if t.health <= 0:
-            tower_list.remove(t)
-            t.remove()
-            
 # Get the target for each tower in the list of targetable units.
 
 def findTargetforTowers(unit_list, tower_list):
@@ -157,9 +161,8 @@ def shootTowers(towerList):
                 i.shoot()
                 if i.current_target.health <0:
                     i.current_target = None
-                    
+
 def findTargetforUnits(unit_list, tower_list, obstacle_list):
-    
     n = len(unit_list)
     for i in range(n-1):
         unit_list[i].targetList = []
@@ -188,9 +191,8 @@ def currentUnitTarget(unit_list):
                         u.targetList.remove(t)
                 if u.current_target.pos[0] <= t.pos[0]:
                    u.current_target = t
-        
-        if len(u.targetList) == 0:
-           u.current_target = None
+            if len(u.targetList) == 0:
+                u.current_target = None
          
 def shootUnits(unit_list):
     for u in unit_list:
@@ -200,35 +202,120 @@ def shootUnits(unit_list):
                 if u.current_target.health <0:
                     u.current_target = None
 
+def add_tower(name, screen):
+    global moving_object
+    global obj
+    x, y = pygame.mouse.get_pos()
+    name_list = ["BasicTower", "FireTower"]
+    object_list = [Tower.createTower((x, y), tower_images, screen), FireTower.createTower((x, y), fire_tower_images, screen)]
 
+    try:
+        obj = object_list[name_list.index(name)]
+        moving_object = obj
+        obj.moving = True
+    except Exception as e:
+        print(str(e) + "NOT VALID NAME")
+
+def add_unit(name, screen, turn):
+    if name == "BasicUnit":
+        soldier = Unit(castlePos(turn),screen,'Images/Units/soldier.png',0.05)
+    elif name == "vsObstacles":
+        soldier = UvsO(castlePos(turn),screen,'Images/Units/uvso.png',0.2)
+    elif name == "vsTowers":
+        soldier = UvsB(castlePos(turn),screen,'Images/Units/basic.png',0.2)
+    else:
+        soldier = UvsU(castlePos(turn),screen,'Images/Units/uvsu.png',0.2)
+    position_of_units.append(soldier.pos)
+    units.append(soldier)
+
+def castlePos(turn):
+    if turn == 1:
+        return position_castle1
+    else:
+        return position_castle2
+
+def buttons(side_menu_button):
+    if side_menu_button == "BackT":
+        sideMenu.clear_btn("BasicTower")
+        sideMenu.clear_btn("FireTower")
+        sideMenu.clear_btn("SlowingTower")
+        sideMenu.add_btn(imager.getTowerImage(0, 0, 0), "Towers", 0)
+        sideMenu.add_btn(imager.getUnitImage(0, 0), "Units", 0)
+        sideMenu.clear_btn("BackT")
+        sideMenu.add_btn(pygame.transform.scale(pygame.image.load('Images/turns.png').convert_alpha(), (120, 50)), "Turn", 0)
+    elif side_menu_button == "BackU":
+        sideMenu.clear_btn("BasicUnit")
+        sideMenu.clear_btn("vsObstacles")
+        sideMenu.clear_btn("vsTowers")
+        sideMenu.clear_btn("vsUnits")
+        sideMenu.add_btn(imager.getTowerImage(0, 0, 0), "Towers", 0)
+        sideMenu.add_btn(imager.getUnitImage(0, 0), "Units", 0)
+        sideMenu.clear_btn("BackU")
+        sideMenu.add_btn(pygame.transform.scale(pygame.image.load('Images/turns.png').convert_alpha(), (120, 50)), "Turn", 0)
+    elif side_menu_button == "Towers":
+        sideMenu.clear_btn("Towers")
+        sideMenu.clear_btn("Units")
+        sideMenu.clear_btn("Turn")
+        sideMenu.add_btn(pygame.transform.scale(pygame.image.load('Images/back.png').convert_alpha(), (50, 50)), "BackT", 0)
+        sideMenu.add_btn(imager.getTowerImage(0, 0, 0), "BasicTower", 500)
+        sideMenu.add_btn(imager.getTowerImage(0, 1, 0), "FireTower", 600)
+        sideMenu.add_btn(imager.getTowerImage(2, 2, 0), "SlowingTower", 800)
+    elif side_menu_button == "Units":
+        sideMenu.clear_btn("Towers")
+        sideMenu.clear_btn("Units")
+        sideMenu.clear_btn("Turn")
+        sideMenu.add_btn(pygame.transform.scale(pygame.image.load('Images/back.png').convert_alpha(), (50, 50)), "BackU", 0)
+        sideMenu.add_btn(imager.getUnitImage(0, 0), "BasicUnit", 500)
+        sideMenu.add_btn(imager.getUnitImage(1, 0), "vsObstacles", 500)
+        sideMenu.add_btn(imager.getUnitImage(3, 0), "vsTowers", 700)
+        sideMenu.add_btn(imager.getUnitImage(2, 0), "vsUnits", 700)
+    elif side_menu_button == "BasicTower" or side_menu_button == "FireTower" or side_menu_button == "SlowingTower":
+        add_tower(side_menu_button, screen)
+    else:
+        add_unit(side_menu_button, screen, 1)
 
 while is_game:
     clock.tick(FPS)
     screen.blit(bg_img, (0, 0))
     castle1.draw_castle()
     castle2.draw_castle()
+    sideMenu.draw(screen)
     # create_grid()
     game_map.draw_tiles()
+    pos = pygame.mouse.get_pos()
+    if moving_object:
+        moving_object.move(pos[0], pos[1])
+        collide = False
+        for tower in towers:
+            if tower.collide(moving_object):
+                collide = True 
     for event in pygame.event.get():
         if event.type == QUIT:
             is_game = False
         elif event.type == MOUSEBUTTONDOWN or event.type == MOUSEBUTTONUP:
+            if moving_object:
+                not_allowed = False
+                for tower in towers:
+                    if tower.collide(moving_object):
+                        not_allowed = True
+
+                if not not_allowed:
+                    towers.append(moving_object)
+
+                    moving_object.moving = False
+                    moving_object = None
             # adds position to list
             if event.button == 1 :
                 for tower in towers:
                     if ( -4 > tower.pos[0] - event.pos[0] > -23 ) and (-5 >tower.pos[1] - event.pos[1] > -38):
                         towers.remove(tower)
-                for unit in units:
-                    if ( -4 > unit.pos[0] - event.pos[0] > -23 ) and (-5 >unit.pos[1] - event.pos[1] > -38):
-                        unit.delete()
-                        units.remove(unit)
-                        
 
             elif event.button == 3:
                 if (600 > event.pos[0] > 50) and (600 > event.pos[1] > 50):
-                    soldier = UvsB(event.pos,screen,'Images/uvsu.png',0.2)
+                    soldier = Unit(event.pos,screen,'Images/Units/soldier.png',0.04)
                     position_of_units.append(soldier.pos)
                     units.append(soldier)
+
 
             elif event.button == 2:
                 if (600 > event.pos[0] > 50) and (600 > event.pos[1] > 50):
@@ -241,17 +328,18 @@ while is_game:
             print(pygame.mouse.get_pos())
 
         # draw images at positions
+        if event.type == MOUSEBUTTONDOWN:
+            side_menu_button = sideMenu.get_clicked(event.pos[0], event.pos[1])
+            buttons(side_menu_button)
 
 
     findTargetforUnits(units,towers,obstacles)
     currentUnitTarget(units)
     shootUnits(units)
-    
     findTargetforTowers(units,towers)
     currentTowerTarget(towers)
 
     shootTowers(towers)
-    
     for tower in towers:
         tower.draw_tower()
     for unit in units:
@@ -259,7 +347,7 @@ while is_game:
 
     displayBullets(towers)
     clearBullets(towers)
-    clearObjects(units, towers)
+    clearMonsters(units)
 
 
 
