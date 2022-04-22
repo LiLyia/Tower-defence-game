@@ -42,12 +42,12 @@ class ImageCreator:
         self._createBackgroundImages(filePath)
         self._createCastleImages(filePath)
 
-    def _createTowerImages(self, filePath: str):
+    def _createTowerImages(self, filePath: str, scale:float = DEFAULT_SCALE):
         towerImageNames: list[str] = [x for x in listdir(f'{filePath}/Towers') if
                                       isfile(join(f'{filePath}/Towers', x))]
         for towerImageName in towerImageNames:
             if 'png' in towerImageName:
-                image: pygame.Surface = self.scaleImage(pygame.image.load(f'{filePath}/Towers/{towerImageName}').convert_alpha())
+                image: pygame.Surface = self.scaleImage(pygame.image.load(f'{filePath}/Towers/{towerImageName}').convert_alpha(), scale)
                 if 'blue' in towerImageName:
                     if 'fire' in towerImageName:
                         if '1' in towerImageName:
@@ -93,24 +93,24 @@ class ImageCreator:
                         else:
                             self.setTowerList(2, 0, 0, image)
 
-    def _createHurdleImages(self, filePath: str):
+    def _createHurdleImages(self, filePath: str, scale:float = DEFAULT_SCALE):
         hurdleImageNames: list[str] = [x for x in listdir(f'{filePath}/Hurdles') if
                                        isfile(join(f'{filePath}/Hurdles', x))]
         for hurdleImageName in hurdleImageNames:
             if 'png' in hurdleImageName:
-                image: pygame.Surface = self.scaleImage(pygame.image.load(f'{filePath}/Hurdles/{hurdleImageName}').convert_alpha())
+                image: pygame.Surface = self.scaleImage(pygame.image.load(f'{filePath}/Hurdles/{hurdleImageName}').convert_alpha(), scale)
                 if 'dirt' in hurdleImageName:
                     self.setHurdleList(0, image)
                 else:
                     index: int = int(hurdleImageName.split('_')[1][0])
                     self.setHurdleList(index, image)
 
-    def _createCastleImages(self, filePath: str):
+    def _createCastleImages(self, filePath: str, scale:float = DEFAULT_SCALE):
         castleImageNames: list[str] = [x for x in listdir(f'{filePath}/Castle') if
                                        isfile(join(f'{filePath}/Castle', x))]
         for castleImageName in castleImageNames:
             if 'png' in castleImageName:
-                image: pygame.Surface = self.scaleImage(pygame.image.load(f'{filePath}/Castle/{castleImageName}').convert_alpha())
+                image: pygame.Surface = self.scaleImage(pygame.image.load(f'{filePath}/Castle/{castleImageName}').convert_alpha(), scale)
                 if 'castle1' in castleImageName:
                     if '25' in castleImageName:
                         self.setCastleList(2, 0, image)
@@ -126,12 +126,12 @@ class ImageCreator:
                     else:
                         self.setCastleList(0, 1, image)
 
-    def _createUnitImages(self, filePath):
+    def _createUnitImages(self, filePath, scale:float = DEFAULT_SCALE):
         unitImageNames: list[str] = [x for x in listdir(f'{filePath}/Units') if
                                            isfile(join(f'{filePath}/Units', x))]
         for unitImageName in unitImageNames:
             if 'png' in unitImageName:
-                image: pygame.Surface = self.scaleImage(pygame.image.load(f'{filePath}/Units/{unitImageName}').convert_alpha())
+                image: pygame.Surface = self.scaleImage(pygame.image.load(f'{filePath}/Units/{unitImageName}').convert_alpha(), scale)
                 if 'red' in unitImageName:
                     if 'uvso' in unitImageName:
                         self.setUnitList(1, 1, image)
@@ -152,12 +152,12 @@ class ImageCreator:
                         self.setUnitList(0, 0, image)
 
 
-    def _createBackgroundImages(self, filePath):
+    def _createBackgroundImages(self, filePath, scale:float = DEFAULT_SCALE):
         backgroundImageNames: list[str] = [x for x in listdir(f'{filePath}/Background') if
                                        isfile(join(f'{filePath}/Background', x))]
         for backgroundImage in backgroundImageNames:
             if 'png' in backgroundImage:
-                image: pygame.Surface = self.scaleImage(pygame.image.load(f'{filePath}/Background/{backgroundImage}').convert_alpha())
+                image: pygame.Surface = self.scaleImage(pygame.image.load(f'{filePath}/Background/{backgroundImage}').convert_alpha(), scale)
                 self.setBackgroundList(int(backgroundImage.split('.')[0][-1])-1, image)
 
     def getTowerImage(self, healthLevel: int, towerType: int, playerNumber: int):
