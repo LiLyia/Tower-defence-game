@@ -12,7 +12,7 @@ Only the position and the screen is required to create it.
 
 class Unit:
     def __init__(self, pos: tuple[int], 
-                 screen, image_path='Images/basic.png', scale=0.07, health=800, max_health=800, price=100):
+                 screen, image_path='Images/Units/soldier.png', scale=0.05, health=800, max_health=800, price=100):
         self.health = health
         self.max_health = max_health
         self.price = price
@@ -28,6 +28,7 @@ class Unit:
         self.rect.x, self.rect.y = pos
         self.screen = screen
         self.hitbox = pygame.Rect(self.pos[0]+3, self.pos[1]+8, 40, 40) #Hitbox area for the units
+
     def move(self, castle_pos):
         """
         Make the unit move only 1 block according to the path it has.
@@ -207,7 +208,7 @@ class AttackingUnit(Unit):
 
 
 class UvsU(AttackingUnit):
-    def __init__(self, pos, screen, image_path, scale):
+    def __init__(self, pos, screen, image_path='Images/Units/uvsu.png', scale = 0.2):
         super().__init__(pos, screen, image_path, scale, 500,500,100,50,50)
 
 
@@ -217,9 +218,9 @@ class UvsU(AttackingUnit):
 
 
 class UvsB(AttackingUnit):
-    def __init__(self, pos: tuple[int], screen, image_path='Images/uvsb.png', scale=0.2):
+    def __init__(self, pos: tuple[int], screen, image_path='Images/Units/basic.png', scale=0.2):
         super().__init__(pos, screen, image_path, scale,800,800,150,100,50)
-
+m
 
 """
  UvsO is subclass of AttackingUnit. Meaning UnitvsObstacle, it can attack and destroy the obstacles
@@ -227,5 +228,5 @@ class UvsB(AttackingUnit):
 
 
 class UvsO(AttackingUnit):
-    def __init__(self, pos, screen, image_path='Images/uvso', scale=0.2):
+    def __init__(self, pos, screen, image_path='Images/Units/uvso.png', scale=0.2):
         super().__init__(pos, screen, image_path, scale,800,400,100,100,50)
