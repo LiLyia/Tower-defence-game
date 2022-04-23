@@ -98,16 +98,15 @@ game_map_data = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]
 game_map = GameMap(game_map_data, tile_size, screen)
-player1 = Player(screen, game_map_data, castle1)
-player2 = Player(screen, game_map_data, castle2)
-obstacles = []
+player1 = Player(screen, game_map_data, castle1, [(0, 0, 0), (255, 0, 0), (0, 255, 0)])
+player2 = Player(screen, game_map_data, castle2, [(0, 0, 0), (0, 0, 255), (255, 0, 0)])
 
+obstacles = []
 for i in range(len(game_map_data)):
     for j in range(len(game_map_data[0])):
-        if game_map_data[i][j]:
+        if game_map_data[i][j] != 0:
             obstacles.append((j*50, i*50))
 
-soldier = Unit((150,200),screen,'Images/Units/soldier.png',0.04)
 #towers.append(tower_2)
 is_game = True
 moving_object = None
@@ -172,24 +171,29 @@ def shootTowers(towerList):
                     i.current_target = None
 
 #Parameters: unit list, tower list, obstacle list. Depending on the unit type, defines possible enemies for units, adding them to the target list.
-def findTargetforUnits(unit_list, tower_list, obstacle_list):
-    n = len(unit_list)
+def findTargetforUnits(safe, enemy, obstacle_list):
+    safe_units = safe.getUnits()
+    enemy_units = enemy.getUnits()
+    enemy_towers = enemy.getTowers()
+
+    n = len(safe_units)
     for i in range(n-1):
-        unit_list[i].targetList = []
-        if type(unit_list[i]) == UvsU:
-            for j in range(n-1):
+        safe_units[i].targetList = []
+        if type(safe_units[i]) == UvsU:
+
+            for j in range(len(enemy_units)):
                 if i != j:
-                    if unit_list[i].hitbox.colliderect(unit_list[j].hitbox) == True:
-                        unit_list[i].targetList.append(unit_list[j])
+                    if safe_units[i].hitbox.colliderect(enemy_units[j].hitbox) == True:
+                        safe_units[i].targetList.append(enemy_units[j])
                 #print(unit_list[i].health)
-        if type(unit_list[i]) == UvsB:
-            for m in tower_list:
-                if unit_list[i].hitbox.colliderect(m.hitbox) == True:
-                    unit_list[i].targetList.append(m)
-        if type(unit_list[i]) == UvsO:
+        if type(safe_units[i]) == UvsB:
+            for m in enemy_towers:
+                if safe_units[i].hitbox.colliderect(m.hitbox) == True:
+                    safe_units[i].targetList.append(m)
+        if type(safe_units[i]) == UvsO:
             for m in obstacle_list:
-                if unit_list[i].hitbox.colliderect(m.hitbox) == True:
-                    unit_list[i].targetList.append(m)
+                if safe_units[i].hitbox.colliderect(m.hitbox) == True:
+                    safe_units[i].targetList.append(m)
 
 #Parameters: unit list. Defines the target of the current turn, adds it to the current target list.             
 def currentUnitTarget(unit_list):
@@ -204,6 +208,7 @@ def currentUnitTarget(unit_list):
                    u.current_target = t
             if len(u.targetList) == 0:
                 u.current_target = None
+
 #Parameters: unit list. Attacks the unit.         
 def shootUnits(unit_list):
     for u in unit_list:
@@ -212,6 +217,7 @@ def shootUnits(unit_list):
                 u.attack(type(u))
                 if u.current_target.health <0:
                     u.current_target = None
+
 #Parameters: name of the button, screen. Creates a tower object and adds it to tower list.
 def add_tower(name, screen, player):
     global moving_object
@@ -237,6 +243,42 @@ def castlePos(turn):
     else:
         return player2.getCastlePos()
 
+def targeting():
+
+    findTargetforUnits(player1, player2,obstacles)
+    findTargetforUnits(player2, player1,obstacles)
+    findTargetforTowers(player1.getUnits(),player2.getTowers())
+    findTargetforTowers(player2.getUnits(),player1.getTowers())
+    currentUnitTarget(units)
+    currentTowerTarget(towers)
+
+def turnSwitch():
+
+    targeting()
+    for unit in player1.getUnits():
+        if type(unit) == UvsU or type(unit) == UvsB or type(unit) == UvsO:
+            if (len(unit.targetList) > 0):
+                unit.move(unit.targetList[0])
+        else:
+            unit.move(player2.castle_pos)
+
+    for unit in player2.getUnits():
+        if type(unit) == UvsU or type(unit) == UvsB or type(unit) == UvsO:
+            unit.move(unit.targetList[0])
+        else:
+            unit.move(player1.castle_pos)
+    #Attack
+    shootUnits(units)
+    shootTowers(towers)
+
+    #Draw bullets
+    displayBullets(towers)
+    #Delete bullets and dead objects from the game
+    clearBullets(towers)
+    clearObjects(units, towers)
+
+    addGolds(player1.getGoldMines(), player1)
+    addGolds(player2.getGoldMines(), player2)
 
 #Vertical menu implementation, takes chosen button as a parameter, draws and clears the buttons.
 def buttons(side_menu_button, player):
@@ -307,6 +349,7 @@ def buttons(side_menu_button, player):
         next_turn = "TURN OF " + turn
         text_surface = my_font.render(next_turn, False, (0, 0, 0))
         screen.blit(text_surface, (0, 0))  #It displays just for a moment.
+        turnSwitch()
         if (turn == "Player1"):
             return "Player2"
         else:
@@ -386,31 +429,17 @@ while is_game:
     towers = player1.getTowers() + player2.getTowers()
     goldmines = player1.getGoldMines() + player2.getGoldMines()
 
-    obstacles = obstacles + player1.goldmines_pos + player2.goldmines_pos
-
-    findTargetforUnits(units,towers,obstacles)
-    findTargetforTowers(units,towers)
-    currentUnitTarget(units)
-    currentTowerTarget(towers)
-    #Attack
-    shootUnits(units)
-    shootTowers(towers)
 
     for tower in towers:
         tower.draw_tower()
+
     for unit in units:
         unit.draw()
+        unit.draw_health_bar()
+
     for mine in goldmines:
         mine.draw()
 
-    #Draw bullets
-    displayBullets(towers)
-    #Delete bullets and dead objects from the game
-    clearBullets(towers)
-    clearObjects(units, towers)
-
-    addGolds(player1.getGoldMines(), player1)
-    addGolds(player2.getGoldMines(), player2)
 
     pygame.display.flip()
     pygame.display.update()
