@@ -12,12 +12,13 @@ DEF_FIRINGTOWER_PRICE = 200
 DEF_SLOWINGTOWER_PRICE = 200
 
 class Player:
-    def __init__(self, screen, map_data, castle, gold = 500):
+    def __init__(self, screen, map_data, castle, color, gold = 500):
         self.screen = screen
         self.map_data = map_data
         self.castle = castle
         self.castle_pos = (castle.rect.x, castle.rect.y)
         self.gold = gold
+        self.color = color
 
         self.unit_list = []
         self.tower_list = []
@@ -30,27 +31,33 @@ class Player:
     def addUnit(self, type="BasicUnit"):
         pos = self.castle_pos
         x,y = self.__coord_to_index(pos)
-        self.map_data[y][x] = type
+        #self.map_data[y][x] = type
 
+        buy = False
         if type == "BasicUnit":
             if(self.gold >= DEF_BASIC_UNIT_PRICE):
-                soldier = Unit(pos, self.screen)
+                soldier = Unit(pos, self.screen, self.map_data, self.color)
                 self.gold -= DEF_BASIC_UNIT_PRICE
+                buy = True
         elif type == "vsObstacles":
             if(self.gold >= DEF_UVSO_PRICE):
-                soldier = UvsO(pos, self.screen)
+                soldier = UvsO(pos, self.screen, self.map_data, self.color)
                 self.gold -= DEF_UVSO_PRICE
+                buy = True
         elif type == "vsTowers":
             if (self.gold >= DEF_UVSB_PRICE):
-                soldier = UvsB(pos, self.screen)
+                soldier = UvsB(pos, self.screen, self.map_data, self.color)
                 self.gold -= DEF_UVSB_PRICE
+                buy = True
         else:
             if (self.gold >= DEF_UVSU_PRICE):
-                soldier = UvsU(pos, self.screen)
+                soldier = UvsU(pos, self.screen, self.map_data, self.color)
                 self.gold -= DEF_UVSU_PRICE
+                buy = True
 
-        self.unit_pos.append(soldier.pos)
-        self.unit_list.append(soldier)
+        if (buy):
+            self.unit_pos.append(soldier.pos)
+            self.unit_list.append(soldier)
 
     def addGoldMine(self, pos):
 
