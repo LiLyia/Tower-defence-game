@@ -50,3 +50,4 @@ class GoldMine:
 
     def getType(self):
         return "GoldMine"
+        
