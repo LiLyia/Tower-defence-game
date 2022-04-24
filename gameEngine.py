@@ -102,10 +102,10 @@ player1 = Player(screen, game_map_data, castle1, [(0, 0, 0), (255, 0, 0), (0, 25
 player2 = Player(screen, game_map_data, castle2, [(0, 0, 0), (0, 0, 255), (255, 0, 0)])
 
 obstacles = []
-for i in range(len(game_map_data)):
-    for j in range(len(game_map_data[0])):
-        if game_map_data[i][j] != 0:
-            obstacles.append((j*50, i*50))
+# for i in range(len(game_map_data)):
+#     for j in range(len(game_map_data[0])):
+#         if game_map_data[i][j] != 0:
+#             obstacles.append((j*50, i*50))
 
 #towers.append(tower_2)
 is_game = True
@@ -277,8 +277,8 @@ def castlePos(turn):
 
 def targeting():
 
-    findTargetforUnits(player1, player2,obstacles)
-    findTargetforUnits(player2, player1,obstacles)
+    findTargetforUnits(player1, player2, player2.goldmines_list)
+    findTargetforUnits(player2, player1, player1.goldmines_list)
     findTargetforTowers(player1.getUnits(),player2.getTowers())
     findTargetforTowers(player2.getUnits(),player1.getTowers())
 #    currentUnitTarget(units)
@@ -473,6 +473,7 @@ while is_game:
     units = player1.getUnits() + player2.getUnits()
     towers = player1.getTowers() + player2.getTowers()
     goldmines = player1.getGoldMines() + player2.getGoldMines()
+
 
 
     for tower in towers:
