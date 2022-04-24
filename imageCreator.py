@@ -4,7 +4,7 @@ from os import listdir
 from os.path import isfile, join
 
 DEFAULT_BACKGROUND_IMAGE_NUMBER: int = 5
-DEFAULT_SCALE = 0.12
+DEFAULT_SCALE = 0.08
 
 
 class ImageCreator:
@@ -131,25 +131,25 @@ class ImageCreator:
                                            isfile(join(f'{filePath}/Units', x))]
         for unitImageName in unitImageNames:
             if 'png' in unitImageName:
-                #image: pygame.Surface = self.scaleImage(pygame.image.load(f'{filePath}/Units/{unitImageName}').convert_alpha(), scale)
+                image: pygame.Surface = self.scaleImage(pygame.image.load(f'{filePath}/Units/{unitImageName}').convert_alpha(), scale)
                 if 'red' in unitImageName:
                     if 'uvso' in unitImageName:
-                        self.setUnitList(1, 1, self.scaleImage(pygame.image.load(f'{filePath}/Units/{unitImageName}').convert_alpha(), 0.28))
+                        self.setUnitList(1, 1, image)
                     elif 'uvsu' in unitImageName:
-                        self.setUnitList(2, 1, self.scaleImage(pygame.image.load(f'{filePath}/Units/{unitImageName}').convert_alpha(), 0.22))
+                        self.setUnitList(2, 1, image)
                     elif 'basic' in unitImageName:
-                        self.setUnitList(3, 1, self.scaleImage(pygame.image.load(f'{filePath}/Units/{unitImageName}').convert_alpha(), 0.28))
+                        self.setUnitList(3, 1, image)
                     else:
-                        self.setUnitList(0, 1, self.scaleImage(pygame.image.load(f'{filePath}/Units/{unitImageName}').convert_alpha(), 0.07))
+                        self.setUnitList(0, 1, image)
                 else:
                     if 'uvso' in unitImageName:
-                        self.setUnitList(1, 0, self.scaleImage(pygame.image.load(f'{filePath}/Units/{unitImageName}').convert_alpha(), 0.28))
+                        self.setUnitList(1, 0, image)
                     elif 'uvsu' in unitImageName:
-                        self.setUnitList(2, 0, self.scaleImage(pygame.image.load(f'{filePath}/Units/{unitImageName}').convert_alpha(), 0.22))
+                        self.setUnitList(2, 0, image)
                     elif 'basic' in unitImageName:
-                        self.setUnitList(3, 0, self.scaleImage(pygame.image.load(f'{filePath}/Units/{unitImageName}').convert_alpha(), 0.28))
+                        self.setUnitList(3, 0, image)
                     else:
-                        self.setUnitList(0, 0, self.scaleImage(pygame.image.load(f'{filePath}/Units/{unitImageName}').convert_alpha(), 0.07))
+                        self.setUnitList(0, 0, image)
 
 
     def _createBackgroundImages(self, filePath, scale:float = DEFAULT_SCALE):

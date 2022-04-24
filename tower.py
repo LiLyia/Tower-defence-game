@@ -1,5 +1,6 @@
 from __future__ import annotations
 import pygame
+import math
 """ 
     This document is created to implement Tower class it will be called in gameEngine class and it will be
      inherited by other tower classes. 
@@ -166,7 +167,7 @@ class Tower:
         return self._rect
 
     @property
-    def pos(self) -> tuple[int]:
+    def pos(self) -> tuple[int, int]:
         '''
         Returns the position of tower
         :return: tuple[int]
@@ -236,3 +237,26 @@ class Tower:
         :return:
         '''
         self.screen.blit(self.towerImage, self.rect)
+
+    def move(self, x, y):
+        """
+        moves tower to given x and y
+        :param x: int
+        :param y: int
+        :return: None
+        """
+        self._pos = (x, y)
+        self.updateRect()
+
+    def collide(self, otherTower):
+        x2 = otherTower.pos[0]
+        y2 = otherTower.pos[1]
+
+        dis = math.sqrt((x2 - self.pos[0]) ** 2 + (y2 - self.pos[1]) ** 2)
+        if dis >= 100:
+            return False
+        else:
+            return True
+
+    def updateRect(self):
+        self.rect.x, self.rect.y = self.pos
