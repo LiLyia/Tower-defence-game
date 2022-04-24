@@ -228,10 +228,15 @@ def shootUnits(unit_list):
 def create_tower(name, x, y, screen):
     print(name)
     tower = None
+    if turn == "Player1":
+        color = player1.color
+    else:
+        color = player2.color
     if name == "BasicTower":
-        tower = Tower.createTower((x, y), tower_images, screen, [(0, 0, 0), (255, 0, 0), (0, 255, 0)])
+
+        tower = Tower.createTower((x, y), tower_images, screen, color)
     elif name == "FireTower":
-        tower = FireTower.createTower((x, y), fire_tower_images, screen, [(0, 0, 0), (255, 0, 0), (0, 255, 0)])
+        tower = FireTower.createTower((x, y), fire_tower_images, screen, color)
     return tower
 
 def add_tower(name, screen):
@@ -248,8 +253,12 @@ def add_gold_mine(screen):
     global moving_object
     global obj
     x, y = pygame.mouse.get_pos()
+    if turn == "Player1":
+        color = player1.color
+    else:
+        color = player2.color
     try:
-        obj = GoldMine((x, y), screen)
+        obj = GoldMine((x, y), screen, color)
         moving_object = obj
         obj.moving = True
     except Exception as e:
@@ -476,6 +485,7 @@ while is_game:
 
     for mine in goldmines:
         mine.draw()
+        mine.draw_health_bar()
 
 
     pygame.display.flip()
