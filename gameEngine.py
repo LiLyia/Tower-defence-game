@@ -167,8 +167,6 @@ def shootTowers(towerList):
         if type(i) == FireTower:
             if i.current_target != None:
                 i.shoot()
-                if i.current_target.health <0:
-                    i.current_target = None
 
 #Parameters: unit list, tower list, obstacle list. Depending on the unit type, defines possible enemies for units, adding them to the target list.
 def findTargetforUnits(safe, enemy, obstacle_list):
