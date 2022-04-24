@@ -177,23 +177,30 @@ def findTargetforUnits(safe, enemy, obstacle_list):
     enemy_towers = enemy.getTowers()
 
     n = len(safe_units)
-    for i in range(n-1):
+    for i in range(n):
+
         safe_units[i].targetList = []
         if type(safe_units[i]) == UvsU:
-
             for j in range(len(enemy_units)):
-                if i != j:
-                    if safe_units[i].hitbox.colliderect(enemy_units[j].hitbox) == True:
-                        safe_units[i].targetList.append(enemy_units[j])
-                #print(unit_list[i].health)
+                safe_units[i].targetList.append(enemy_units[j])
+
         if type(safe_units[i]) == UvsB:
             for m in enemy_towers:
-                if safe_units[i].hitbox.colliderect(m.hitbox) == True:
-                    safe_units[i].targetList.append(m)
+                safe_units[i].targetList.append(m)
+
         if type(safe_units[i]) == UvsO:
             for m in obstacle_list:
-                if safe_units[i].hitbox.colliderect(m.hitbox) == True:
-                    safe_units[i].targetList.append(m)
+                safe_units[i].targetList.append(m)
+        closest = None
+        closest_num = 999999
+        x,y = safe_units[i].pos
+        for k in safe_units[i].targetList:
+            q,w = k.pos
+            num = abs(x-q) + abs(y-w)
+            if (num < closest_num):
+                closest_num = num
+                closest = k
+        safe_units[i].current_target  = closest
 
 #Parameters: unit list. Defines the target of the current turn, adds it to the current target list.             
 def currentUnitTarget(unit_list):
@@ -266,7 +273,7 @@ def targeting():
     findTargetforUnits(player2, player1,obstacles)
     findTargetforTowers(player1.getUnits(),player2.getTowers())
     findTargetforTowers(player2.getUnits(),player1.getTowers())
-    currentUnitTarget(units)
+#    currentUnitTarget(units)
     currentTowerTarget(towers)
 
 def turnSwitch():
@@ -275,13 +282,14 @@ def turnSwitch():
     for unit in player1.getUnits():
         if type(unit) == UvsU or type(unit) == UvsB or type(unit) == UvsO:
             if (len(unit.targetList) > 0):
-                unit.move(unit.targetList[0])
+                unit.move(unit.current_target.pos)
         else:
             unit.move(player2.castle_pos)
 
     for unit in player2.getUnits():
         if type(unit) == UvsU or type(unit) == UvsB or type(unit) == UvsO:
-            unit.move(unit.targetList[0])
+            if (len(unit.targetList) > 0):
+                unit.move(unit.current_target.pos)
         else:
             unit.move(player1.castle_pos)
     #Attack

@@ -2,6 +2,7 @@ from __future__ import annotations
 import pygame
 from projectile import Projectile
 import collections
+import math
 
 
 """
@@ -21,6 +22,7 @@ class Unit:
         self.game_map_data = game_map_data
         self.pos = pos
         self.img = pygame.image.load(image_path)
+        self.path = []
 
         # Scale the image
         self.width = self.img.get_width()
@@ -36,23 +38,37 @@ class Unit:
         """
         Make the unit move only 1 block according to the path it has.
         """
+        def create_coord(matrix):
+            return (matrix[0] * 50, matrix[1] * 50)
 
-        goal_pos = self.findPath(castle_pos)
+        x,y = castle_pos
+        x = x - (x % 50)
+        y = y - (y % 50)
+        castle_pos = (x,y)
 
-        if (castle_pos == self.pos or goal_pos is None):
+        if (castle_pos == self.pos):
             return
 
-        else:
-            if (self.pos[0] < goal_pos[0]):
-                self.rect.x += 50
-            elif(self.pos[0] > goal_pos[0]):
-                self.rect.x -= 50
-            if(self.pos[1] < goal_pos[1]):
-                self.rect.y += 50
-            elif(self.pos[1] > goal_pos[1]):
-                self.rect.y -= 50
-            self.pos = (self.rect.x, self.rect.y)
+        if self.path == [] or (self.path != [] and self.path[-1] != castle_pos):
+            self.path = []
+            returned_path = self.findPath(castle_pos)
+            if returned_path is None:
+                return
+            else:
+                for i in returned_path:
+                    self.path.append(create_coord(i[::-1]))
 
+        goal_pos = self.path[0]
+        if (self.pos[0] < goal_pos[0]):
+            self.rect.x += 50
+        elif(self.pos[0] > goal_pos[0]):
+            self.rect.x -= 50
+        if(self.pos[1] < goal_pos[1]):
+            self.rect.y += 50
+        elif(self.pos[1] > goal_pos[1]):
+            self.rect.y -= 50
+        self.pos = (self.rect.x, self.rect.y)
+        self.path.pop(0)
 
     def heal(self):
         """
@@ -118,8 +134,6 @@ class Unit:
         :param castle_pos: the position of the enemy castle
         :return next available step's coordinates
         """
-        def create_coord(matrix):
-            return (matrix[0] * 50, matrix[1] * 50)
 
         unit_pos = (int(self.pos[0] / 50), int(self.pos[1] / 50))
         end = (int(castle_pos[0] / 50), int(castle_pos[1] / 50))
@@ -137,9 +151,9 @@ class Unit:
             x, y = path[-1]
             if (y,x) == end:
                 if (len(path) > 1 ):
-                    return create_coord(path[1][::-1])
+                    return path
                 else:
-                    return create_coord(path[0][::-1])
+                    return path
             for x2, y2 in ((x+1,y), (x-1,y), (x,y+1), (x,y-1)):
                 if 0 <= x2 < w and 0 <= y2 < h and self.game_map_data[y2][x2] not in obstacle and (x2, y2) not in seen:
                     queue.append(path + [(x2, y2)])
@@ -174,7 +188,8 @@ class AttackingUnit(Unit):
         self.attack_range = attack_range
         self.targetList = []
         self.attackList = []
-        self.current_target = None;
+        self.last_target = None
+        self.current_target = None
         self.current_cd = 0
         self.cd = 150
         self.hitbox = pygame.Rect(self.pos[0] - 35, self.pos[1] - 25, 100, 100)
