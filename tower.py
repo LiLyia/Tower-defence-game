@@ -1,5 +1,6 @@
 from __future__ import annotations
 import pygame
+import math
 """ 
     This document is created to implement Tower class it will be called in gameEngine class and it will be
      inherited by other tower classes. 
@@ -236,3 +237,22 @@ class Tower:
         :return:
         '''
         self.screen.blit(self.towerImage, self.rect)
+    
+    def move(self, x, y):
+        """
+        moves tower to given x and y
+        :param x: int
+        :param y: int
+        :return: None
+        """
+        self._pos = (x, y)
+    
+    def collide(self, otherTower):
+        x2 = otherTower.pos[0]
+        y2 = otherTower.pos[1]
+
+        dis = math.sqrt((x2 - self.pos[0]) ** 2 + (y2 - self.pos[1]) ** 2)
+        if dis >= 100:
+            return False
+        else:
+            return True

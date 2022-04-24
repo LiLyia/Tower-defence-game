@@ -2,9 +2,11 @@ import pygame
 from pygame.locals import *
 from castle import Castle
 from game_map import GameMap
-from Tower import *
+from tower import *
 from unit import Unit
 from FireTower import *
+from imageCreator import *
+import menu
 import random
 
 
@@ -14,14 +16,21 @@ WHITE = (255, 255, 255)
 
 # ------------------game------------------#
 screen = pygame.init()
-SCREEN_HEIGHT, SCREEN_WIDTH = 650, 650
+SCREEN_HEIGHT, SCREEN_WIDTH = 650, 850
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Defence Tower")
 #  -----------Adjusting the Frame of the Game------------#
 clock = pygame.time.Clock()
 FPS = 60
 # -----------BG Image---------------------#
-bg_img = pygame.image.load("Images/bg.png")
+bg_img = pygame.image.load("Images/Background/bg_1.png")
+
+#--------------SideMenu--------------------
+imager = ImageCreator.createImageCreator('Images')
+sideMenu = menu.VerticalMenu(750, 120, pygame.transform.scale(pygame.image.load('Images/menu.png').convert_alpha(), (200, 650)))
+sideMenu.add_btn(imager.getTowerImage(0, 0, 0), "Basic", 500)
+sideMenu.add_btn(imager.getTowerImage(0, 1, 0), "FireTower", 600)
+#sideMenu.add_btn(imager.getTowerImage(2, 2, 0), "SlowingTower", 800)
 
 # -------------castle-class-----------------------
 # image of castle1 with 100% health
@@ -44,7 +53,7 @@ while position_tower_2 == position_tower:
     position_tower_2 = random.choice(tower_pos)
 
 # creating towers
-tower_images = [[pygame.image.load('Images/Towers/tower_100.png'),pygame.image.load('Images/Towers/tower_50.png'),pygame.image.load('Images/Towers/tower_25.png')],[None,None,None],[None,None,None]]
+tower_images = [[pygame.image.load('Images/Towers/tower1.png'),pygame.image.load('Images/Towers/tower2.png'),pygame.image.load('Images/Towers/tower3.png')],[None,None,None],[None,None,None]]
 fire_tower_images = [[pygame.image.load('Images/Towers/firetower.png'),pygame.image.load('Images/Towers/firetower.png'),pygame.image.load('Images/Towers/firetower.png')],[None,None,None],[None,None,None]]
 
 tower1 = Tower.createTower(position_tower, tower_images, screen)
@@ -92,9 +101,10 @@ towers = []
 units =[]
 position_of_towers = []
 position_of_units = []
-soldier = Unit((150,200),screen,'Images/soldier.png',0.04)
+soldier = Unit((150,200),screen,'Images/Units/soldier.png',0.04)
 #towers.append(tower_2)
 is_game = True
+moving_object = None
 #Draw bullets
 def displayBullets(building_list):
     for b in building_list:
@@ -151,19 +161,50 @@ def shootTowers(towerList):
                 if i.current_target.health <0:
                     i.current_target = None
 
+def add_tower(name, screen):
+    global moving_object
+    global obj
+    x, y = pygame.mouse.get_pos()
+    name_list = ["Basic", "FireTower"]
+    object_list = [Tower.createTower((x, y), tower_images, screen), FireTower.createTower((x, y), fire_tower_images, screen)]
 
+    try:
+        obj = object_list[name_list.index(name)]
+        moving_object = obj
+        obj.moving = True
+    except Exception as e:
+        print(str(e) + "NOT VALID NAME")
 
 while is_game:
     clock.tick(FPS)
     screen.blit(bg_img, (0, 0))
     castle1.draw_castle()
     castle2.draw_castle()
+    sideMenu.draw(screen)
     # create_grid()
     game_map.draw_tiles()
+    pos = pygame.mouse.get_pos()
+    if moving_object:
+        moving_object.move(pos[0], pos[1])
+        collide = False
+        for tower in towers:
+            if tower.collide(moving_object):
+                collide = True
     for event in pygame.event.get():
         if event.type == QUIT:
             is_game = False
         elif event.type == MOUSEBUTTONDOWN or event.type == MOUSEBUTTONUP:
+            if moving_object:
+                not_allowed = False
+                for tower in towers:
+                    if tower.collide(moving_object):
+                        not_allowed = True
+
+                if not not_allowed:
+                    towers.append(moving_object)
+
+                    moving_object.moving = False
+                    moving_object = None
             # adds position to list
             if event.button == 1 :
                 for tower in towers:
@@ -172,7 +213,7 @@ while is_game:
 
             elif event.button == 3:
                 if (600 > event.pos[0] > 50) and (600 > event.pos[1] > 50):
-                    soldier = Unit(event.pos,screen,'Images/soldier.png',0.04)
+                    soldier = Unit(event.pos,screen,'Images/Units/soldier.png',0.04)
                     position_of_units.append(soldier.pos)
                     units.append(soldier)
 
@@ -188,7 +229,10 @@ while is_game:
             print(pygame.mouse.get_pos())
 
         # draw images at positions
-
+        if event.type == MOUSEBUTTONDOWN:
+            side_menu_button = sideMenu.get_clicked(event.pos[0], event.pos[1])
+            if side_menu_button:
+                add_tower(side_menu_button, screen)
 
 
     findTargetforTowers(units,towers)
