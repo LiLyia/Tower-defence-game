@@ -1,17 +1,22 @@
 import pygame
+
+
+DEFAULT_SCALE = 0.09
 class Projectile:
     def __init__(self, x, y,target, damage):
         self.x = x
         self.y = y
+        self.image = pygame.image.load('Images/bullet.png')
+        self.image = self.scaleImage(self.image , DEFAULT_SCALE)
         self.target = target
         self.damage = damage
         self.hitbox = pygame.Rect(self.x,self.y,40,40)
         self.status = False
         dest = (self.target.pos[0],self.target.pos[1])
         src = (self.x,self.y)
+        self.rect = self.image.get_rect()
         self.path = self.calculatePoints(src,dest,5)
         self.path_x = 0
-
     def calculatePoints(self,src,dest,count):
         points = []
         dX = dest[0]-src[0]
@@ -26,7 +31,7 @@ class Projectile:
     def drawToTarget(self):
         if self.path_x >= len(self.path):
 
-            dest = (self.target.pos[0]+3, self.target.pos[1]+8)
+            dest = (self.target.pos[0]+ 20, self.target.pos[1]+20)
             src = (self.x, self.y)
             self.path = self.calculatePoints(src, dest, 2)
             self.path_x = 1
@@ -39,21 +44,22 @@ class Projectile:
 
     def hitEnemy(self):
         if self.hitbox.colliderect(self.target.hitbox):
+            self.target.health -= self.damage
+            self.status = True
             if self.target.health - self.damage <0 :
                 self.target.health = 0
                 self.status = False
-            else:
-                self.target.health = self.target.health - self.damage
-                self.status = True
-        #print(self.target.health)
-                
-    def hitTower(self):
-        if self.hitbox.colliderect(self.target.hitbox):
-            if (self.target.health - self.damage) < 0:
-                self.target.setHealth(0)
-                self.status = False
-            else:
-                self.target.setHealth(self.target.health-self.damage)
-        #print(self.target.health)
-        
-            
+
+    def drawBullets(self,screen):
+        screen.blit(self.image,(self.x,self.y))
+
+    def scaleImage(self, img: pygame.Surface, scale: float = DEFAULT_SCALE) -> pygame.Surface:
+        '''
+        The function that scales tower image according to some scale
+        :param img: pygame.Surface
+        :param scale: float
+        :return: pygame.Surface
+        '''
+        width = img.get_width()
+        height = img.get_height()
+        return pygame.transform.scale(img, (int(width * scale), int(height * scale)))
