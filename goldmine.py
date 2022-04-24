@@ -1,7 +1,7 @@
 import pygame
 
 class GoldMine:
-    def __init__(self, pos, screen, gold = 50, image_path='Images/Gold.png', scale=0.1, health=300, max_health=300, price=200):
+    def __init__(self, pos, screen, gold = 50, image_path='Images/Gold.png', scale=0.3, health=300, max_health=300, price=200):
         self.health = health
         self.max_health = max_health
         self.price = price
@@ -34,3 +34,19 @@ class GoldMine:
 
     def addGold(self,player):
         player.gold += self.gold_amount
+
+    def move(self, x, y):
+        """
+        moves tower to given x and y
+        :param x: int
+        :param y: int
+        :return: None
+        """
+        self.pos = (x, y)
+        self.updateRect()
+
+    def updateRect(self):
+        self.rect.x, self.rect.y = self.pos
+
+    def getType(self):
+        return "GoldMine"

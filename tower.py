@@ -19,7 +19,7 @@ class Tower:
     This class created to implement the Base Tower
     '''
     @classmethod
-    def createTower(cls, pos: tuple[int], image_list: list[list[pygame.Surface]], screen: pygame.Surface) -> Tower:
+    def createTower(cls, pos: tuple[int], image_list: list[list[pygame.Surface]], screen: pygame.Surface, color) -> Tower:
         '''
         This method is written to create a Tower class without reaching it directly
         :param pos: tuple[int]
@@ -27,16 +27,18 @@ class Tower:
         :param screen: pygame.Surface
         :return: Tower
         '''
-        return cls(pos=pos, image_list=image_list, screen= screen)
+        return cls(pos=pos, image_list=image_list, screen= screen, color= color)
 
     def __init__(self, pos: tuple[int],
                  image_list: list[list[pygame.Surface]],
                  screen: pygame.Surface,
+                 color: list[tuple(int, int, int)],
                  scale: float = DEFAULT_SCALE,
                  price: int = DEFAULT_TOWER_PRICE,
                  health: int = DEFAULT_TOWER_HEALTH,
                  max_health: int = DEFAULT_TOWER_HEALTH,
                  level: int = DEFAULT_LEVEL
+
                  ):
         self.image_list = image_list
         self._screen = screen
@@ -52,6 +54,7 @@ class Tower:
         self._rect: pygame.Rect = self.towerImage.get_rect()
         self._rect.x, self._rect.y = pos
         self.hitbox = (self._pos[0] -35, self._pos[1]-15, 100,100)
+        self.color = color
 
 
     def setHealth(self, health: int) -> None:
@@ -260,3 +263,26 @@ class Tower:
 
     def updateRect(self):
         self.rect.x, self.rect.y = self.pos
+
+    def getType(self):
+        return "BasicTower"
+
+    def draw_health_bar(self):
+        """
+        draw health bar above unit
+        :param win: surface
+        :return: None
+        """
+        def draw_health_bar(screen, pos, size, borderC, backC, healthC, progress):
+            pygame.draw.rect(screen, backC, (*pos, *size))
+            pygame.draw.rect(screen, borderC, (*pos, *size), 1)
+            innerPos = (pos[0] + 1, pos[1] + 1)
+            innerSize = ((size[0] - 2) * progress, size[1] - 2)
+            rect = (round(innerPos[0]), round(innerPos[1]), round(innerSize[0]), round(innerSize[1]))
+            pygame.draw.rect(screen, healthC, rect)
+
+        health_rect = pygame.Rect(0, 0, self.towerImage.get_width()*3, 7)
+        health_rect.midbottom = self.rect.centerx, self.rect.top
+        x,y,z = self.color
+        draw_health_bar(self.screen, health_rect.topleft, health_rect.size,
+                x,y,z, self.health/self.maxHealth)

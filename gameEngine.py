@@ -58,8 +58,8 @@ while position_tower_2 == position_tower:
 tower_images = [[pygame.image.load('Images/Towers/tower1.png'),pygame.image.load('Images/Towers/tower2.png'),pygame.image.load('Images/Towers/tower3.png')],[None,None,None],[None,None,None]]
 fire_tower_images = [[pygame.image.load('Images/Towers/firetower.png'),pygame.image.load('Images/Towers/firetower.png'),pygame.image.load('Images/Towers/firetower.png')],[None,None,None],[None,None,None]]
 
-tower1 = Tower.createTower(position_tower, tower_images, screen)
-tower_2 = Tower.createTower(position_tower_2, tower_images, screen)
+tower1 = Tower.createTower(position_tower, tower_images, screen, [(0, 0, 0), (0, 0, 255), (255, 0, 0)])
+tower_2 = Tower.createTower(position_tower_2, tower_images, screen, [(0, 0, 0), (0, 0, 255), (255, 0, 0)])
 tower_2.setHealth(14)
 tower_2.declareHealthLevel()
 
@@ -167,6 +167,8 @@ def shootTowers(towerList):
         if type(i) == FireTower:
             if i.current_target != None:
                 i.shoot()
+                if i.current_target.health <0:
+                    i.current_target = None
 
 #Parameters: unit list, tower list, obstacle list. Depending on the unit type, defines possible enemies for units, adding them to the target list.
 def findTargetforUnits(safe, enemy, obstacle_list):
@@ -217,14 +219,31 @@ def shootUnits(unit_list):
                     u.current_target = None
 
 #Parameters: name of the button, screen. Creates a tower object and adds it to tower list.
-def add_tower(name, screen, player):
+def create_tower(name, x, y, screen):
+    print(name)
+    tower = None
+    if name == "BasicTower":
+        tower = Tower.createTower((x, y), tower_images, screen, [(0, 0, 0), (255, 0, 0), (0, 255, 0)])
+    elif name == "FireTower":
+        tower = FireTower.createTower((x, y), fire_tower_images, screen, [(0, 0, 0), (255, 0, 0), (0, 255, 0)])
+    return tower
+
+def add_tower(name, screen):
     global moving_object
     global obj
     x, y = pygame.mouse.get_pos()
-    name_list = ["BasicTower", "FireTower"]
-    object_list = [Tower.createTower((x, y), tower_images, screen), FireTower.createTower((x, y), fire_tower_images, screen)]
     try:
-        obj = object_list[name_list.index(name)]
+        obj = create_tower(name, x, y, screen)
+        moving_object = obj
+        obj.moving = True
+    except Exception as e:
+        print(str(e) + "NOT VALID NAME")
+def add_gold_mine(screen):
+    global moving_object
+    global obj
+    x, y = pygame.mouse.get_pos()
+    try:
+        obj = GoldMine((x, y), screen)
         moving_object = obj
         obj.moving = True
     except Exception as e:
@@ -339,7 +358,10 @@ def buttons(side_menu_button, player):
         sideMenu.add_btn(pygame.transform.scale(pygame.image.load('Images/Gold.png').convert_alpha(), (100, 80)), "GoldMine", 400)
 
     elif side_menu_button == "BasicTower" or side_menu_button == "FireTower" or side_menu_button == "SlowingTower":
-        add_tower(side_menu_button, screen, player)
+        add_tower(side_menu_button, screen)
+
+    elif side_menu_button == "GoldMine":
+        add_gold_mine(screen)
 
     elif side_menu_button == "Turn":
         pygame.font.init()
@@ -353,9 +375,9 @@ def buttons(side_menu_button, player):
         else:
             return "Player1"
 
-    else:
+    elif side_menu_button in ["BasicUnit", "vsObstacles", "vsTowers", "vsUnits"]:
         player.addUnit(side_menu_button)
-
+towers = []
 turn = "Player1"
 #Game cycle
 while is_game:
@@ -372,14 +394,14 @@ while is_game:
     if moving_object:
         moving_object.move(pos[0], pos[1])
         collide = False
-        for tower in towers:
+        for tower in player1.getTowers() + player2.getTowers():
             if tower.collide(moving_object):
                 collide = True
 
     for event in pygame.event.get():
         if event.type == QUIT:
             is_game = False
-        elif event.type == MOUSEBUTTONDOWN or event.type == MOUSEBUTTONUP:
+        elif event.type == MOUSEBUTTONUP:
             if moving_object:
                 not_allowed = False
                 for tower in towers:
@@ -387,7 +409,16 @@ while is_game:
                         not_allowed = True
 
                 if not not_allowed:
-                    towers.append(moving_object)
+                    if turn == "Player1":
+                        if "tower" in moving_object.getType().lower():
+                            player1.tower_list.append(moving_object)
+                        else:
+                            player1.getGoldMines().append(moving_object)
+                    else:
+                        if "tower" in moving_object.getType().lower():
+                            player2.tower_list.append(moving_object)
+                        else:
+                            player2.getGoldMines().append(moving_object)
 
                     moving_object.moving = False
                     moving_object = None
@@ -397,19 +428,19 @@ while is_game:
                     soldier = Unit(event.pos,screen,'Images/Units/soldier.png',0.04)
                     position_of_units.append(soldier.pos)
                     units.append(soldier) """
-            if event.button == 1 :
-                for tower in towers:
-                    if ( -4 > tower.pos[0] - event.pos[0] > -23 ) and (-5 >tower.pos[1] - event.pos[1] > -38):
-                        towers.remove(tower)
-            elif event.button == 2:
-                if (600 > event.pos[0] > 50) and (600 > event.pos[1] > 50):
-                    fire_towerBuy = FireTower.createTower(event.pos,fire_tower_images,screen)
-                    towers.append(fire_towerBuy)
-            else :
-                if (600>event.pos[0] >50) and (600>event.pos[1] >50) :
-                    towerBuy = Tower.createTower(event.pos, tower_images, screen)
-                    towers.append(towerBuy)
-            print(pygame.mouse.get_pos())
+            #if event.button == 1 :
+                #for tower in towers:
+                    #if ( -4 > tower.pos[0] - event.pos[0] > -23 ) and (-5 >tower.pos[1] - event.pos[1] > -38):
+                        #towers.remove(tower)
+            #elif event.button == 2:
+                #if (600 > event.pos[0] > 50) and (600 > event.pos[1] > 50):
+                    #fire_towerBuy = FireTower.createTower(event.pos,fire_tower_images,screen)
+                    #towers.append(fire_towerBuy)
+            #else :
+                #if (600>event.pos[0] >50) and (600>event.pos[1] >50) :
+                    #towerBuy = Tower.createTower(event.pos, tower_images, screen)
+                    #towers.append(towerBuy)
+            #print(pygame.mouse.get_pos())
 
         # draw images at positions
         if event.type == MOUSEBUTTONDOWN:
@@ -420,7 +451,7 @@ while is_game:
                 rt = buttons(side_menu_button, player2)
             if rt is not None:
                 turn = rt
-        print(turn)
+        #print(turn)
 
     #Find possible targets for units and towers
     units = player1.getUnits() + player2.getUnits()
@@ -430,6 +461,7 @@ while is_game:
 
     for tower in towers:
         tower.draw_tower()
+        tower.draw_health_bar()
 
     for unit in units:
         unit.draw()

@@ -11,7 +11,7 @@ import projectile
 
 DEFAULT_TOWER_PRICE: int = 150
 DEFAULT_TOWER_HEALTH: int = 600
-DEFAULT_HIT: int = 1
+DEFAULT_HIT: int = 20
 DEFAULT_UPGRADE_PERCENT: float = 0.15
 DEFAULT_LEVEL: int = 0
 DEFAULT_SCALE = 0.09
@@ -34,12 +34,13 @@ class FireTower:
     '''
 
     @classmethod
-    def createTower(cls, pos: tuple[int], image_list: list[[pygame.Surface]], screen: pygame.Surface) -> FireTower:
-        return cls(pos=pos, image_list=image_list, screen=screen)
+    def createTower(cls, pos: tuple[int], image_list: list[[pygame.Surface]], screen: pygame.Surface, color) -> FireTower:
+        return cls(pos=pos, image_list=image_list, screen=screen, color = color)
 
     def __init__(self, pos: tuple[int],
                  image_list: list[[pygame.Surface]],
                  screen: pygame.Surface,
+                 color: list[tuple(int, int, int)],
                  damage: int = DEFAULT_DAMAGE,
                  range: int = DEFAULT_RANGE,
                  scale: float = DEFAULT_SCALE,
@@ -74,6 +75,7 @@ class FireTower:
         self.current_target = None
         self.current_cd = 0
         self.cd = 150
+        self.color = color
     # Constructors
 
     def setHealth(self, health) -> None:  # Sets the health
@@ -268,6 +270,29 @@ class FireTower:
 
     def updateRect(self):
         self.rect.x, self.rect.y = self.pos
+
+    def getType(self):
+        return "FireTower"
+
+    def draw_health_bar(self):
+        """
+        draw health bar above unit
+        :param win: surface
+        :return: None
+        """
+        def draw_health_bar(screen, pos, size, borderC, backC, healthC, progress):
+            pygame.draw.rect(screen, backC, (*pos, *size))
+            pygame.draw.rect(screen, borderC, (*pos, *size), 1)
+            innerPos = (pos[0] + 1, pos[1] + 1)
+            innerSize = ((size[0] - 2) * progress, size[1] - 2)
+            rect = (round(innerPos[0]), round(innerPos[1]), round(innerSize[0]), round(innerSize[1]))
+            pygame.draw.rect(screen, healthC, rect)
+
+        health_rect = pygame.Rect(0, 0, self.towerImage.get_width()*3, 7)
+        health_rect.midbottom = self.rect.centerx, self.rect.top
+        x,y,z = self.color
+        draw_health_bar(self.screen, health_rect.topleft, health_rect.size,
+                x,y,z, self.health/self.maxHealth)
 
 
 
