@@ -167,7 +167,7 @@ class Tower:
         return self._rect
 
     @property
-    def pos(self) -> tuple[int]:
+    def pos(self) -> tuple[int, int]:
         '''
         Returns the position of tower
         :return: tuple[int]
@@ -237,7 +237,7 @@ class Tower:
         :return:
         '''
         self.screen.blit(self.towerImage, self.rect)
-    
+
     def move(self, x, y):
         """
         moves tower to given x and y
@@ -246,7 +246,8 @@ class Tower:
         :return: None
         """
         self._pos = (x, y)
-    
+        self.updateRect()
+
     def collide(self, otherTower):
         x2 = otherTower.pos[0]
         y2 = otherTower.pos[1]
@@ -256,3 +257,6 @@ class Tower:
             return False
         else:
             return True
+
+    def updateRect(self):
+        self.rect.x, self.rect.y = self.pos
