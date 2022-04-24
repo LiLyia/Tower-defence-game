@@ -18,7 +18,7 @@ DEFAULT_SCALE = 0.09
 
 # -----------------Extra features for FireTower-------------------------------#
 DEFAULT_RANGE = 40
-DEFAULT_DAMAGE = 40
+DEFAULT_DAMAGE = 0.5
 DEFAULT_DAMAGE_UPGRADE_PERCENT: float = 0.27
 DEFAULT_RANGE_UPGRAGE_PERCENT: float = 0.02
 
@@ -74,7 +74,7 @@ class FireTower:
         self.bulletList = []
         self.current_target = None
         self.current_cd = 0
-        self.cd = 150
+        self.cd = 300
         self.color = color
     # Constructors
 
@@ -242,9 +242,9 @@ class FireTower:
             if self.current_target != None :
                 i.drawToTarget()
                 i.hitEnemy()
-            if self.current_target.health  - self.damage < 0 :
-                self.current_target = None
-                self.bulletList = []
+                if self.current_target.health  - self.damage < 0 :
+                    self.current_target = None
+                    self.bulletList = []
 
 
     def move(self, x, y):

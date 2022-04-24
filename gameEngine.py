@@ -115,7 +115,8 @@ def displayBullets(building_list):
     for b in building_list:
         if type(b) == FireTower:
             for p in b.bulletList:
-                pygame.draw.rect(screen, (255,0,0), (p.x, p.y, 4, 4))
+                if p.target != None:
+                    p.drawBullets(screen)
 #Clear the bullets from the map.If bullets hits or miss the enemy , they will be deleted.
 def clearBullets(towerList):
     for i in towerList:
@@ -167,8 +168,6 @@ def shootTowers(towerList):
         if type(i) == FireTower:
             if i.current_target != None:
                 i.shoot()
-                if i.current_target.health <0:
-                    i.current_target = None
 
 #Parameters: unit list, tower list, obstacle list. Depending on the unit type, defines possible enemies for units, adding them to the target list.
 def findTargetforUnits(safe, enemy, obstacle_list):
