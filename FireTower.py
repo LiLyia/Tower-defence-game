@@ -2,8 +2,8 @@ from __future__ import annotations
 import pygame
 import unit
 from projectile import *
-import projectile
 import math
+import projectile
 # -------FireTower Basic Features-------------------------#
 '''
 @Elbir Erberk
@@ -18,7 +18,7 @@ DEFAULT_SCALE = 0.09
 
 # -----------------Extra features for FireTower-------------------------------#
 DEFAULT_RANGE = 40
-DEFAULT_DAMAGE = 0.5
+DEFAULT_DAMAGE = 40
 DEFAULT_DAMAGE_UPGRADE_PERCENT: float = 0.27
 DEFAULT_RANGE_UPGRAGE_PERCENT: float = 0.02
 
@@ -73,7 +73,7 @@ class FireTower:
         self.bulletList = []
         self.current_target = None
         self.current_cd = 0
-        self.cd = 300
+        self.cd = 150
     # Constructors
 
     def setHealth(self, health) -> None:  # Sets the health
@@ -229,7 +229,7 @@ class FireTower:
             return False
         return True
 
-
+    
     def shoot(self):
         if self.check_cd() and self.current_target != None:
             self.bulletList.append(Projectile(self.pos[0],self.pos[1],self.current_target,self.damage))
@@ -240,10 +240,6 @@ class FireTower:
             if self.current_target != None :
                 i.drawToTarget()
                 i.hitEnemy()
-                if self.current_target.health  - self.damage < 0 :
-                    self.current_target = None
-                    self.bulletList = []
-
 
     def move(self, x, y):
         """
@@ -253,7 +249,8 @@ class FireTower:
         :return: None
         """
         self._pos = (x, y)
-    
+        self.updateRect()
+
     def collide(self, otherTower):
         x2 = otherTower.pos[0]
         y2 = otherTower.pos[1]
@@ -265,6 +262,8 @@ class FireTower:
             return True
 
 
+    def updateRect(self):
+        self.rect.x, self.rect.y = self.pos
 
 
 
