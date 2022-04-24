@@ -240,6 +240,10 @@ class FireTower:
             if self.current_target != None :
                 i.drawToTarget()
                 i.hitEnemy()
+            if self.current_target.health  - self.damage < 0 :
+                self.current_target = None
+                self.bulletList = []
+
 
     def move(self, x, y):
         """
