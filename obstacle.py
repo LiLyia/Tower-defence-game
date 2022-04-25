@@ -6,7 +6,7 @@ DEFAULT_HIT = 2
 
 class Obstacle:
     @classmethod
-    def createObstacle(cls, pos, screen, imager, tile_size, image_number=0, health=300, max_health=300):
+    def createObstacle(cls, pos, screen, imager, tile_size, image_number=0, health=200, max_health=200):
         return cls(pos=pos, screen=screen, imager=imager, image_number=image_number,
                    tile_size=tile_size, health=health, max_health=max_health)
 
@@ -84,6 +84,6 @@ class Obstacle:
 
         health_rect = pygame.Rect(0, 0, self.img.get_width(), 7)
         health_rect.midbottom = self.rect.centerx, self.rect.top
-        x, y, z = [(0, 0, 0), (255, 0, 0), (0, 255, 0)]
+        x, y, z = [(0, 0, 0), (0, 255, 0), (255, 255, 0)]
         draw_health_bar(self.screen, health_rect.topleft, health_rect.size,
                         x, y, z, self.health / self.max_health)
