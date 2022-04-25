@@ -15,7 +15,7 @@ pygame.display.set_caption("Defence Tower")
 clock = pygame.time.Clock()
 FPS = 60
 # -----------BG Image---------------------#
-bg_img = pygame.image.load("Images/BG/bg1.png")
+bg_img = pygame.image.load("Images/Background/bg1.png")
 bg_img = pygame.transform.scale(bg_img, (SCREEN_HEIGHT, SCREEN_WIDTH))
 # ----------------Background music--------------
 mixer.music.load('Music/background.wav')
