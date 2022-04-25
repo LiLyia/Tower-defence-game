@@ -53,7 +53,8 @@ class Tower:
         self._pos: tuple[int] = pos
         self._rect: pygame.Rect = self.towerImage.get_rect()
         self._rect.x, self._rect.y = pos
-        self.hitbox = (self._pos[0] -35, self._pos[1]-15, 100,100)
+        #self.hitbox = (self._pos[0] -35, self._pos[1]-15, 100,100)
+        self.hitbox = pygame.Rect(self._pos[0] - 370, self._pos[1] + 125, 100, 100)
         self.color = color
 
 
