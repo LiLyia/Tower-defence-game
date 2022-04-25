@@ -12,7 +12,7 @@ def game_instruction():
     #  -----------Adjusting the Frame of the Game------------#
     # clock = pygame.time.Clock()
     # FPS = 60
-    bg_img = pygame.image.load("Images/BG/instruction.png")
+    bg_img = pygame.image.load("Images/Background/instruction.png")
     back_button = Button(140,525,"Back to Main-Menu")
     is_game = True
     while is_game:
