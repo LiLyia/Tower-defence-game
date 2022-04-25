@@ -25,6 +25,7 @@ class GoldMine:
         """
         Draws the unit with the given images
         """
+        self.hitbox = pygame.Rect(self.pos[0]+3, self.pos[1]+8, 70, 70) 
         self.screen.blit(self.img, self.rect)
 
     def draw_health_bar(self):
@@ -71,4 +72,15 @@ class GoldMine:
 
     def getType(self):
         return "GoldMine"
+
+    def reduceHealth(self, damage):
+        """
+        Reduce health. If the health is not enough, delete.
+        :param damage: enemy damage
+        :return: None
+        """
+        if self.health - damage > 0:
+            self.health -= damage
+        else:
+            self.health = 0
         
