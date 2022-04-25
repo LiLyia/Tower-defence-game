@@ -2,18 +2,16 @@ import pygame
 
 
 class Castle:
-    def __init__(self, castle100_img,castle50_img,castle25_img, pos, scale, screen):
+    def __init__(self, imager, pos, screen, player_number, color):
         self.health = 1200
         self.max_health = self.health
-        width = castle100_img.get_width()
-        height = castle100_img.get_height()
-        self.castle100image = pygame.transform.scale(castle100_img, (int(width * scale), int(height * scale)))
-        self.castle50image = pygame.transform.scale(castle50_img, (int(width * scale), int(height * scale)))
-        self.castle25image = pygame.transform.scale(castle25_img, (int(width * scale), int(height * scale)))
-
-        self.rect = self.castle100image.get_rect()
+        self.img = imager.getCastleImage(0, player_number)
+        self.imager = imager
+        self.player_number = player_number
+        self.rect = self.img.get_rect()
         self.rect.x, self.rect.y = pos
         self.screen = screen
+        self.color = color
 
     #         ----------Draw castle ------------------
     '''In draw_castle function when the health of castle decrease the images changes accordingly'''
@@ -21,12 +19,38 @@ class Castle:
     def draw_castle(self):
         # to check which image should be used when health dropped
         if self.health <= 600:
-            self.image = self.castle50image
+            self.img = self.imager.getCastleImage(1,self.player_number)
         elif self.health <= 300:
-            self.image = self.castle25image
+            self.img = self.imager.getCastleImage(2,self.player_number)
         else:
-            self.image = self.castle100image
+            self.img = self.imager.getCastleImage(0,self.player_number)
 
-        self.screen.blit(self.image, self.rect)
+        self.screen.blit(self.img, self.rect)
 
     # ----------------------- Implementation of damage castle function
+
+    def draw_health_bar(self):
+        """
+        draw health bar above unit
+        :param win: surface
+        :return: None
+        """
+        def draw_health_bar(screen, pos, size, borderC, backC, healthC, progress):
+            pygame.draw.rect(screen, backC, (*pos, *size))
+            pygame.draw.rect(screen, borderC, (*pos, *size), 1)
+            innerPos = (pos[0] + 1, pos[1] + 1)
+            innerSize = ((size[0] - 2) * progress, size[1] - 2)
+            rect = (round(innerPos[0]), round(innerPos[1]), round(innerSize[0]), round(innerSize[1]))
+            pygame.draw.rect(screen, healthC, rect)
+
+        health_rect = pygame.Rect(0, 0, self.img.get_width(), 7)
+        health_rect.midbottom = self.rect.centerx, self.rect.top
+        x,y,z = self.color
+        draw_health_bar(self.screen, health_rect.topleft, health_rect.size,
+                x,y,z, self.health/self.max_health)
+
+    def reduceHealth(self, hit_amount = 50):
+        self.health -= hit_amount
+
+    def isDead(self):
+        return self.health <= 0

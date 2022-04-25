@@ -39,23 +39,6 @@ sideMenu.add_btn(pygame.transform.scale(pygame.image.load('Images/Gold.png').con
 
 # -------------castle-class-----------------------
 # image of castle1 with 100% health
-castle1_100_img = pygame.image.load('Images/Castle/castle1_100.png').convert_alpha()
-# image of castle1 with 50% health
-castle1_50_img = pygame.image.load('Images/Castle/castle1_50.png').convert_alpha()
-# image of castle1 with 25% health
-castle1_25_img = pygame.image.load('Images/Castle/castle1_25.png')
-# image of castle2 with 100% health
-castle2_100_img = pygame.image.load('Images/Castle/castle2_100.png').convert_alpha()
-# image of castle2 with 50% health
-castle2_50_img = pygame.image.load('Images/Castle/castle2_50.png').convert_alpha()
-# image of castle2 with 25% health
-castle2_25_img = pygame.image.load('Images/Castle/castle2_25.png')
-# declearing tower positions
-tower_pos = [(150, 150), (200, 200), (300, 300), (400, 400), (200, 500)]
-position_tower = random.choice(tower_pos)
-position_tower_2 = random.choice(tower_pos)
-while position_tower_2 == position_tower:
-    position_tower_2 = random.choice(tower_pos)
 
 # creating towers
 tower_images = [[pygame.image.load('Images/Towers/tower1.png'),pygame.image.load('Images/Towers/tower2.png'),pygame.image.load('Images/Towers/tower3.png')],[None,None,None],[None,None,None]]
@@ -67,8 +50,8 @@ position_castle1 = random.choice(castle1_pos)
 # randomly picking the position of castle 2 position
 castle2_pos = [(150, 450), (200, 450), (250, 450), (300, 450), (350, 450), (400, 450), (450, 450)]
 position_castle2 = random.choice(castle2_pos)
-castle1 = Castle(castle1_100_img,castle1_50_img,castle1_25_img, position_castle1, 0.09, screen)
-castle2 = Castle(castle2_100_img,castle2_50_img,castle2_25_img, position_castle2, 0.09, screen)
+castle1 = Castle(imager, position_castle1, screen, 0, [(0, 0, 0), (255, 0, 0), (0, 255, 0)])
+castle2 = Castle(imager, position_castle2, screen, 1, [(0, 0, 0), (0, 0, 255), (255, 0, 0)])
 
 
 #soldier = Unit((100, 400),screen,'Images/soldier.png', 0.07 )
@@ -224,7 +207,6 @@ def shootUnits(unit_list):
 
 #Parameters: name of the button, screen. Creates a tower object and adds it to tower list.
 def create_tower(name, x, y, screen):
-    print(name)
     tower = None
     if turn == "Player1":
         color = player1.color
@@ -399,7 +381,9 @@ while is_game:
     clock.tick(FPS)
     screen.blit(bg_img, (0, 0))
     castle1.draw_castle()
+    castle1.draw_health_bar()
     castle2.draw_castle()
+    castle2.draw_health_bar()
     sideMenu.draw(screen)
     # create_grid()
     game_map.draw_tiles()
