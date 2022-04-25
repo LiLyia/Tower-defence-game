@@ -36,7 +36,7 @@ class Unit:
         self.screen = screen
         self.hitbox = pygame.Rect(self.pos[0]+3, self.pos[1]+8, 100, 100) #Hitbox area for the units
 
-    def move(self, enemy_pos):
+    def move(self, enemy_pos, obstacles, block = True):
         """
         Make the unit move only 1 block according to the path it has.
         """
@@ -48,12 +48,15 @@ class Unit:
         y = y - (y % 50)
         enemy_pos = (x,y)
 
+
         if (enemy_pos == self.pos):
             return
 
-        if self.path == [] or (self.path != [] and self.path[-1] != enemy_pos):
+        if self.path == [] or self.path[-1] != enemy_pos:
             self.path = []
-            returned_path = self.findPath(enemy_pos)
+
+            returned_path = self.findPath(enemy_pos,obstacles,block)
+
             if returned_path is None:
                 return
             else:
@@ -131,7 +134,7 @@ class Unit:
         """
         self.screen.fill((255, 255, 255))
 
-    def findPath(self, castle_pos):
+    def findPath(self, castle_pos, obstacles, block):
         """
         Take the current position, calculate the shortest path possible to the enemy castle from the game map.
         :param castle_pos: the position of the enemy castle
@@ -147,20 +150,26 @@ class Unit:
 
         queue = collections.deque([[unit_pos]])
         seen = set([unit_pos])
-        obstacle = [1,2,3,4,5]
+        noway = []
+
+        if block:
+            for obstacle in obstacles:
+                x,y = obstacle.pos
+                noway.append((int(x/50), int(y/50)))
 
         while queue:
             path = queue.popleft()
             x, y = path[-1]
             if (y,x) == end:
-                if (len(path) > 1 ):
-                    return path
-                else:
-                    return path
+                print(noway)
+                print(path)
+                return path
             for x2, y2 in ((x+1,y), (x-1,y), (x,y+1), (x,y-1)):
-                if 0 <= x2 < w and 0 <= y2 < h and self.game_map_data[y2][x2] not in obstacle and (x2, y2) not in seen:
+                if 0 <= x2 < w and 0 <= y2 < h and (y2,x2) not in noway and (x2, y2) not in seen:
+                    print((y2,x2))
                     queue.append(path + [(x2, y2)])
                     seen.add((x2, y2))
+
 
 
     """"
@@ -194,7 +203,7 @@ class AttackingUnit(Unit):
 
         self.last_target = None
         self.current_target = None
-        
+
         self.current_cd = 0
         self.cd = 150
         self.hitbox = pygame.Rect(self.pos[0], self.pos[1], 50, 50)
@@ -223,16 +232,85 @@ class AttackingUnit(Unit):
                 if self.current_target != None:
                     e.hitEnemy()
 
+    def move(self,obstacles, find=True, block = True):
+
+        if(self.targetList == []):
+            return
+
+        if find:
+            closest = None
+            closest_num = 999999
+            x, y = self.pos
+            for k in self.targetList:
+                q, w = k.pos
+                num = abs(x - q) + abs(y - w)
+                if (num < closest_num):
+                    closest_num = num
+                    closest = k
+            self.current_target = closest
+
+
+        super().move(self.current_target.pos, obstacles, block)
+
 
 
 """
  UvsU is subclass of AttackingUnit. Meaning UnitvsUnit, it can attack and destroy the enemy units.
 """
 
-
 class UvsU(AttackingUnit):
     def __init__(self, pos, screen, game_map_data, color, image_path='Images/Units/uvsu.png', scale = 0.2):
         super().__init__(pos, screen, game_map_data, color, image_path, scale, 500,500,100,50,50)
+
+    def move(self,obstacles, block = True):
+        """
+        Make the unit move only 1 block according to the path it has.
+        """
+        def create_coord(matrix):
+            return (matrix[0] * 50, matrix[1] * 50)
+
+        if(self.targetList == []):
+            return
+
+        closest = None
+        closest_num = 999999
+        x, y = self.pos
+        for k in self.targetList:
+            q, w = k.pos
+            num = abs(x - q) + abs(y - w)
+            if (num < closest_num):
+                closest_num = num
+                closest = k
+        self.current_target = closest
+
+        x,y = self.current_target.pos
+        isTrue = ((x+30 >= self.pos[0] and x<= self.pos[0]) or (x-30 <= self.pos[0] and x>= self.pos[0])) and ( (y+30 >= self.pos[1] and y<= self.pos[1]) or (y-30 <= self.pos[1] and y>= self.pos[1]))
+        x = x - (x % 50)
+        y = y - (y % 50)
+        castle_pos = (x,y)
+
+        if (isTrue):
+            return
+
+        returned_path = self.findPath(castle_pos,obstacles, block)
+        if returned_path is None:
+            return
+        else:
+            if (len(returned_path)<2):
+                return
+
+            goal_pos = create_coord(returned_path[1][::-1])
+
+            if (self.pos[0] < goal_pos[0]):
+                self.rect.x += 50
+            elif(self.pos[0] > goal_pos[0]):
+                self.rect.x -= 50
+            if(self.pos[1] < goal_pos[1]):
+                self.rect.y += 50
+            elif(self.pos[1] > goal_pos[1]):
+                self.rect.y -= 50
+            self.pos = (self.rect.x, self.rect.y)
+
 
 
 """
@@ -244,6 +322,12 @@ class UvsB(AttackingUnit):
     def __init__(self, pos: tuple[int], screen, game_map_data, color, image_path='Images/Units/basic.png', scale=0.2):
         super().__init__(pos, screen, game_map_data, color, image_path, scale,800,800,150,50,50)
 
+    def move(self,obstacles):
+        if self.current_target == None:
+            super().move(obstacles)
+        else:
+            super().move(obstacles, find=False)
+
 
 """
  UvsO is subclass of AttackingUnit. Meaning UnitvsObstacle, it can attack and destroy the obstacles
@@ -252,4 +336,10 @@ class UvsB(AttackingUnit):
 
 class UvsO(AttackingUnit):
     def __init__(self, pos, screen, game_map_data, color, image_path='Images/Units/uvso.png', scale=0.2):
-        super().__init__(pos, screen,game_map_data, color, image_path, scale,800,400,100,100,50)
+        super().__init__(pos, screen,game_map_data, color, image_path, scale,400,400,100,100,50)
+
+    def move(self,obstacles):
+        if self.current_target == None:
+            super().move(obstacles, block=False)
+        else:
+            super().move(obstacles, find=False, block = False)
