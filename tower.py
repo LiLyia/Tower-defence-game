@@ -53,7 +53,6 @@ class Tower:
         self._pos: tuple[int] = pos
         self._rect: pygame.Rect = self.towerImage.get_rect()
         self._rect.x, self._rect.y = pos
-        #self.hitbox = (self._pos[0] -35, self._pos[1]-15, 100,100)
         self.hitbox = pygame.Rect(self._pos[0] -35, self._pos[1]-15, 100,100)
         self.color = color
 
@@ -240,6 +239,7 @@ class Tower:
         The function for drawing the tower to the map
         :return:
         '''
+        self.hitbox = pygame.Rect(self._pos[0] - 35, self._pos[1] - 25, 100, 100)
         self.screen.blit(self.towerImage, self.rect)
 
     def move(self, x, y):
