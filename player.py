@@ -70,6 +70,20 @@ class Player:
             self.goldmines_pos.append(pos)
             self.gold -= DEF_GOLDMINE_PRICE
 
+    def checkCost(self, type):
+        cost = 0
+        if type == "BasicTower":
+            cost = DEF_BASICTOWER_PRICE
+        elif type == "FireTower":
+            cost = DEF_FIRINGTOWER_PRICE
+        elif type == "GoldMine":
+            cost = DEF_GOLDMINE_PRICE
+        if self.gold - cost >=0:
+            self.gold -= cost
+            return True
+        else:
+            return False
+
     def remove(self, pos, type):
         x,y = self.__coord_to_index(pos)
         self.map_data[y][x] = "0"
