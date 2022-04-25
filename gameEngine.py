@@ -9,6 +9,7 @@ from imageCreator import *
 from player import *
 import menu
 import random
+from obstacle import *
 
 
 # -----------Colors------------------------#
@@ -26,8 +27,10 @@ FPS = 60
 # -----------BG Image---------------------#
 bg_img = pygame.image.load("Images/Background/bg_1.png")
 
-#--------------SideMenu--------------------
+# --------------ImageCreator--------------------#
 imager = ImageCreator.createImageCreator('Images')
+
+# --------------SideMenu--------------------
 sideMenu = menu.VerticalMenu(750, 120, pygame.transform.scale(pygame.image.load('Images/menu.png').convert_alpha(), (200, 650)))
 sideMenu.add_btn(imager.getTowerImage(0, 0, 0), "Towers", 0)
 sideMenu.add_btn(imager.getUnitImage(0, 0), "Units", 0)
@@ -57,11 +60,6 @@ while position_tower_2 == position_tower:
 # creating towers
 tower_images = [[pygame.image.load('Images/Towers/tower1.png'),pygame.image.load('Images/Towers/tower2.png'),pygame.image.load('Images/Towers/tower3.png')],[None,None,None],[None,None,None]]
 fire_tower_images = [[pygame.image.load('Images/Towers/firetower.png'),pygame.image.load('Images/Towers/firetower.png'),pygame.image.load('Images/Towers/firetower.png')],[None,None,None],[None,None,None]]
-
-tower1 = Tower.createTower(position_tower, tower_images, screen, [(0, 0, 0), (0, 0, 255), (255, 0, 0)])
-tower_2 = Tower.createTower(position_tower_2, tower_images, screen, [(0, 0, 0), (0, 0, 255), (255, 0, 0)])
-tower_2.setHealth(14)
-tower_2.declareHealthLevel()
 
 # randomly picking the position of castle 1 position
 castle1_pos = [(150, 100), (200, 100), (250, 100), (300, 100), (350, 100), (400, 100), (450, 100)]
@@ -97,11 +95,11 @@ game_map_data = [
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]
-game_map = GameMap(game_map_data, tile_size, screen)
+game_map = GameMap(game_map_data, tile_size, screen, imager=imager)
 player1 = Player(screen, game_map_data, castle1, [(0, 0, 0), (255, 0, 0), (0, 255, 0)])
 player2 = Player(screen, game_map_data, castle2, [(0, 0, 0), (0, 0, 255), (255, 0, 0)])
 
-obstacles = []
+obstacles = game_map.getObstacles()
 # for i in range(len(game_map_data)):
 #     for j in range(len(game_map_data[0])):
 #         if game_map_data[i][j] != 0:
@@ -405,6 +403,9 @@ while is_game:
     sideMenu.draw(screen)
     # create_grid()
     game_map.draw_tiles()
+    for obstacle in obstacles:
+        obstacle.draw()
+        obstacle.draw_health_bar()
     pos = pygame.mouse.get_pos()
 
     if moving_object:

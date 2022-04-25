@@ -4,8 +4,12 @@ from os import listdir
 from os.path import isfile, join
 
 DEFAULT_BACKGROUND_IMAGE_NUMBER: int = 5
-DEFAULT_SCALE = 0.08
+DEFAULT_SCALE = 0.12
 
+"""
+    This document is created to create images and return them to required classes
+    @author = Harun Eren MUTLU 
+"""
 
 class ImageCreator:
     @classmethod
@@ -98,7 +102,7 @@ class ImageCreator:
                                        isfile(join(f'{filePath}/Hurdles', x))]
         for hurdleImageName in hurdleImageNames:
             if 'png' in hurdleImageName:
-                image: pygame.Surface = self.scaleImage(pygame.image.load(f'{filePath}/Hurdles/{hurdleImageName}').convert_alpha(), scale)
+                image: pygame.Surface = pygame.image.load(f'{filePath}/Hurdles/{hurdleImageName}').convert_alpha()
                 if 'dirt' in hurdleImageName:
                     self.setHurdleList(0, image)
                 else:
@@ -131,25 +135,25 @@ class ImageCreator:
                                            isfile(join(f'{filePath}/Units', x))]
         for unitImageName in unitImageNames:
             if 'png' in unitImageName:
-                image: pygame.Surface = self.scaleImage(pygame.image.load(f'{filePath}/Units/{unitImageName}').convert_alpha(), scale)
+                #image: pygame.Surface = self.scaleImage(pygame.image.load(f'{filePath}/Units/{unitImageName}').convert_alpha(), scale)
                 if 'red' in unitImageName:
                     if 'uvso' in unitImageName:
-                        self.setUnitList(1, 1, image)
+                        self.setUnitList(1, 1, self.scaleImage(pygame.image.load(f'{filePath}/Units/{unitImageName}').convert_alpha(), 0.28))
                     elif 'uvsu' in unitImageName:
-                        self.setUnitList(2, 1, image)
+                        self.setUnitList(2, 1, self.scaleImage(pygame.image.load(f'{filePath}/Units/{unitImageName}').convert_alpha(), 0.22))
                     elif 'basic' in unitImageName:
-                        self.setUnitList(3, 1, image)
+                        self.setUnitList(3, 1, self.scaleImage(pygame.image.load(f'{filePath}/Units/{unitImageName}').convert_alpha(), 0.28))
                     else:
-                        self.setUnitList(0, 1, image)
+                        self.setUnitList(0, 1, self.scaleImage(pygame.image.load(f'{filePath}/Units/{unitImageName}').convert_alpha(), 0.07))
                 else:
                     if 'uvso' in unitImageName:
-                        self.setUnitList(1, 0, image)
+                        self.setUnitList(1, 0, self.scaleImage(pygame.image.load(f'{filePath}/Units/{unitImageName}').convert_alpha(), 0.28))
                     elif 'uvsu' in unitImageName:
-                        self.setUnitList(2, 0, image)
+                        self.setUnitList(2, 0, self.scaleImage(pygame.image.load(f'{filePath}/Units/{unitImageName}').convert_alpha(), 0.22))
                     elif 'basic' in unitImageName:
-                        self.setUnitList(3, 0, image)
+                        self.setUnitList(3, 0, self.scaleImage(pygame.image.load(f'{filePath}/Units/{unitImageName}').convert_alpha(), 0.28))
                     else:
-                        self.setUnitList(0, 0, image)
+                        self.setUnitList(0, 0, self.scaleImage(pygame.image.load(f'{filePath}/Units/{unitImageName}').convert_alpha(), 0.07))
 
 
     def _createBackgroundImages(self, filePath, scale:float = DEFAULT_SCALE):
@@ -196,17 +200,17 @@ class ImageCreator:
         """
         return self._casteList[playerNumber][index]
 
-    def getHurdleImage(self, index: int,):
+    def getHurdleImage(self, index: int):
         """
 
-        :param index: int -> 0..* 0 for dirt and so on
+        :param index: int -> 0..# 0 for dirt and so on
         :return:
         """
         return self._hurdleList[index]
 
     def scaleImage(self, img: pygame.Surface, scale: float = DEFAULT_SCALE) -> pygame.Surface:
         '''
-        The function that scales tower image according to some scale
+        The function that scales images according to some scale
         :param img: pygame.Surface
         :param scale: float
         :return: pygame.Surface
@@ -214,5 +218,15 @@ class ImageCreator:
         width = img.get_width()
         height = img.get_height()
         return pygame.transform.scale(img, (int(width * scale), int(height * scale)))
+
+    def scaleWithWidthAndHeight(self, img, width, height) -> pygame.Surface:
+        """
+        The function that scales images according to given width and height
+        :param img: pygame.Surface
+        :param width: int
+        :param height: int
+        :return: pygame.Surface
+        """
+        return pygame.transform.scale(img, (width, height))
 
 
