@@ -18,6 +18,7 @@ class Unit:
         self.max_health = max_health
         self.price = price
         self.color = color
+        self.isStopped = False
 
         self.game_map_data = game_map_data
         self.pos = pos
@@ -42,6 +43,9 @@ class Unit:
         """
         def create_coord(matrix):
             return (matrix[0] * 50, matrix[1] * 50)
+
+        if(self.isStopped):
+            return
 
         x,y = enemy_pos
         x = x - (x % 50)
@@ -90,6 +94,9 @@ class Unit:
         :return pos: Current position of the unit
         """
         return self.pos
+
+    def setStopped(self, bool):
+        self.isStopped = bool
 
     def reduceHealth(self, enemy):
         """
@@ -269,7 +276,7 @@ class UvsU(AttackingUnit):
         def create_coord(matrix):
             return (matrix[0] * 50, matrix[1] * 50)
 
-        if(self.targetList == []):
+        if(self.targetList == [] or self.isStopped):
             return
 
         closest = None
