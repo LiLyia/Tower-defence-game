@@ -4,7 +4,7 @@ from game_instructions import game_instruction
 # @ramzan
 # from pygame.locals import *
 from gui_button import Button
-from gameEngine import game_start
+# from gameEngine import game_start
 
 pygame.init()
 screen = pygame.init()
@@ -21,23 +21,21 @@ bg_img = pygame.transform.scale(bg_img, (SCREEN_HEIGHT, SCREEN_WIDTH))
 mixer.music.load('Music/background.wav')
 mixer.music.play(-1)
 # Using Button class
-Start_game = Button(75,100, "Start")
-instruction = Button(75,175,"Instruction")
-save_game = Button(75,250,"Save")
-quit_button = Button(75,325,"Quit")
+Start_game = Button(150,150, "Start")
+instruction = Button(150,225,"Instruction")
+quit_button = Button(150,300,"Quit")
+
 
 is_game = True
 while is_game:
     clock.tick(FPS)
     screen.blit(bg_img, (0, 0))
     if Start_game.draw_Button(screen):
-        # print("Play Again")
-        pass
+        print("Play Again")
+
     if instruction.draw_Button(screen):
         # print("instruction")
         game_instruction()
-    if save_game.draw_Button(screen):
-        print('Save game')
     if quit_button.draw_Button(screen):
 
         is_game = False
@@ -46,4 +44,3 @@ while is_game:
         if event.type == pygame.QUIT:
             is_game = False
     pygame.display.update()
-# pygame.quit()
