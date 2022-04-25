@@ -23,6 +23,8 @@ class Unit:
         self.pos = pos
         self.img = pygame.image.load(image_path)
         self.path = []
+        self.moveList = []
+        self.move_target = None
 
         # Scale the image
         self.width = self.img.get_width()
@@ -32,26 +34,26 @@ class Unit:
         self.rect = self.img.get_rect()
         self.rect.x, self.rect.y = pos
         self.screen = screen
-        self.hitbox = pygame.Rect(self.pos[0]+3, self.pos[1]+8, 40, 40) #Hitbox area for the units
+        self.hitbox = pygame.Rect(self.pos[0]+3, self.pos[1]+8, 100, 100) #Hitbox area for the units
 
-    def move(self, castle_pos):
+    def move(self, enemy_pos):
         """
         Make the unit move only 1 block according to the path it has.
         """
         def create_coord(matrix):
             return (matrix[0] * 50, matrix[1] * 50)
 
-        x,y = castle_pos
+        x,y = enemy_pos
         x = x - (x % 50)
         y = y - (y % 50)
-        castle_pos = (x,y)
+        enemy_pos = (x,y)
 
-        if (castle_pos == self.pos):
+        if (enemy_pos == self.pos):
             return
 
-        if self.path == [] or (self.path != [] and self.path[-1] != castle_pos):
+        if self.path == [] or (self.path != [] and self.path[-1] != enemy_pos):
             self.path = []
-            returned_path = self.findPath(castle_pos)
+            returned_path = self.findPath(enemy_pos)
             if returned_path is None:
                 return
             else:
@@ -69,6 +71,7 @@ class Unit:
             self.rect.y -= 50
         self.pos = (self.rect.x, self.rect.y)
         self.path.pop(0)
+        self.hitbox = pygame.Rect(self.pos[0], self.pos[1], 100, 100)
 
     def heal(self):
         """
@@ -188,11 +191,13 @@ class AttackingUnit(Unit):
         self.attack_range = attack_range
         self.targetList = []
         self.attackList = []
+
         self.last_target = None
         self.current_target = None
+        
         self.current_cd = 0
         self.cd = 150
-        self.hitbox = pygame.Rect(self.pos[0] - 35, self.pos[1] - 25, 100, 100)
+        self.hitbox = pygame.Rect(self.pos[0], self.pos[1], 50, 50)
         Unit.__init__(self, pos, screen, game_map_data, color, image_path, scale, health, max_health, price)
 
     def attack(self, type):
@@ -201,6 +206,10 @@ class AttackingUnit(Unit):
         :param enemy: is of type Unit.
         :return: None
         """
+        for e in self.attackList:
+            if e.target.health <= 0:
+                self.attackList.remove(e)
+                self.current_cd = -1
         if self.current_cd <= 0 and self.current_target != None:
             self.attackList.append(Projectile(self.pos[0],self.pos[1],self.current_target,self.damage))
             self.current_cd = self.cd
@@ -233,7 +242,7 @@ class UvsU(AttackingUnit):
 
 class UvsB(AttackingUnit):
     def __init__(self, pos: tuple[int], screen, game_map_data, color, image_path='Images/Units/basic.png', scale=0.2):
-        super().__init__(pos, screen, game_map_data, color, image_path, scale,800,800,150,100,50)
+        super().__init__(pos, screen, game_map_data, color, image_path, scale,800,800,150,50,50)
 
 
 """
