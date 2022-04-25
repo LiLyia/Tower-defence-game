@@ -54,7 +54,7 @@ class Tower:
         self._rect: pygame.Rect = self.towerImage.get_rect()
         self._rect.x, self._rect.y = pos
         #self.hitbox = (self._pos[0] -35, self._pos[1]-15, 100,100)
-        self.hitbox = pygame.Rect(self._pos[0] - 370, self._pos[1] + 125, 100, 100)
+        self.hitbox = pygame.Rect(self._pos[0] -35, self._pos[1]-15, 100,100)
         self.color = color
 
 
@@ -251,6 +251,7 @@ class Tower:
         """
         self._pos = (x, y)
         self.updateRect()
+        self.updateHitBox()
 
     def collide(self, otherTower):
         x2 = otherTower.pos[0]
@@ -264,6 +265,9 @@ class Tower:
 
     def updateRect(self):
         self.rect.x, self.rect.y = self.pos
+    
+    def updateHitBox(self):
+        self.hitbox = pygame.Rect(self._pos[0] -35, self._pos[1]-15, 100,100)
 
     def getType(self):
         return "BasicTower"
