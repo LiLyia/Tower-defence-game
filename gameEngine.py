@@ -6,6 +6,7 @@ from tower import *
 from unit import *
 from FireTower import *
 from imageCreator import *
+from goldmine import *
 from player import *
 import menu
 import random
@@ -83,10 +84,6 @@ player1 = Player(screen, game_map_data, castle1, [(0, 0, 0), (255, 0, 0), (0, 25
 player2 = Player(screen, game_map_data, castle2, [(0, 0, 0), (0, 0, 255), (255, 0, 0)])
 
 obstacles = game_map.getObstacles()
-# for i in range(len(game_map_data)):
-#     for j in range(len(game_map_data[0])):
-#         if game_map_data[i][j] != 0:
-#             obstacles.append((j*50, i*50))
 
 #towers.append(tower_2)
 is_game = True
@@ -151,7 +148,16 @@ def shootTowers(towerList):
                 i.shoot()
 
 #Parameters: unit list, tower list, obstacle list. Depending on the unit type, defines possible enemies for units, adding them to the target list.
-def findTargetforUnits(safe, enemy, obstacle_list):
+def findTargetforUnits(safe, enemy, goldmines):
+
+    obstacle_list = []
+
+    for mine in goldmines:
+        obstacle_list.append(mine)
+
+    for obs in obstacles:
+        obstacle_list.append(obs)
+
     safe_units = safe.getUnits()
     enemy_units = enemy.getUnits()
     enemy_towers = enemy.getTowers()
@@ -171,16 +177,6 @@ def findTargetforUnits(safe, enemy, obstacle_list):
         if type(safe_units[i]) == UvsO:
             for m in obstacle_list:
                 safe_units[i].targetList.append(m)
-        closest = None
-        closest_num = 999999
-        x,y = safe_units[i].pos
-        for k in safe_units[i].targetList:
-            q,w = k.pos
-            num = abs(x-q) + abs(y-w)
-            if (num < closest_num):
-                closest_num = num
-                closest = k
-        safe_units[i].current_target  = closest
 
 #Parameters: unit list. Defines the target of the current turn, adds it to the current target list.             
 def currentUnitTarget(unit_list):
@@ -270,16 +266,16 @@ def turnSwitch():
     for unit in player1.getUnits():
         if type(unit) == UvsU or type(unit) == UvsB or type(unit) == UvsO:
             if (len(unit.targetList) > 0):
-                unit.move(unit.current_target.pos)
+                unit.move(obstacles)
         else:
-            unit.move(player2.castle_pos)
+            unit.move(player2.castle_pos, obstacles)
 
     for unit in player2.getUnits():
         if type(unit) == UvsU or type(unit) == UvsB or type(unit) == UvsO:
             if (len(unit.targetList) > 0):
-                unit.move(unit.current_target.pos)
+                unit.move(obstacles)
         else:
-            unit.move(player1.castle_pos)
+            unit.move(player1.castle_pos,obstacles)
     #Attack
     shootUnits(units)
     shootTowers(towers)
