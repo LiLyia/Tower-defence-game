@@ -70,11 +70,11 @@ class FireTower:
         self._range = range
         self._damage = damage
         self.hitbox = pygame.Rect(self._pos[0] - 35, self._pos[1] - 25, 100, 100)
-        self.targetList = []
-        self.bulletList = []
+        self.targetList = [] #for the enemies
+        self.bulletList = []#for the bullets
         self.current_target = None
         self.current_cd = 0
-        self.cd = 300
+        self.cd = 300 #post-shot standby cooldown
         self.color = color
     # Constructors
 
@@ -244,7 +244,7 @@ class FireTower:
                 i.hitEnemy()
                 if self.current_target.health  - self.damage < 0 :
                     self.current_target = None
-                    self.bulletList = []
+                    self.bulletList = []#reset enemy
 
 
     def move(self, x, y):
