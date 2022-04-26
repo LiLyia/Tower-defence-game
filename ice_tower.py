@@ -8,7 +8,7 @@ from projectile import *
 '''
 '''
 # -------FireTower Basic Features-------------------------#
-DEFAULT_TOWER_PRICE: int = 150
+DEFAULT_TOWER_PRICE: int = 200
 DEFAULT_TOWER_HEALTH: int = 600
 DEFAULT_UPGRADE_PERCENT: float = 0.15
 DEFAULT_LEVEL: int = 0
@@ -28,12 +28,13 @@ class IceTower:
         '''
 
     @classmethod
-    def createTower(cls, pos: tuple[int], image_list: list[[pygame.Surface]], screen: pygame.Surface) -> IceTower:
-        return cls(pos=pos, image_list=image_list, screen=screen)
+    def createTower(cls, pos: tuple[int], image_list: list[[pygame.Surface]], screen: pygame.Surface, color) -> IceTower:
+        return cls(pos=pos, image_list=image_list, screen=screen, color = color)
 
     def __init__(self, pos: tuple[int],
                  image_list: list[[pygame.Surface]],
                  screen: pygame.Surface,
+                 color: list[tuple(int, int, int)],
                  slowRate : float = DEFAULT_SLOW_RATE,
                  scale: float = DEFAULT_SCALE,
                  price: int = DEFAULT_TOWER_PRICE,
@@ -42,25 +43,24 @@ class IceTower:
                  level: int = DEFAULT_LEVEL,
                  ):
         self.image_list = image_list  # List for images to use
-        self.screen = screen
+        self._screen = screen
 
-        self.price: int = price
-        self.health: int = health
-        self.max_health: int = max_health
+        self._price: int = price
+        self._health: int = health
+        self._max_health: int = max_health
 
-        self.level: int = level
-        self.health_level: int = 0
+        self._level: int = level
+        self._health_level: int = 0
 
         temp_image: pygame.Surface = image_list[self.level][self.healthLevel]  # How the Tower will look is determined by its Level and Health.
-        self.towerImage: pygame.Surface = self.scaleImage(temp_image, scale)
+        self._towerImage: pygame.Surface = self.scaleImage(temp_image, scale)
 
-        self.pos: tuple[int] = pos
-        self.rect = self.towerImage.get_rect()
-        self.rect.x, self._rect.y = pos
+        self._pos: tuple[int] = pos
+        self._rect = self.towerImage.get_rect()
+        self._rect.x, self._rect.y = pos
         self.hitbox = pygame.Rect(self._pos[0] - 35, self._pos[1] - 25, 100, 100)
-
-        self.slowRate = slowRate
-        self.isSlowed = False
+        self.color = color
+        self._slowRate = slowRate
 
     def setHealth(self, health) -> None:  # Sets the health
         self._health = health
@@ -80,8 +80,9 @@ class IceTower:
     def setDamage(self, damage) -> None:  # Set damage of Attack Tower
         self._damage = damage
 
-    def setSlowRate(self,slow_rate):
-        self.slowRate = self.slowRate * (1+slow_rate)
+    """def setSlowRate(self,slow_rate):
+        self.slowRate = self.slowRate * (1+slow_rate)"""
+
 
 
 
@@ -110,7 +111,7 @@ class IceTower:
 
     @property
     def screen(self) -> pygame.Surface:
-        return self.screen
+        return self._screen
 
     @property
     def towerList(self) -> list[[pygame.Surface]]:
@@ -130,7 +131,7 @@ class IceTower:
 
     @property
     def rect(self) -> pygame.Rect:
-        return self.rect
+        return self._rect
 
     @property
     def slowRate(self):
@@ -151,6 +152,22 @@ class IceTower:
         self.setHealth(self.health * (1 + upgrade_percent))
         self.declareHealthLevel()
         self.isSlowed = False
+
+    def move(self, x, y):
+        """
+        moves tower to given x and y
+        :param x: int
+        :param y: int
+        :return: None
+        """
+        self._pos = (x, y)
+        self.updateRect()
+
+    def updateRect(self):
+        self.rect.x, self.rect.y = self.pos
+
+    def getType(self):
+        return "SlowingTower"
 
     def remove(self):
         self.screens.fill((255, 255, 255))
@@ -179,16 +196,39 @@ class IceTower:
         self.hitbox = pygame.Rect(self._pos[0] - 35, self._pos[1] - 25, 100, 100)
         pygame.draw.rect(self.screen, (255, 0, 0), self.hitbox, 1)
 
-    def checkNumOfSlow(self,enemy:unit):
-        if self.isSlowed == False:
-            reduceEnemySpeed(enemy)
-            self.isSlowed = True
-
-    def reduceEnemySpeed(self,enemy:unit):
+   
+    def draw_health_bar(self):
         """
+        draw health bar above unit
+        :param win: surface
+        :return: None
+        """
+        def draw_health_bar(screen, pos, size, borderC, backC, healthC, progress):
+            pygame.draw.rect(screen, backC, (*pos, *size))
+            pygame.draw.rect(screen, borderC, (*pos, *size), 1)
+            innerPos = (pos[0] + 1, pos[1] + 1)
+            innerSize = ((size[0] - 2) * progress, size[1] - 2)
+            rect = (round(innerPos[0]), round(innerPos[1]), round(innerSize[0]), round(innerSize[1]))
+            pygame.draw.rect(screen, healthC, rect)
+
+        health_rect = pygame.Rect(0, 0, self.towerImage.get_width()*3, 7)
+        health_rect.midbottom = self.rect.centerx, self.rect.top
+        x,y,z = self.color
+        draw_health_bar(self.screen, health_rect.topleft, health_rect.size,
+                x,y,z, self.health/self.maxHealth)
+
+     
+
+    """def reduceEnemySpeed(self,enemy:unit):
+        pass
+        
         The function that reduces the enemy speed according to the slow rate
         :param enemy:unit
         if self.hitbox.colliderect(enemy.hitbox):
             enemy.speed = enemy.speed * (1-  self.slowRate)
             return NULL
-        """
+        
+    def checkNumOfSlow(self,enemy:unit):
+        if self.isSlowed == False:
+            reduceEnemySpeed(enemy)
+            self.isSlowed = True """
