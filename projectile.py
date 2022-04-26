@@ -49,6 +49,15 @@ class Projectile:
             if self.target.health - self.damage <0 :
                 self.target.health = 0
                 self.status = False
+    def hitTower(self):
+        #if self.hitbox.colliderect(self.target.hitbox):
+            #self.target.health -= self.damage
+            #self.status = True
+        if (self.target.health - self.damage) < 0:
+            self.target.setHealth(0)
+            self.status = False
+        else:
+            self.target.reduceHealth(self.damage)
 
     def drawBullets(self,screen):
         screen.blit(self.image,(self.x,self.y))
