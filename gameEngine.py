@@ -125,11 +125,22 @@ def clearBullets(towerList):
                 if i.current_target == None:
                     i.bulletList.remove(j)
 #Parameters:unit list. Removes units and towers from the lists.
-def clearObjects(unit_list, tower_list, obstacle_list):
+def clearObjects(safe_player, enemy_player):
+
+    unit_list = safe_player.getUnits()
+    tower_list = safe_player.getTowers()
+    obstacle_list = safe_player.getGoldMines()
+
     for e in unit_list:
         if e.health <= 0:
             unit_list.remove(e)
             e.remove()
+        if type(e) != UvsU and type(e) != UvsB and type(e) != UvsO:
+            if e.pos == enemy_player.castle_pos:
+                enemy_player.castle.reduceHealth()
+                unit_list.remove(e)
+                e.remove()
+
     for t in tower_list:
         if t.health <= 0:
             tower_list.remove(t)
@@ -393,8 +404,8 @@ def turnSwitch(current_turn):
     displayBullets(towers)
     #Delete bullets and dead objects from the game
     clearBullets(towers)
-    clearObjects(player1.getUnits(), player1.getTowers(), player1.getGoldMines())
-    clearObjects(player2.getUnits(), player2.getTowers(), player2.getGoldMines())
+    clearObjects(player1, player2)
+    clearObjects(player2, player1)
 
    
 
