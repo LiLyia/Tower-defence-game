@@ -60,10 +60,6 @@ tower_images = [[pygame.image.load('Images/Towers/tower1.png'),pygame.image.load
 fire_tower_images = [[pygame.image.load('Images/Towers/firetower.png'),pygame.image.load('Images/Towers/firetower.png'),pygame.image.load('Images/Towers/firetower.png')],[None,None,None],[None,None,None]]
 ice_tower_images = [[pygame.image.load('Images/Towers/slowertower.png')],[None],[None]]
 
-tower1 = Tower.createTower(position_tower, tower_images, screen, [(0, 0, 0), (0, 0, 255), (255, 0, 0)])
-tower_2 = Tower.createTower(position_tower_2, tower_images, screen, [(0, 0, 0), (0, 0, 255), (255, 0, 0)])
-tower_2.setHealth(14)
-tower_2.declareHealthLevel()
 
 # randomly picking the position of castle 1 position
 castle1_pos = [(150, 100), (200, 100), (250, 100), (300, 100), (350, 100), (400, 100), (450, 100)]
@@ -103,7 +99,7 @@ game_map = GameMap(game_map_data, tile_size, screen, imager=imager)
 player1 = Player(screen, game_map_data, castle1, [(0, 0, 0), (255, 0, 0), (0, 255, 0)])
 player2 = Player(screen, game_map_data, castle2, [(0, 0, 0), (0, 0, 255), (255, 0, 0)])
 
-obstacles = obstacles = game_map.getObstacles()
+obstacles = game_map.getObstacles()
 # for i in range(len(game_map_data)):
 #     for j in range(len(game_map_data[0])):
 #         if game_map_data[i][j] != 0:
@@ -289,7 +285,6 @@ def shootUnits(unit_list):
 
 #Parameters: name of the button, screen. Creates a tower object and adds it to tower list.
 def create_tower(name, x, y, screen):
-    print(name)
     tower = None
     if turn == player1:
         color = player1.color
@@ -496,7 +491,9 @@ while is_game:
     clock.tick(FPS)
     screen.blit(bg_img, (0, 0))
     castle1.draw_castle()
+    castle1.draw_health_bar()
     castle2.draw_castle()
+    castle2.draw_health_bar()
     sideMenu.draw(screen)
     # create_grid()
     game_map.draw_tiles()
