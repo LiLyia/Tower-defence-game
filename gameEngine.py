@@ -59,7 +59,7 @@ while position_tower_2 == position_tower:
 # creating towers
 tower_images = [[pygame.image.load('Images/Towers/tower1.png'),pygame.image.load('Images/Towers/tower2.png'),pygame.image.load('Images/Towers/tower3.png')],[None,None,None],[None,None,None]]
 fire_tower_images = [[pygame.image.load('Images/Towers/firetower.png'),pygame.image.load('Images/Towers/firetower.png'),pygame.image.load('Images/Towers/firetower.png')],[None,None,None],[None,None,None]]
-ice_tower_images = [[pygame.image.load('Images/Towers/slowertower.png')],[None],[None]]
+ice_tower_images = [[pygame.image.load('Images/Towers/slowertower.png'),pygame.image.load('Images/Towers/slowertower.png'),pygame.image.load('Images/Towers/slowertower.png')],[None],[None]]
 
 
 # randomly picking the position of castle 1 position
