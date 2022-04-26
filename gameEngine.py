@@ -497,6 +497,9 @@ while is_game:
     sideMenu.draw(screen)
     # create_grid()
     game_map.draw_tiles()
+    for obstacle in obstacles:
+        obstacle.draw()
+        obstacle.draw_health_bar()
     pos = pygame.mouse.get_pos()
     pygame.font.init()
     my_font = pygame.font.SysFont('Comic Sans MS', 20)
