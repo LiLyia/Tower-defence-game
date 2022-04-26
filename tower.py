@@ -9,9 +9,10 @@ import math
 DEFAULT_TOWER_PRICE: int = 100
 DEFAULT_TOWER_HEALTH: int = 100
 DEFAULT_HIT: int = 1
-DEFAULT_UPGRADE_PERCENT: float = 0.15
+DEFAULT_UPGRADE_PERCENT: float = 0.5
 DEFAULT_LEVEL: int = 0
 DEFAULT_SCALE = 0.09
+DEFAULT_MAXUPGRADE: int = 3
 
 
 class Tower:
@@ -37,7 +38,8 @@ class Tower:
                  price: int = DEFAULT_TOWER_PRICE,
                  health: int = DEFAULT_TOWER_HEALTH,
                  max_health: int = DEFAULT_TOWER_HEALTH,
-                 level: int = DEFAULT_LEVEL
+                 level: int = DEFAULT_LEVEL,
+                 max_up: int = DEFAULT_MAXUPGRADE
 
                  ):
         self.image_list = image_list
@@ -49,6 +51,7 @@ class Tower:
         self._health_level: int = 0
         temp_image: pygame.Surface = image_list[self.level][self.healthLevel]
         self._towerImage: pygame.Surface = self.scaleImage(temp_image, scale)
+        self._max_up = max_up
 
         self._pos: tuple[int] = pos
         self._rect: pygame.Rect = self.towerImage.get_rect()
@@ -72,6 +75,14 @@ class Tower:
         :return:
         '''
         self._max_health = max_health
+
+    def setMaxUp(self, max_up: int) -> None:
+        '''
+        Sets the Maximum health of tower
+        :param max_health: int
+        :return:
+        '''
+        self._max_up = max_up
 
     def setPrice(self, price: int) -> None:
         '''
@@ -112,6 +123,14 @@ class Tower:
         :return: int
         '''
         return self._max_health
+
+    @property
+    def maxUp(self) -> int:
+        '''
+        Returns the maximum health of tower
+        :return: int
+        '''
+        return self._max_up
 
     @property
     def price(self) -> int:
@@ -199,10 +218,15 @@ class Tower:
         :param upgrade_percent: float
         :return:
         '''
-        self.setLevel(self.level + 1)
+        if self.maxUp == 0:
+            return False
+        self.setMaxUp(self.maxUp - 1)
+        #self.setLevel(self.level + 1)
         self.setMaxHealth(self.maxHealth * (1 + upgrade_percent))
         self.setHealth(self.health * (1 + upgrade_percent))
-        self.declareHealthLevel()
+        self.draw_health_bar()
+        #self.declareHealthLevel()
+        return True
 
     def remove(self) -> None:
         '''
@@ -230,9 +254,11 @@ class Tower:
         :param scale: float
         :return: pygame.Surface
         '''
+        
         width = img.get_width()
         height = img.get_height()
         return pygame.transform.scale(img, (int(width * scale), int(height * scale)))
+
 
     def draw_tower(self) -> None:
         '''
@@ -274,8 +300,7 @@ class Tower:
 
     def draw_health_bar(self):
         """
-        draw health bar above unit
-        :param win: surface
+        draw health bar above object
         :return: None
         """
         def draw_health_bar(screen, pos, size, borderC, backC, healthC, progress):
@@ -285,8 +310,8 @@ class Tower:
             innerSize = ((size[0] - 2) * progress, size[1] - 2)
             rect = (round(innerPos[0]), round(innerPos[1]), round(innerSize[0]), round(innerSize[1]))
             pygame.draw.rect(screen, healthC, rect)
-
-        health_rect = pygame.Rect(0, 0, self.towerImage.get_width()*3, 7)
+        
+        health_rect = pygame.Rect(0, 0, self.towerImage.get_width()*3 + self.maxHealth/10, 7)
         health_rect.midbottom = self.rect.centerx, self.rect.top
         x,y,z = self.color
         draw_health_bar(self.screen, health_rect.topleft, health_rect.size,
