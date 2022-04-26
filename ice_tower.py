@@ -5,6 +5,7 @@ from __future__ import  annotations
 import pygame
 import unit
 from projectile import *
+import math
 '''
 '''
 # -------FireTower Basic Features-------------------------#
@@ -168,6 +169,16 @@ class IceTower:
 
     def getType(self):
         return "SlowingTower"
+
+    def collide(self, otherTower):
+        x2 = otherTower.pos[0]
+        y2 = otherTower.pos[1]
+
+        dis = math.sqrt((x2 - self.pos[0]) ** 2 + (y2 - self.pos[1]) ** 2)
+        if dis >= 100:
+            return False
+        else:
+            return True
 
     def remove(self):
         self.screens.fill((255, 255, 255))
