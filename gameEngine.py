@@ -8,6 +8,7 @@ from FireTower import *
 from imageCreator import *
 from player import *
 from ice_tower import *
+from obstacle import *
 import menu
 import random
 
@@ -124,12 +125,20 @@ def clearBullets(towerList):
                     i.bulletList.remove(j)
                 if i.current_target == None:
                     i.bulletList.remove(j)
+
+
 #Parameters:unit list. Removes units and towers from the lists.
 def clearObjects(safe_player, enemy_player):
 
     unit_list = safe_player.getUnits()
     tower_list = safe_player.getTowers()
-    obstacle_list = safe_player.getGoldMines()
+    obstacles_list = []
+    for g in obstacles:
+        obstacles_list.append(g)
+    for g in safe_player.getGoldMines():
+        obstacles_list.append(g)
+    for g in enemy_player.getGoldMines():
+        obstacles_list.append(g)
 
     for e in unit_list:
         if e.health <= 0:
@@ -144,10 +153,10 @@ def clearObjects(safe_player, enemy_player):
     for t in tower_list:
         if t.health <= 0:
             tower_list.remove(t)
-            t.remove()
-    for g in obstacle_list:
+
+    for g in obstacles_list:
         if g.health <= 0:
-            obstacle_list.remove(g)
+            obstacles_list.remove(g)
             g.remove()
 
 #Get the target for each tower in the list of targetable units.
@@ -205,6 +214,7 @@ def findMoveforUnits(safe, enemy, goldmines):
     for i in range(n):
 
         safe_units[i].moveList = []
+        
         if type(safe_units[i]) == UvsU:
             for j in range(len(enemy_units)):
                 safe_units[i].moveList.append(enemy_units[j])
@@ -246,11 +256,17 @@ def findMoveforUnits(safe, enemy, goldmines):
         safe_units[i].move_target  = closest """
 
 
-def findTargetforUnits(safe, enemy, obstacle_list):
+def findTargetforUnits(safe, enemy, goldmines):
     safe_units = safe.getUnits()
     enemy_units = enemy.getUnits()
     enemy_towers = enemy.getTowers()
+    obstacle_list = []
 
+    for mine in goldmines:
+        obstacle_list.append(mine)
+
+    for obs in obstacles:
+        obstacle_list.append(obs)
     n = len(safe_units)
     for i in range(n):
         safe_units[i].targetList = []
@@ -315,10 +331,14 @@ def create_tower(name, x, y, screen):
 def upgrade_tower(turn):
     for t in turn.getTowers():
         if type(t) != FireTower and type(t) != IceTower:
-            res = t.upgrade()
-            print(t.maxHealth)
-            if res == True:
+            if t.maxUp == 0:
                 break
+            if turn.checkCost("UpgradeTower") == True:
+                t.upgrade()
+                print(t.maxHealth)
+            #if res == True:
+                #break
+            #else:
 
 def add_tower(name, screen):
     global moving_object
@@ -349,7 +369,8 @@ def add_gold_mine(screen):
 
 def addGolds(goldmineList, player):
     for mine in goldmineList:
-        mine.addGold(player)
+        print(mine)
+        #mine.addGold(player)
 
 #Parameters: player`s turn, returns player`s castle position.
 def castlePos(turn):
@@ -372,13 +393,10 @@ def turnSwitch(current_turn):
     if current_turn == player2:
         player1.gold += 200
         player2.gold += 200
-
         addGolds(player1.getGoldMines(), player1)
         addGolds(player2.getGoldMines(), player2)
-
     findMoveforUnits(player1, player2, player2.goldmines_list)
     findMoveforUnits(player2, player1, player1.goldmines_list)
-
     for unit in player1.getUnits():
         if type(unit) == UvsU or type(unit) == UvsB or type(unit) == UvsO:
             if (len(unit.moveList) > 0):
@@ -404,8 +422,15 @@ def turnSwitch(current_turn):
     displayBullets(towers)
     #Delete bullets and dead objects from the game
     clearBullets(towers)
+    obstacleList1 = obstacles
+    obstacleList2 = obstacles
+    for mine in player1.getGoldMines():
+        obstacleList1.append(mine)
+    for mine in player2.getGoldMines():
+        obstacleList2.append(mine)
     clearObjects(player1, player2)
     clearObjects(player2, player1)
+
 
    
 
@@ -474,7 +499,7 @@ def buttons(side_menu_button, player):
     elif side_menu_button == "BasicTower" or side_menu_button == "FireTower" or side_menu_button == "SlowingTower":
         add_tower(side_menu_button, screen)
 
-    elif side_menu_button == "UpgradeTower" and turn.checkCost("UpgradeTower") == True:
+    elif side_menu_button == "UpgradeTower": #and turn.checkCost("UpgradeTower") == True:
         upgrade_tower(player)
 
     elif side_menu_button == "GoldMine":
@@ -590,10 +615,11 @@ while is_game:
 
     pygame.display.flip()
     pygame.display.update()
-        if castle1.isDead() or castle2.isDead():
+    if castle1.isDead() or castle2.isDead():
         is_game = False
 if castle1.isDead():
     print("Player 2 Won!!!!")
 else:
     print("Player 1 Won!!!")
 pygame.quit()
+
