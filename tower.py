@@ -7,7 +7,7 @@ import math
     @author = Harun Eren MUTLU
 """
 DEFAULT_TOWER_PRICE: int = 100
-DEFAULT_TOWER_HEALTH: int = 100
+DEFAULT_TOWER_HEALTH: int = 600
 DEFAULT_HIT: int = 1
 DEFAULT_UPGRADE_PERCENT: float = 0.5
 DEFAULT_LEVEL: int = 0
@@ -311,7 +311,7 @@ class Tower:
             rect = (round(innerPos[0]), round(innerPos[1]), round(innerSize[0]), round(innerSize[1]))
             pygame.draw.rect(screen, healthC, rect)
         
-        health_rect = pygame.Rect(0, 0, self.towerImage.get_width()*3 + self.maxHealth/10, 7)
+        health_rect = pygame.Rect(0, 0, self.towerImage.get_width() + self.maxHealth/10, 7)
         health_rect.midbottom = self.rect.centerx, self.rect.top
         x,y,z = self.color
         draw_health_bar(self.screen, health_rect.topleft, health_rect.size,
