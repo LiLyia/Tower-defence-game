@@ -17,8 +17,8 @@ DEFAULT_LEVEL: int = 0
 DEFAULT_SCALE = 0.09
 
 # -----------------Extra features for FireTower-------------------------------#
-DEFAULT_RANGE = 40
-DEFAULT_DAMAGE = 0.5
+DEFAULT_RANGE = 60
+DEFAULT_DAMAGE = 110
 DEFAULT_DAMAGE_UPGRADE_PERCENT: float = 0.27
 DEFAULT_RANGE_UPGRAGE_PERCENT: float = 0.02
 
