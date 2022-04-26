@@ -98,16 +98,16 @@ class Unit:
     def setStopped(self, bool):
         self.isStopped = bool
 
-    def reduceHealth(self, enemy):
+    def reduceHealth(self, damage):
         """
         Reduce health. If the health is not enough, delete.
-        :param enemy: type of Unit
+        :param damage: enemy damage
         :return: None
         """
-        if self.health - enemy.damage > 0:
-            self.health -= enemy.damage
+        if self.health - damage > 0:
+            self.health -= damage
         else:
-            self.delete()
+            self.health = 0
 
     def draw(self):
         """
