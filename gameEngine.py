@@ -36,25 +36,6 @@ sideMenu.add_btn(imager.getUnitImage(0, 0), "Units", 0)
 sideMenu.add_btn(pygame.transform.scale(pygame.image.load('Images/turns.png').convert_alpha(), (120, 50)), "Turn", 0)
 sideMenu.add_btn(pygame.transform.scale(pygame.image.load('Images/Gold.png').convert_alpha(), (100, 80)), "Gold", 0)
 
-# -------------castle-class-----------------------
-# image of castle1 with 100% health
-castle1_100_img = pygame.image.load('Images/Castle/castle1_100.png').convert_alpha()
-# image of castle1 with 50% health
-castle1_50_img = pygame.image.load('Images/Castle/castle1_50.png').convert_alpha()
-# image of castle1 with 25% health
-castle1_25_img = pygame.image.load('Images/Castle/castle1_25.png')
-# image of castle2 with 100% health
-castle2_100_img = pygame.image.load('Images/Castle/castle2_100.png').convert_alpha()
-# image of castle2 with 50% health
-castle2_50_img = pygame.image.load('Images/Castle/castle2_50.png').convert_alpha()
-# image of castle2 with 25% health
-castle2_25_img = pygame.image.load('Images/Castle/castle2_25.png')
-# declearing tower positions
-tower_pos = [(150, 150), (200, 200), (300, 300), (400, 400), (200, 500)]
-position_tower = random.choice(tower_pos)
-position_tower_2 = random.choice(tower_pos)
-while position_tower_2 == position_tower:
-    position_tower_2 = random.choice(tower_pos)
 
 # creating towers
 tower_images = [[pygame.image.load('Images/Towers/tower1.png'),pygame.image.load('Images/Towers/tower2.png'),pygame.image.load('Images/Towers/tower3.png')],[None,None,None],[None,None,None]]
@@ -72,13 +53,8 @@ castle1 = Castle(imager, position_castle1, screen, 0, [(0, 0, 0), (255, 0, 0), (
 castle2 = Castle(imager, position_castle2, screen, 1, [(0, 0, 0), (0, 0, 255), (255, 0, 0)])
 
 
-#soldier = Unit((100, 400),screen,'Images/soldier.png', 0.07 )
 # ------------creating grid for game map --------------#
 tile_size = 50
-# def create_grid():
-#     for line in range(13):
-#         pygame.draw.line(screen, WHITE, (0, line*tile_size), (SCREEN_WIDTH, line* tile_size))
-#         pygame.draw.line(screen,WHITE, (line*tile_size, 0),(line * tile_size,SCREEN_HEIGHT))
 
 # -----------------Game Map---------------------
 game_map_data = [
@@ -101,12 +77,7 @@ player1 = Player(screen, game_map_data, castle1, [(0, 0, 0), (255, 0, 0), (0, 25
 player2 = Player(screen, game_map_data, castle2, [(0, 0, 0), (0, 0, 255), (255, 0, 0)])
 
 obstacles = game_map.getObstacles()
-# for i in range(len(game_map_data)):
-#     for j in range(len(game_map_data[0])):
-#         if game_map_data[i][j] != 0:
-#             obstacles.append((j*50, i*50))
 
-#towers.append(tower_2)
 is_game = True
 moving_object = None
 #Parameters: list of buildings. Draws bullets
@@ -176,7 +147,6 @@ def currentTowerTarget(building_list):
                 if b.current_target == None:
                    b.current_target = m
                    if b.current_target.health < 0:
-                        #print("Yes")
                         b.targetList.remove(m)
                 if b.current_target.pos[0] <= m.pos[0]:
                     b.current_target = m
@@ -322,7 +292,6 @@ def create_tower(name, x, y, screen):
     elif name == "FireTower" and turn.checkCost("FireTower") == True:
         tower = FireTower.createTower((x, y), fire_tower_images, screen, color)
     elif name == "SlowingTower" and turn.checkCost("SlowingTower") == True:
-        print("Trying to create SlowingTower")
         tower = IceTower.createTower((x, y), ice_tower_images, screen, color)
     else:
         return None
@@ -335,7 +304,6 @@ def upgrade_tower(turn):
                 break
             if turn.checkCost("UpgradeTower") == True:
                 t.upgrade()
-                print(t.maxHealth)
             #if res == True:
                 #break
             #else:
@@ -369,8 +337,7 @@ def add_gold_mine(screen):
 
 def addGolds(goldmineList, player):
     for mine in goldmineList:
-        print(mine)
-        #mine.addGold(player)
+        mine.addGold(player)
 
 #Parameters: player`s turn, returns player`s castle position.
 def castlePos(turn):
@@ -619,7 +586,8 @@ while is_game:
         is_game = False
 if castle1.isDead():
     print("Player 2 Won!!!!")
-else:
+elif castle2.isDead():
     print("Player 1 Won!!!")
+print("Game Finished!!!")
 pygame.quit()
 
