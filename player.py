@@ -10,6 +10,8 @@ DEF_GOLDMINE_PRICE = 100
 DEF_BASICTOWER_PRICE = 200
 DEF_FIRINGTOWER_PRICE = 200
 DEF_SLOWINGTOWER_PRICE = 200
+DEF_UPGRADETOWER_PRICE = 200
+DEF_ICETOWER_PRICE = 200
 
 class Player:
     def __init__(self, screen, map_data, castle, color, gold = 500):
@@ -49,7 +51,7 @@ class Player:
                 soldier = UvsB(pos, self.screen, self.map_data, self.color)
                 self.gold -= DEF_UVSB_PRICE
                 buy = True
-        else:
+        elif type == "vsUnits":
             if (self.gold >= DEF_UVSU_PRICE):
                 soldier = UvsU(pos, self.screen, self.map_data, self.color)
                 self.gold -= DEF_UVSU_PRICE
@@ -76,6 +78,10 @@ class Player:
             cost = DEF_BASICTOWER_PRICE
         elif type == "FireTower":
             cost = DEF_FIRINGTOWER_PRICE
+        elif type == "UpgradeTower":
+            cost = DEF_UPGRADETOWER_PRICE
+        elif type == "SlowingTower":
+            cost = DEF_ICETOWER_PRICE
         elif type == "GoldMine":
             cost = DEF_GOLDMINE_PRICE
         if self.gold - cost >=0:
@@ -84,7 +90,7 @@ class Player:
         else:
             return False
 
-    def remove(self, pos, type):
+    def remove(self, pos):
         x,y = self.__coord_to_index(pos)
         self.map_data[y][x] = "0"
 
