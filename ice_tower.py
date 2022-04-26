@@ -1,13 +1,9 @@
-
-
-
-from __future__ import  annotations
+from __future__ import annotations
 import pygame
 import unit
 from projectile import *
 import math
-'''
-'''
+
 # -------FireTower Basic Features-------------------------#
 DEFAULT_TOWER_PRICE: int = 200
 DEFAULT_TOWER_HEALTH: int = 600
@@ -15,11 +11,6 @@ DEFAULT_UPGRADE_PERCENT: float = 0.15
 DEFAULT_LEVEL: int = 0
 DEFAULT_SCALE = 0.09
 DEFAULT_HIT : int = 20
-
-# -----------------Extra features for Ice Tower-------------------------------#
-DEFAULT_SLOW_RATE = 0.3
-DEFAULT_SLOW_RATE_UPGRADE_PERCENT : float = 0.3
-
 
 
 class IceTower:
@@ -32,11 +23,10 @@ class IceTower:
     def createTower(cls, pos: tuple[int], image_list: list[[pygame.Surface]], screen: pygame.Surface, color) -> IceTower:
         return cls(pos=pos, image_list=image_list, screen=screen, color = color)
 
-    def __init__(self, pos: tuple[int],
+    def __init__(self, pos: tuple[int, int],
                  image_list: list[[pygame.Surface]],
                  screen: pygame.Surface,
-                 color: list[tuple(int, int, int)],
-                 slowRate : float = DEFAULT_SLOW_RATE,
+                 color: list[tuple[int, int, int]],
                  scale: float = DEFAULT_SCALE,
                  price: int = DEFAULT_TOWER_PRICE,
                  health: int = DEFAULT_TOWER_HEALTH,
@@ -61,7 +51,6 @@ class IceTower:
         self._rect.x, self._rect.y = pos
         self.hitbox = pygame.Rect(self._pos[0] - 35, self._pos[1] - 25, 100, 100)
         self.color = color
-        self._slowRate = slowRate
 
     def setHealth(self, health) -> None:  # Sets the health
         self._health = health
@@ -141,7 +130,6 @@ class IceTower:
 
     def reduceHealth(self, reduce_amount: int = DEFAULT_HIT) -> None:
         self.setHealth(self.health - reduce_amount)
-        self.declareHealthLevel()
 
     def isDead(self) -> bool:
         return not self.health > 0
@@ -151,7 +139,6 @@ class IceTower:
         self.setLevel(self.level + 1)
         self.setMaxHealth(self.maxHealth * (1 + upgrade_percent))
         self.setHealth(self.health * (1 + upgrade_percent))
-        self.declareHealthLevel()
         self.isSlowed = False
 
     def move(self, x, y):
@@ -181,21 +168,7 @@ class IceTower:
             return True
 
     def remove(self):
-        self.screens.fill((255, 255, 255))
-
-
-    """
-    --------------------------------------------
-    """
-
-
-    def declareHealthLevel(self) -> int:
-        if self.health > self.maxHealth / 2:
-            self.setHealthLevel(0)
-        elif self.health > self.maxHealth / 4:
-            self.setHealthLevel(1)
-        else:
-            self.setHealthLevel(2)
+        self.screen.fill((255, 255, 255))
 
     def scaleImage(self, img: pygame.Surface, scale: float = DEFAULT_SCALE) -> pygame.Surface:
         width = img.get_width()
@@ -227,19 +200,3 @@ class IceTower:
         x,y,z = self.color
         draw_health_bar(self.screen, health_rect.topleft, health_rect.size,
                 x,y,z, self.health/self.maxHealth)
-
-     
-
-    """def reduceEnemySpeed(self,enemy:unit):
-        pass
-        
-        The function that reduces the enemy speed according to the slow rate
-        :param enemy:unit
-        if self.hitbox.colliderect(enemy.hitbox):
-            enemy.speed = enemy.speed * (1-  self.slowRate)
-            return NULL
-        
-    def checkNumOfSlow(self,enemy:unit):
-        if self.isSlowed == False:
-            reduceEnemySpeed(enemy)
-            self.isSlowed = True """
