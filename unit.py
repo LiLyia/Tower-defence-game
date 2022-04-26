@@ -168,12 +168,9 @@ class Unit:
             path = queue.popleft()
             x, y = path[-1]
             if (y,x) == end:
-                print(noway)
-                print(path)
                 return path
             for x2, y2 in ((x+1,y), (x-1,y), (x,y+1), (x,y-1)):
                 if 0 <= x2 < w and 0 <= y2 < h and (y2,x2) not in noway and (x2, y2) not in seen:
-                    print((y2,x2))
                     queue.append(path + [(x2, y2)])
                     seen.add((x2, y2))
 
@@ -241,23 +238,23 @@ class AttackingUnit(Unit):
 
     def move(self,obstacles, find=True, block = True):
 
-        if(self.targetList == []):
+        if(self.moveList == []):
             return
 
         if find:
             closest = None
             closest_num = 999999
             x, y = self.pos
-            for k in self.targetList:
+            for k in self.moveList:
                 q, w = k.pos
                 num = abs(x - q) + abs(y - w)
                 if (num < closest_num):
                     closest_num = num
                     closest = k
-            self.current_target = closest
+            self.move_target = closest
 
 
-        super().move(self.current_target.pos, obstacles, block)
+        super().move(self.move_target.pos, obstacles, block)
 
 
 
@@ -276,21 +273,21 @@ class UvsU(AttackingUnit):
         def create_coord(matrix):
             return (matrix[0] * 50, matrix[1] * 50)
 
-        if(self.targetList == [] or self.isStopped):
+        if(self.moveList == [] or self.isStopped):
             return
 
         closest = None
         closest_num = 999999
         x, y = self.pos
-        for k in self.targetList:
+        for k in self.moveList:
             q, w = k.pos
             num = abs(x - q) + abs(y - w)
             if (num < closest_num):
                 closest_num = num
                 closest = k
-        self.current_target = closest
+        self.move_target = closest
 
-        x,y = self.current_target.pos
+        x,y = self.move_target.pos
         isTrue = ((x+30 >= self.pos[0] and x<= self.pos[0]) or (x-30 <= self.pos[0] and x>= self.pos[0])) and ( (y+30 >= self.pos[1] and y<= self.pos[1]) or (y-30 <= self.pos[1] and y>= self.pos[1]))
         x = x - (x % 50)
         y = y - (y % 50)
@@ -330,7 +327,7 @@ class UvsB(AttackingUnit):
         super().__init__(pos, screen, game_map_data, color, image_path, scale,800,800,150,50,50)
 
     def move(self,obstacles):
-        if self.current_target == None:
+        if self.move_target == None:
             super().move(obstacles)
         else:
             super().move(obstacles, find=False)
@@ -346,7 +343,7 @@ class UvsO(AttackingUnit):
         super().__init__(pos, screen,game_map_data, color, image_path, scale,400,400,100,100,50)
 
     def move(self,obstacles):
-        if self.current_target == None:
+        if self.move_target == None:
             super().move(obstacles, block=False)
         else:
             super().move(obstacles, find=False, block = False)

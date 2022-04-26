@@ -361,20 +361,23 @@ def turnSwitch(current_turn):
     if current_turn == player2:
         player1.gold += 200
         player2.gold += 200
+
         addGolds(player1.getGoldMines(), player1)
         addGolds(player2.getGoldMines(), player2)
+
     findMoveforUnits(player1, player2, player2.goldmines_list)
     findMoveforUnits(player2, player1, player1.goldmines_list)
+
     for unit in player1.getUnits():
         if type(unit) == UvsU or type(unit) == UvsB or type(unit) == UvsO:
-            if (len(unit.targetList) > 0):
+            if (len(unit.moveList) > 0):
                 unit.move(obstacles)
         else:
             unit.move(player2.castle_pos, obstacles)
 
     for unit in player2.getUnits():
         if type(unit) == UvsU or type(unit) == UvsB or type(unit) == UvsO:
-            if (len(unit.targetList) > 0):
+            if (len(unit.moveList) > 0):
                 unit.move(obstacles)
         else:
             unit.move(player1.castle_pos,obstacles)
