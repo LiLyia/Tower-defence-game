@@ -590,4 +590,10 @@ while is_game:
 
     pygame.display.flip()
     pygame.display.update()
+        if castle1.isDead() or castle2.isDead():
+        is_game = False
+if castle1.isDead():
+    print("Player 2 Won!!!!")
+else:
+    print("Player 1 Won!!!")
 pygame.quit()
