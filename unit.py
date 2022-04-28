@@ -109,6 +109,7 @@ class Unit:
         else:
             self.health = 0
 
+
     def draw(self):
         """
         Draws the unit with the given images
@@ -175,22 +176,10 @@ class Unit:
                     seen.add((x2, y2))
 
 
-
-    """"
-    def train(self, img, scale):
-        self.max_health += 200
-        width = img.get_width()
-        height = img.get_height()
-        self.img = pygame.transform.scale(img, (int(width * scale), int(height * scale)))
-    """
-
-
 """
 AttackingUnit Class is a superclass for UvsU, UvsB and UvsO and also subclass of Unit. 
 Includes attacking function.
 """
-
-
 class AttackingUnit(Unit):
     
     def __init__(self, pos: tuple[int], screen, game_map_data, color, image_path, scale,
@@ -237,10 +226,11 @@ class AttackingUnit(Unit):
                     e.hitEnemy()
 
     def move(self,obstacles, find=True, block = True):
-
+        """
+        Make the unit move only 1 block according to the path it has.
+        """
         if(self.moveList == []):
             return
-
         if find:
             closest = None
             closest_num = 999999
@@ -253,18 +243,16 @@ class AttackingUnit(Unit):
                     closest = k
             self.move_target = closest
 
-
+        self.hitbox = pygame.Rect(self.pos[0], self.pos[1], 100, 100)
         super().move(self.move_target.pos, obstacles, block)
-
 
 
 """
  UvsU is subclass of AttackingUnit. Meaning UnitvsUnit, it can attack and destroy the enemy units.
 """
-
 class UvsU(AttackingUnit):
     def __init__(self, pos, screen, game_map_data, color, image_path='Images/Units/uvsu.png', scale = 0.2):
-        super().__init__(pos, screen, game_map_data, color, image_path, scale, 500,500,100,50,50)
+        super().__init__(pos, screen, game_map_data, color, image_path, scale, 500,500,100,150,50)
 
     def move(self,obstacles, block = True):
         """
@@ -314,20 +302,22 @@ class UvsU(AttackingUnit):
             elif(self.pos[1] > goal_pos[1]):
                 self.rect.y -= 50
             self.pos = (self.rect.x, self.rect.y)
+        self.hitbox = pygame.Rect(self.pos[0], self.pos[1], 100, 100)
 
 
 
 """
  UvsB is subclass of AttackingUnit. Meaning UnitvsBuilding, it can attack and destroy enemy towers.
 """
-
-
 class UvsB(AttackingUnit):
     def __init__(self, pos: tuple[int], screen, game_map_data, color, image_path='Images/Units/basic.png', scale=0.2):
         super().__init__(pos, screen, game_map_data, color, image_path, scale,800,800,150,50,50)
 
     def move(self,obstacles):
-        if self.move_target == None:
+        """
+        Make the unit move only 1 block according to the path it has.
+        """
+        if self.move_target == None or self.move_target not in self.moveList:
             super().move(obstacles)
         else:
             super().move(obstacles, find=False)
@@ -336,14 +326,17 @@ class UvsB(AttackingUnit):
 """
  UvsO is subclass of AttackingUnit. Meaning UnitvsObstacle, it can attack and destroy the obstacles
 """
-
-
 class UvsO(AttackingUnit):
     def __init__(self, pos, screen, game_map_data, color, image_path='Images/Units/uvso.png', scale=0.2):
         super().__init__(pos, screen,game_map_data, color, image_path, scale,400,400,100,100,50)
 
     def move(self,obstacles):
-        if self.move_target == None:
+        """
+        Make the unit move only 1 block according to the path it has.
+        """
+        self.hitbox = pygame.Rect(self.pos[0], self.pos[1], 100, 100)
+        if self.move_target == None or self.move_target not in self.moveList:
             super().move(obstacles, block=False)
         else:
             super().move(obstacles, find=False, block = False)
+            
