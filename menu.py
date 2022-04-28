@@ -172,14 +172,17 @@ class VerticalMenu(Menu):
         """
         if name == "BackT" or name == "BackU" or name == "BackG":
             btn_x = self.x - 30
-            btn_y = self.y+400
+            btn_y = self.y + 400
         elif name == "Turn":
             btn_x = self.x - 60
-            btn_y = self.y+400
+            btn_y = self.y + 350
+        elif name == "Menu":
+            btn_x = self.x - 60
+            btn_y = self.y + 420
         elif name == "BasicTower" or name == "FireTower" or name == "SlowingTower" or name == "UpgradeTower" or name == "Towers":
             self.items += 1
             btn_x = self.x - 20
-            btn_y = self.y-75 + (self.items-1)*120
+            btn_y = self.y - 75 + (self.items-1)*120
         else:
             self.items += 1
             btn_x = self.x - 50
@@ -187,7 +190,7 @@ class VerticalMenu(Menu):
         self.buttons.append(VerticalButton(btn_x, btn_y, img, name, cost))
 
     def clear_btn(self, name):
-        if name != "BackT" and name != "BackU" and name != "Turn" and name != "BackG":
+        if name != "BackT" and name != "BackU" and name != "Turn" and name != "BackG" and name != "Menu":
             self.items -=1
         self.buttons.remove(VerticalMenu.get_button(self,name))
 
@@ -213,7 +216,7 @@ class VerticalMenu(Menu):
         for item in self.buttons:
             if item.name == "BackU" or item.name == "BackT" or item.name == "BackG":
                 text = "Back"
-            elif item.name == "Turn":
+            elif item.name == "Turn" or item.name == "Menu":
                 text = ""
             else:
                 text = item.name
