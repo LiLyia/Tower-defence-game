@@ -156,7 +156,7 @@ class ImageCreator:
                         self.setUnitList(0, 0, self.scaleImage(pygame.image.load(f'{filePath}/Units/{unitImageName}').convert_alpha(), 0.07))
 
 
-    def _createBackgroundImages(self, filePath, scale:float = DEFAULT_SCALE):
+    def _createBackgroundImages(self, filePath, scale:float = 1.0):
         backgroundImageNames: list[str] = [x for x in listdir(f'{filePath}/Background') if
                                        isfile(join(f'{filePath}/Background', x))]
         for backgroundImage in backgroundImageNames:
