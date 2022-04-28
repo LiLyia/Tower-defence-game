@@ -1,5 +1,5 @@
 import pygame
-# import sys
+import sys
 from gui_button import Button
 # @ramzan
 
@@ -12,19 +12,19 @@ def game_instruction():
     #  -----------Adjusting the Frame of the Game------------#
     # clock = pygame.time.Clock()
     # FPS = 60
-    bg_img = pygame.image.load("Images/instruction.png")
-    back_button = Button(140,525,"Back to Main-Menu")
+    bg_img = pygame.image.load("Images/Background/bg_3.png")
+    back_button = Button(140,525,"Back")
     is_game = True
     while is_game:
         # clock.tick(FPS)
         screen.blit(bg_img, (0, 0))
         if back_button.draw_Button(screen):
-            # print("Back")
-            is_game = False
+            screen = pygame.display.set_mode((850,650))
+            return
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                is_game = False
-                # sys.exit()
+                pygame.quit()
+                sys.exit()
         pygame.display.update()
 
 # game_instruction()
