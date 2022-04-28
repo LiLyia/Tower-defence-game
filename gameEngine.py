@@ -69,6 +69,7 @@ class Main:
     player2 = Player(screen, game_map_data, castle2, [(0, 0, 0), (0, 0, 255), (255, 0, 0)])
     obstacles = game_map.getObstacles()
     towers = []
+    turn = player1
 
     def clean():
         # Parameters: no parameters.
@@ -158,7 +159,7 @@ class Main:
         # Parameters: no parameters.
         # Creates the game.
         is_game = True
-        turn = Main.player1
+        
         sideMenu = menu.VerticalMenu(750, 120, pygame.transform.scale(pygame.image.load('Images/menu.png').convert_alpha(), (200, 650)))
         sideMenu.add_btn(Main.imager.getTowerImage(0, 0, 0), "Towers", 0)
         sideMenu.add_btn(Main.imager.getUnitImage(0, 0), "Units", 0)
@@ -335,15 +336,15 @@ class Main:
             # Parameters: name - name of the button; x - x position; y - y position; screen - the screen. 
             # Creates a tower object and adds it to tower list.
             tower = None
-            if turn == Main.player1:
+            if Main.turn == Main.player1:
                 color = Main.player1.color
             else:
                 color = Main.player2.color
-            if name == "BasicTower" and turn.checkCost("BasicTower") == True:
+            if name == "BasicTower" and Main.turn.checkCost("BasicTower") == True:
                 tower = Tower.createTower((x, y), Main.tower_images, screen, color)
-            elif name == "FireTower" and turn.checkCost("FireTower") == True:
+            elif name == "FireTower" and Main.turn.checkCost("FireTower") == True:
                 tower = FireTower.createTower((x, y), Main.fire_tower_images, screen, color)
-            elif name == "SlowingTower" and turn.checkCost("SlowingTower") == True:
+            elif name == "SlowingTower" and Main.turn.checkCost("SlowingTower") == True:
                 tower = IceTower.createTower((x, y), Main.ice_tower_images, screen, color)
             else:
                 return None
@@ -377,12 +378,12 @@ class Main:
             # Checks if the gold mine can be created. If yes, creats it. If no, prints the error.
             global obj
             x, y = pygame.mouse.get_pos()
-            if turn == Main.player1:
+            if Main.turn == Main.player1:
                 color = Main.player1.color
             else:
                 color = Main.player2.color
             try:
-                if turn.checkCost("GoldMine") == True:
+                if Main.turn.checkCost("GoldMine") == True:
                     obj = GoldMine((x, y), screen, color)
                     Main.moving_object = obj
                     obj.moving = True
@@ -413,10 +414,10 @@ class Main:
             currentUnitTarget(Main.player2.getUnits())
             currentTowerTarget(towers)
 
-        def turnSwitch(current_turn):
+        def turnSwitch(turn):
             # Parameters: current_turn - the current player.
             # Switches turn to another player.
-            if current_turn == Main.player2:
+            if turn == Main.player2:
                 Main.player1.gold += 200
                 Main.player2.gold += 200
                 addGolds(Main.player1.getGoldMines(), Main.player1)
@@ -521,14 +522,14 @@ class Main:
             elif side_menu_button == "Turn":
                 pygame.font.init()
                 my_font = pygame.font.SysFont('Comic Sans MS', 30)
-                if turn == Main.player1:
+                if Main.turn == Main.player1:
                     next_turn = "TURN OF Player 1"
                 else:
                     next_turn = "TURN OF Player 2"
                 text_surface = my_font.render(next_turn, False, (0, 0, 0))
                 Main.screen.blit(text_surface, (0, 0))  #It displays just for a moment.
-                turnSwitch(turn)
-                if (turn == Main.player1):
+                turnSwitch(Main.turn)
+                if (Main.turn == Main.player1):
                     return Main.player2
                 else:
                     return Main.player1
@@ -552,9 +553,9 @@ class Main:
                 obs.draw_health_bar()
             pos = pygame.mouse.get_pos()
             my_font = pygame.font.SysFont('Comic Sans MS', 20)
-            next_turn = "Your amount of Gold: " + str(turn.gold)
+            next_turn = "Your amount of Gold: " + str(Main.turn.gold)
             text_surface = my_font.render(next_turn, False, (0, 0, 0))
-            if turn == Main.player1:
+            if Main.turn == Main.player1:
                 Main.screen.blit(text_surface, (400, 0))
             else:
                 Main.screen.blit(text_surface, (0, 600))
@@ -574,7 +575,7 @@ class Main:
                             if tower.collide(Main.moving_object):
                                 not_allowed = True
                         if not not_allowed:
-                            if turn == Main.player1:
+                            if Main.turn == Main.player1:
                                 if "tower" in Main.moving_object.getType().lower():
                                     Main.player1.tower_list.append(Main.moving_object)
                                 else:
@@ -589,12 +590,12 @@ class Main:
                 # draw images at positions
                 elif event.type == MOUSEBUTTONDOWN:
                     side_menu_button = sideMenu.get_clicked(event.pos[0], event.pos[1])
-                    if turn == Main.player1:
+                    if Main.turn == Main.player1:
                         rt = buttons(side_menu_button, Main.player1)
                     else:
                         rt = buttons(side_menu_button, Main.player2)
                     if rt is not None:
-                        turn = rt
+                        Main.turn = rt
             #Find possible targets for units and towers
             units = Main.player1.getUnits() + Main.player2.getUnits()
             towers = Main.player1.getTowers() + Main.player2.getTowers()
