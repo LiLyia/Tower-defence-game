@@ -1,4 +1,7 @@
 import pygame
+from pygame import mixer
+from game_instructions import game_instruction
+from gui_button import Button
 from pygame.locals import *
 from castle import Castle
 from game_map import GameMap
@@ -11,583 +14,612 @@ from ice_tower import *
 from obstacle import *
 import menu
 import random
+import sys
 
+class Main:
+    moving_object = None
+    # -----------Colors------------------------#
+    WHITE = (255, 255, 255)
+        # ------------------game------------------#
+    screen = pygame.init()
+    SCREEN_HEIGHT, SCREEN_WIDTH = 650, 850
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    pygame.display.set_caption("Defence Tower")
+        #  -----------Adjusting the Frame of the Game------------#
+    clock = pygame.time.Clock()
+    FPS = 60
+        # -----------BG Image---------------------#
+    bg_img = pygame.image.load("Images/Background/bg_1.png")
+        #--------------SideMenu--------------------
+    imager = ImageCreator.createImageCreator('Images')
+    tower_pos = [(150, 150), (200, 200), (300, 300), (400, 400), (200, 500)]
+    position_tower = random.choice(tower_pos)
+    position_tower_2 = random.choice(tower_pos)
+    # creating towers
+    tower_images = [[pygame.image.load('Images/Towers/tower1.png'),pygame.image.load('Images/Towers/tower2.png'),pygame.image.load('Images/Towers/tower3.png')],[None,None,None],[None,None,None]]
+    fire_tower_images = [[pygame.image.load('Images/Towers/firetower.png'),pygame.image.load('Images/Towers/firetower.png'),pygame.image.load('Images/Towers/firetower.png')],[None,None,None],[None,None,None]]
+    ice_tower_images = [[pygame.image.load('Images/Towers/slowertower.png')],[None],[None]]
+    # randomly picking the position of castle 1 position
+    castle1_pos = [(150, 100), (200, 100), (250, 100), (300, 100), (350, 100), (400, 100), (450, 100)]
+    position_castle1 = random.choice(castle1_pos)
+    # randomly picking the position of castle 2 position
+    castle2_pos = [(150, 450), (200, 450), (250, 450), (300, 450), (350, 450), (400, 450), (450, 450)]
+    position_castle2 = random.choice(castle2_pos)
+    castle1 = Castle(imager, position_castle1, screen, 0, [(0, 0, 0), (255, 0, 0), (0, 255, 0)])
+    castle2 = Castle(imager, position_castle2, screen, 1, [(0, 0, 0), (0, 0, 255), (255, 0, 0)])
+    tile_size = 50
+    # -----------------Game Map---------------------
+    game_map_data = [
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 5, 4, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1],
+        [1, 0, 2, 2, 0, 0, 0, 0, 0, 3, 2, 0, 1],
+        [1, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    ]
+    game_map = GameMap(game_map_data, tile_size, screen, imager=imager)
+    player1 = Player(screen, game_map_data, castle1, [(0, 0, 0), (255, 0, 0), (0, 255, 0)])
+    player2 = Player(screen, game_map_data, castle2, [(0, 0, 0), (0, 0, 255), (255, 0, 0)])
+    obstacles = game_map.getObstacles()
+    towers = []
 
-# -----------Colors------------------------#
+    def clean():
+        # Parameters: no parameters.
+        # Cleans class parameters.
+        Main.moving_object = None
+        Main.position_tower = random.choice(Main.tower_pos)
+        Main.position_tower_2 = random.choice(Main.tower_pos)
+        Main.position_castle1 = random.choice(Main.castle1_pos)
+        Main.position_castle2 = random.choice(Main.castle2_pos)
+        Main.castle1 = Castle(Main.imager, Main.position_castle1, Main.screen, 0, [(0, 0, 0), (255, 0, 0), (0, 255, 0)])
+        Main.castle2 = Castle(Main.imager, Main.position_castle2, Main.screen, 1, [(0, 0, 0), (0, 0, 255), (255, 0, 0)])
+        Main.player1 = Player(Main.screen, Main.game_map_data, Main.castle1, [(0, 0, 0), (255, 0, 0), (0, 255, 0)])
+        Main.player2 = Player(Main.screen, Main.game_map_data, Main.castle2, [(0, 0, 0), (0, 0, 255), (255, 0, 0)])
+        Main.obstacles = Main.game_map.getObstacles()
 
-WHITE = (255, 255, 255)
-
-# ------------------game------------------#
-screen = pygame.init()
-SCREEN_HEIGHT, SCREEN_WIDTH = 650, 850
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Defence Tower")
-#  -----------Adjusting the Frame of the Game------------#
-clock = pygame.time.Clock()
-FPS = 60
-# -----------BG Image---------------------#
-bg_img = pygame.image.load("Images/Background/bg_1.png")
-
-#--------------SideMenu--------------------
-imager = ImageCreator.createImageCreator('Images')
-sideMenu = menu.VerticalMenu(750, 120, pygame.transform.scale(pygame.image.load('Images/menu.png').convert_alpha(), (200, 650)))
-sideMenu.add_btn(imager.getTowerImage(0, 0, 0), "Towers", 0)
-sideMenu.add_btn(imager.getUnitImage(0, 0), "Units", 0)
-sideMenu.add_btn(pygame.transform.scale(pygame.image.load('Images/turns.png').convert_alpha(), (120, 50)), "Turn", 0)
-sideMenu.add_btn(pygame.transform.scale(pygame.image.load('Images/Gold.png').convert_alpha(), (100, 80)), "Gold", 0)
-
-
-# creating towers
-tower_images = [[pygame.image.load('Images/Towers/tower1.png'),pygame.image.load('Images/Towers/tower2.png'),pygame.image.load('Images/Towers/tower3.png')],[None,None,None],[None,None,None]]
-fire_tower_images = [[pygame.image.load('Images/Towers/firetower.png'),pygame.image.load('Images/Towers/firetower.png'),pygame.image.load('Images/Towers/firetower.png')],[None,None,None],[None,None,None]]
-ice_tower_images = [[pygame.image.load('Images/Towers/slowertower.png'),pygame.image.load('Images/Towers/slowertower.png'),pygame.image.load('Images/Towers/slowertower.png')],[None],[None]]
-
-
-# randomly picking the position of castle 1 position
-castle1_pos = [(150, 100), (200, 100), (250, 100), (300, 100), (350, 100), (400, 100), (450, 100)]
-position_castle1 = random.choice(castle1_pos)
-# randomly picking the position of castle 2 position
-castle2_pos = [(150, 450), (200, 450), (250, 450), (300, 450), (350, 450), (400, 450), (450, 450)]
-position_castle2 = random.choice(castle2_pos)
-castle1 = Castle(imager, position_castle1, screen, 0, [(0, 0, 0), (255, 0, 0), (0, 255, 0)])
-castle2 = Castle(imager, position_castle2, screen, 1, [(0, 0, 0), (0, 0, 255), (255, 0, 0)])
-
-
-# ------------creating grid for game map --------------#
-tile_size = 50
-
-# -----------------Game Map---------------------
-game_map_data = [
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 5, 4, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1],
-    [1, 0, 2, 2, 0, 0, 0, 0, 0, 3, 2, 0, 1],
-    [1, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-]
-game_map = GameMap(game_map_data, tile_size, screen, imager=imager)
-player1 = Player(screen, game_map_data, castle1, [(0, 0, 0), (255, 0, 0), (0, 255, 0)])
-player2 = Player(screen, game_map_data, castle2, [(0, 0, 0), (0, 0, 255), (255, 0, 0)])
-
-obstacles = game_map.getObstacles()
-
-is_game = True
-moving_object = None
-#Parameters: list of buildings. Draws bullets
-def displayBullets(building_list):
-    for b in building_list:
-        if type(b) == FireTower:
-            for p in b.bulletList:
-                if p.target != None:
-                    p.drawBullets(screen)
-#Clear the bullets from the map.If bullets hits or miss the enemy , they will be deleted.
-def clearBullets(towerList):
-    for i in towerList:
-        if type(i) == FireTower:
-            for j in i.bulletList:
-                if j.hitEnemy == True:
-                    i.bulletList.remove(j)
-                if i.current_target == None:
-                    i.bulletList.remove(j)
-
-
-#Parameters:unit list. Removes units and towers from the lists.
-def clearObjects(safe_player, enemy_player):
-
-    unit_list = safe_player.getUnits()
-    tower_list = safe_player.getTowers()
-    obstacles_list = []
-    for g in obstacles:
-        obstacles_list.append(g)
-    for g in safe_player.getGoldMines():
-        obstacles_list.append(g)
-    for g in enemy_player.getGoldMines():
-        obstacles_list.append(g)
-
-    for e in unit_list:
-        if e.health <= 0:
-            unit_list.remove(e)
-            e.remove()
-        if type(e) != UvsU and type(e) != UvsB and type(e) != UvsO:
-            if e.pos == enemy_player.castle_pos:
-                enemy_player.castle.reduceHealth()
-                unit_list.remove(e)
-                e.remove()
-
-    for t in tower_list:
-        if t.health <= 0:
-            tower_list.remove(t)
-
-    for g in obstacles_list:
-        if g.health <= 0:
-            obstacles_list.remove(g)
-            g.remove()
-
-#Get the target for each tower in the list of targetable units.
-def findTargetforTowers(unit_list, tower_list):
-    for b in tower_list:
-        if type(b) == FireTower or type(b) == IceTower:
-            b.targetList = []
-            for m in unit_list:
-                if b.hitbox.colliderect(m.hitbox) == True:
-                    b.targetList.append(m)
-
-# Get the target for each tower in the list of targetable units.
-def currentTowerTarget(building_list):
-    for b in building_list:
-        if type(b) == FireTower or type(b) == IceTower:
-            for m in b.targetList:
-                if b.current_target == None:
-                   b.current_target = m
-                   if b.current_target.health < 0:
-                        b.targetList.remove(m)
-                if b.current_target.pos[0] <= m.pos[0]:
-                    b.current_target = m
-
-            if len(b.targetList) == 0:
-               b.current_target = None
-
-#If tower detects an enemy , this function will be activated and shoot to the enemies.
-def shootTowers(towerList):
-    for i in towerList:
-        if type(i) == FireTower:
-            if i.current_target != None:
-                i.shoot()
-        if type(i) == IceTower:
-            if i.current_target != None and i.current_target.isStopped == False:
-                i.current_target.setStopped(True)
-            elif i.current_target != None and i.current_target.isStopped == True:
-                i.current_target.setStopped(False)
-
-#Parameters: unit list, tower list, obstacle list. Depending on the unit type, defines possible enemies for units, adding them to the target list.
-def findMoveforUnits(safe, enemy, goldmines):
-    obstacle_list = []
-
-    for mine in goldmines:
-        obstacle_list.append(mine)
-
-    for obs in obstacles:
-        obstacle_list.append(obs)
-
-    safe_units = safe.getUnits()
-    enemy_units = enemy.getUnits()
-    enemy_towers = enemy.getTowers()
-
-    n = len(safe_units)
-    for i in range(n):
-
-        safe_units[i].moveList = []
-        
-        if type(safe_units[i]) == UvsU:
-            for j in range(len(enemy_units)):
-                safe_units[i].moveList.append(enemy_units[j])
-
-        if type(safe_units[i]) == UvsB:
-            for m in enemy_towers:
-                safe_units[i].moveList.append(m)
-
-        if type(safe_units[i]) == UvsO:
-            for m in obstacle_list:
-                safe_units[i].moveList.append(m)
-
-    """safe_units = safe.getUnits()
-    enemy_units = enemy.getUnits()
-    enemy_towers = enemy.getTowers()
-    n = len(safe_units)
-    for i in range(n):
-        safe_units[i].moveList = []
-        safe_units[i].move_target = None
-        if type(safe_units[i]) == UvsU:
-            for j in enemy_units:
-                safe_units[i].moveList.append(j)
-        elif type(safe_units[i]) == UvsB:
-            for m in enemy_towers:
-                safe_units[i].moveList.append(m)
-        elif type(safe_units[i]) == UvsO:
-            for m in obstacle_list:
-                safe_units[i].moveList.append(m)
-        closest = None
-        closest_num = 999999
-        x,y = safe_units[i].pos
-    
-        for k in safe_units[i].moveList:
-            q,w = k.pos
-            num = abs(x-q) + abs(y-w)
-            if (num < closest_num):
-                closest_num = num
-                closest = k
-        safe_units[i].move_target  = closest """
-
-
-def findTargetforUnits(safe, enemy, goldmines):
-    safe_units = safe.getUnits()
-    enemy_units = enemy.getUnits()
-    enemy_towers = enemy.getTowers()
-    obstacle_list = []
-
-    for mine in goldmines:
-        obstacle_list.append(mine)
-
-    for obs in obstacles:
-        obstacle_list.append(obs)
-    n = len(safe_units)
-    for i in range(n):
-        safe_units[i].targetList = []
-        safe_units[i].current_target = None
-        if type(safe_units[i]) == UvsU:
-            for j in enemy_units:
-                if safe_units[i].hitbox.colliderect(j.hitbox) == True:
-                        safe_units[i].targetList.append(j)
-
-        if type(safe_units[i]) == UvsB:
-            for m in enemy_towers:
-                if safe_units[i].hitbox.colliderect(m.hitbox) == True:
-                    safe_units[i].targetList.append(m)
-
-        if type(safe_units[i]) == UvsO:
-            for m in obstacle_list:
-                if safe_units[i].hitbox.colliderect(m.hitbox) == True:
-                    safe_units[i].targetList.append(m)
-
-        
-#Parameters: unit list. Defines the target of the current turn, adds it to the current target list.             
-def currentUnitTarget(unit_list):
-    for u in unit_list:
-        if type(u) == UvsU or type(u) == UvsB or type(u) == UvsO:
-            for t in u.targetList:
-                if u.current_target == None:
-                    u.current_target = t
-                    if u.current_target.health < 0:
-                        u.targetList.remove(t)
-                if u.current_target.pos[0] <= t.pos[0]:
-                   u.current_target = t
-            if len(u.targetList) == 0:
-                u.current_target = None
-
-#Parameters: unit list. Attacks the unit.         
-def shootUnits(unit_list):
-    for u in unit_list:
-        if type(u) == UvsU or type(u) == UvsB or type(u) == UvsO:
-            if u.current_target != None:
-                u.attack(type(u))
-                if u.current_target.health <0:
-                    u.current_target = None
-
-#Parameters: name of the button, screen. Creates a tower object and adds it to tower list.
-def create_tower(name, x, y, screen):
-    tower = None
-    if turn == player1:
-        color = player1.color
-    else:
-        color = player2.color
-    if name == "BasicTower" and turn.checkCost("BasicTower") == True:
-        tower = Tower.createTower((x, y), tower_images, screen, color)
-    elif name == "FireTower" and turn.checkCost("FireTower") == True:
-        tower = FireTower.createTower((x, y), fire_tower_images, screen, color)
-    elif name == "SlowingTower" and turn.checkCost("SlowingTower") == True:
-        tower = IceTower.createTower((x, y), ice_tower_images, screen, color)
-    else:
-        return None
-    return tower
-
-def upgrade_tower(turn):
-    for t in turn.getTowers():
-        if type(t) != FireTower and type(t) != IceTower:
-            if t.maxUp == 0:
-                break
-            if turn.checkCost("UpgradeTower") == True:
-                t.upgrade()
-            #if res == True:
-                #break
-            #else:
-
-def add_tower(name, screen):
-    global moving_object
-    global obj
-    x, y = pygame.mouse.get_pos()
-    try:
-        obj = create_tower(name, x, y, screen)
-        if obj != None:
-            moving_object = obj
-            obj.moving = True
-    except Exception as e:
-        print(str(e) + " NOT VALID NAME")
-def add_gold_mine(screen):
-    global moving_object
-    global obj
-    x, y = pygame.mouse.get_pos()
-    if turn == player1:
-        color = player1.color
-    else:
-        color = player2.color
-    try:
-        if turn.checkCost("GoldMine") == True:
-            obj = GoldMine((x, y), screen, color)
-            moving_object = obj
-            obj.moving = True
-    except Exception as e:
-        print(str(e) + " NOT VALID NAME")
-
-def addGolds(goldmineList, player):
-    for mine in goldmineList:
-        mine.addGold(player)
-
-#Parameters: player`s turn, returns player`s castle position.
-def castlePos(turn):
-    if turn == player1:
-        return player1.getCastlePos()
-    else:
-        return player2.getCastlePos()
-
-def targeting():
-
-    findTargetforUnits(player1, player2, player2.goldmines_list)
-    findTargetforUnits(player2, player1, player1.goldmines_list)
-    findTargetforTowers(player1.getUnits(),player2.getTowers())
-    findTargetforTowers(player2.getUnits(),player1.getTowers())
-    currentUnitTarget(player1.getUnits())
-    currentUnitTarget(player2.getUnits())
-    currentTowerTarget(towers)
-
-def turnSwitch(current_turn):
-    if current_turn == player2:
-        player1.gold += 200
-        player2.gold += 200
-        addGolds(player1.getGoldMines(), player1)
-        addGolds(player2.getGoldMines(), player2)
-    findMoveforUnits(player1, player2, player2.goldmines_list)
-    findMoveforUnits(player2, player1, player1.goldmines_list)
-    for unit in player1.getUnits():
-        if type(unit) == UvsU or type(unit) == UvsB or type(unit) == UvsO:
-            if (len(unit.moveList) > 0):
-                unit.move(obstacles)
+    def win(player):
+        # Parameters: player - the number of the player who won.
+        # Creates a window saying who won the game.
+        screen = pygame.display.set_mode((400, 280))
+        clock = pygame.time.Clock()
+        FPS = 60
+        if player == 1:
+            bg_img = Main.imager.getBackgroundImage(3)   #pygame.image.load("Images/Background/winner-1.png")
         else:
-            unit.move(player2.castle_pos, obstacles)
+            bg_img = Main.imager.getBackgroundImage(4)   #pygame.image.load("Images/Background/winner-2.png")
+        bg_img = pygame.transform.scale(bg_img, (400, 220))
+        menu_button = Button(25,200,"Menu")
+        while True:
+            clock.tick(FPS)
+            screen.blit(bg_img, (0, 0))
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if menu_button.draw_Button(screen):
+                    Main.main_menu()
+            pygame.display.update()
 
-    for unit in player2.getUnits():
-        if type(unit) == UvsU or type(unit) == UvsB or type(unit) == UvsO:
-            if (len(unit.moveList) > 0):
-                unit.move(obstacles)
-        else:
-            unit.move(player1.castle_pos,obstacles)
-
-    targeting()
-    #Attack
-    shootUnits(player1.getUnits())
-    shootUnits(player2.getUnits())
-    shootTowers(player1.getTowers())
-    shootTowers(player2.getTowers())
-
-    #Draw bullets
-    displayBullets(towers)
-    #Delete bullets and dead objects from the game
-    clearBullets(towers)
-    obstacleList1 = obstacles
-    obstacleList2 = obstacles
-    for mine in player1.getGoldMines():
-        obstacleList1.append(mine)
-    for mine in player2.getGoldMines():
-        obstacleList2.append(mine)
-    clearObjects(player1, player2)
-    clearObjects(player2, player1)
-
-
-   
-
-#Vertical menu implementation, takes chosen button as a parameter, draws and clears the buttons.
-def buttons(side_menu_button, player):
-    if side_menu_button == "BackT":
-        sideMenu.clear_btn("BasicTower")
-        sideMenu.clear_btn("FireTower")
-        sideMenu.clear_btn("SlowingTower")
-        sideMenu.clear_btn("UpgradeTower")
-        sideMenu.add_btn(imager.getTowerImage(0, 0, 0), "Towers", 0)
-        sideMenu.add_btn(imager.getUnitImage(0, 0), "Units", 0)
+    def main_menu():
+        # Parameters: no parameters.
+        # Creates the menu of the game.
+        screen = pygame.init()
+        SCREEN_HEIGHT, SCREEN_WIDTH = 850, 650
+        screen = pygame.display.set_mode((SCREEN_HEIGHT,SCREEN_WIDTH))
+        pygame.display.set_caption("Defence Tower")
+        #  -----------Adjusting the Frame of the Game------------#
+        clock = pygame.time.Clock()
+        FPS = 60
+        # -----------BG Image---------------------#
+        bg_img = pygame.image.load("Images/Background/bg_2.png")
+        bg_img = pygame.transform.scale(bg_img, (SCREEN_HEIGHT, SCREEN_WIDTH))
+        # ----------------Background music--------------
+        mixer.music.load('Music/background.wav')
+        mixer.music.play(1)
+        pygame.mixer.music.set_volume(0.05)
+        # Using Button class
+        Continue_game = Button(240, 80, "Continue")
+        Start_game = Button(240,155, "New game")
+        instruction = Button(240,230,"Instructions")
+        map_editor = Button(240, 305, "Map editor")
+        quit_button = Button(240,380,"Quit")
+        is_game = True
+        while is_game:
+            clock.tick(FPS)
+            screen.blit(bg_img, (0, 0))
+            if Continue_game.draw_Button(screen):
+                pygame.mixer.music.stop()
+                Main.game_start()
+            if Start_game.draw_Button(screen):
+                pygame.mixer.music.stop()
+                Main.clean()
+                Main.game_start()
+            if instruction.draw_Button(screen):
+                game_instruction()
+            map_editor.draw_Button(screen)
+            if quit_button.draw_Button(screen):
+                pygame.quit()
+                sys.exit()
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    is_game = False
+                    pygame.quit()
+                    sys.exit()
+            pygame.display.update()
+            
+    def game_start():
+        # Parameters: no parameters.
+        # Creates the game.
+        is_game = True
+        turn = Main.player1
+        sideMenu = menu.VerticalMenu(750, 120, pygame.transform.scale(pygame.image.load('Images/menu.png').convert_alpha(), (200, 650)))
+        sideMenu.add_btn(Main.imager.getTowerImage(0, 0, 0), "Towers", 0)
+        sideMenu.add_btn(Main.imager.getUnitImage(0, 0), "Units", 0)
+        sideMenu.add_btn(pygame.transform.scale(pygame.image.load('Images/turn.png').convert_alpha(), (120, 50)), "Turn", 0)
         sideMenu.add_btn(pygame.transform.scale(pygame.image.load('Images/Gold.png').convert_alpha(), (100, 80)), "Gold", 0)
-        sideMenu.clear_btn("BackT")
-        sideMenu.add_btn(pygame.transform.scale(pygame.image.load('Images/turns.png').convert_alpha(), (120, 50)), "Turn", 0)
+        sideMenu.add_btn(pygame.transform.scale(pygame.image.load('Images/mainmenu.png').convert_alpha(), (120, 50)), "Menu", 0)
+        while Main.position_tower_2 == Main.position_tower:
+            Main.position_tower_2 = random.choice(Main.tower_pos)
 
-    elif side_menu_button == "BackG":
-        sideMenu.clear_btn("GoldMine")
-        sideMenu.clear_btn("BackG")
-        sideMenu.add_btn(imager.getTowerImage(0, 0, 0), "Towers", 0)
-        sideMenu.add_btn(imager.getUnitImage(0, 0), "Units", 0)
-        sideMenu.add_btn(pygame.transform.scale(pygame.image.load('Images/Gold.png').convert_alpha(), (100, 80)), "Gold", 0)
-        sideMenu.add_btn(pygame.transform.scale(pygame.image.load('Images/turns.png').convert_alpha(), (120, 50)), "Turn", 0)
+        def displayBullets(tower_list):
+            # Parameters: building_list - the list of towers. 
+            # Draws bullets.
+            for tower in tower_list:
+                if type(tower) == FireTower:
+                    for bullet in tower.bulletList:
+                        if bullet.target != None:
+                            bullet.drawBullets(Main.screen)
 
-    elif side_menu_button == "BackU":
-        sideMenu.clear_btn("BasicUnit")
-        sideMenu.clear_btn("vsObstacles")
-        sideMenu.clear_btn("vsTowers")
-        sideMenu.clear_btn("vsUnits")
-        sideMenu.add_btn(imager.getTowerImage(0, 0, 0), "Towers", 0)
-        sideMenu.add_btn(imager.getUnitImage(0, 0), "Units", 0)
-        sideMenu.add_btn(pygame.transform.scale(pygame.image.load('Images/Gold.png').convert_alpha(), (100, 80)), "Gold", 0)
-        sideMenu.clear_btn("BackU")
-        sideMenu.add_btn(pygame.transform.scale(pygame.image.load('Images/turns.png').convert_alpha(), (120, 50)), "Turn", 0)
+        def clearBullets(tower_list):
+            # Parameters: towerList - the list towers.
+            # Clears the bullets from the map.If bullets hits or miss the enemy , they will be deleted.
+            for tower in tower_list:
+                if type(tower) == FireTower:
+                    for bullet in tower.bulletList:
+                        if bullet.hitEnemy == True:
+                            tower.bulletList.remove(bullet)
+                        if tower.current_target == None:
+                            tower.bulletList.remove(bullet)
 
-    elif side_menu_button == "Towers":
-        sideMenu.clear_btn("Towers")
-        sideMenu.clear_btn("Units")
-        sideMenu.clear_btn("Gold")
-        sideMenu.clear_btn("Turn")
-        sideMenu.add_btn(pygame.transform.scale(pygame.image.load('Images/back.png').convert_alpha(), (50, 50)), "BackT", 0)
-        sideMenu.add_btn(imager.getTowerImage(0, 0, 0), "BasicTower", 500)
-        sideMenu.add_btn(imager.getTowerImage(0, 1, 0), "FireTower", 600)
-        sideMenu.add_btn(imager.getTowerImage(2, 2, 0), "SlowingTower", 800)
-        sideMenu.add_btn(imager.getTowerImage(1, 1, 0), "UpgradeTower", 200)
+        def clearObjects(safe_player, enemy_player, goldMines):
+            # Parameters: safe_player - the current player; enemy_player - another player. 
+            # Removes dead units, towers and obstacles from the lists.
+            unit_list = safe_player.getUnits()
+            tower_list = safe_player.getTowers()
+            for unit in unit_list:
+                if unit.health <= 0:
+                    unit_list.remove(unit)
+                    unit.remove()
+                if type(unit) != UvsU and type(unit) != UvsB and type(unit) != UvsO:
+                    if unit.pos == enemy_player.castle_pos:
+                        enemy_player.castle.reduceHealth()
+                        if unit.health > 0:
+                            unit_list.remove(unit)
+                            unit.remove()
+            for tower in tower_list:
+                if tower.health <= 0:
+                    tower_list.remove(tower)
+            for mine in goldMines:
+                if mine.health <= 0:
+                    goldMines.remove(mine)    
+                    mine.remove()
+            for obs in Main.obstacles:
+                if obs.health <= 0: 
+                    Main.obstacles.remove(obs)
 
-    elif side_menu_button == "Units":
-        sideMenu.clear_btn("Towers")
-        sideMenu.clear_btn("Units")
-        sideMenu.clear_btn("Gold")
-        sideMenu.clear_btn("Turn")
-        sideMenu.add_btn(pygame.transform.scale(pygame.image.load('Images/back.png').convert_alpha(), (50, 50)), "BackU", 0)
-        sideMenu.add_btn(imager.getUnitImage(0, 0), "BasicUnit", 500)
-        sideMenu.add_btn(imager.getUnitImage(1, 0), "vsObstacles", 500)
-        sideMenu.add_btn(imager.getUnitImage(3, 0), "vsTowers", 700)
-        sideMenu.add_btn(imager.getUnitImage(2, 0), "vsUnits", 700)
+        def findTargetforTowers(unit_list, tower_list):
+            # Parameters: unit_list - the list of units; tower_list - the list of towers.
+            # Gets the target for each tower in the list of targetable units.
+            for tower in tower_list:
+                if type(tower) == FireTower or type(tower) == IceTower:
+                    tower.targetList = []
+                    for unit in unit_list:
+                        if tower.hitbox.colliderect(unit.hitbox) == True:
+                            tower.targetList.append(unit)
 
-    elif side_menu_button == "Gold":
-        sideMenu.clear_btn("Towers")
-        sideMenu.clear_btn("Units")
-        sideMenu.clear_btn("Turn")
-        sideMenu.clear_btn("Gold")
-        sideMenu.add_btn(pygame.transform.scale(pygame.image.load('Images/back.png').convert_alpha(), (50, 50)), "BackG", 0)
-        sideMenu.add_btn(pygame.transform.scale(pygame.image.load('Images/Gold.png').convert_alpha(), (100, 80)), "GoldMine", 400)
+        def currentTowerTarget(tower_list):
+            # Parameters: building_list - the list of towers.
+            # Gets the target for each tower in the list of targetable units.
+            for tower in tower_list:
+                if type(tower) == FireTower or type(tower) == IceTower:
+                    for target in tower.targetList:
+                        if tower.current_target == None:
+                            tower.current_target = target
+                        if tower.current_target.health < 0:
+                                tower.targetList.remove(target)
+                        if tower.current_target.pos[0] <= target.pos[0]:
+                            tower.current_target = target
+                    if len(tower.targetList) == 0:
+                        tower.current_target = None
 
-    elif side_menu_button == "BasicTower" or side_menu_button == "FireTower" or side_menu_button == "SlowingTower":
-        add_tower(side_menu_button, screen)
+        def shootTowers(tower_list):
+            # Parameters: towerList - the list of towers.
+            # If tower detects an enemy , this function will be activated and shoot to the enemies.
+            for tower in tower_list:
+                if type(tower) == FireTower:
+                    if tower.current_target != None:
+                        tower.shoot()
+                if type(tower) == IceTower:
+                    if tower.current_target != None and tower.current_target.isStopped == False:
+                        tower.current_target.setStopped(True)
+                    elif tower.current_target != None and tower.current_target.isStopped == True:
+                        tower.current_target.setStopped(False)
 
-    elif side_menu_button == "UpgradeTower": #and turn.checkCost("UpgradeTower") == True:
-        upgrade_tower(player)
+        def findMoveforUnits(safe, enemy, goldmines):
+            # Parameters: unit list, tower list, obstacle list. 
+            # Depending on the unit type, defines possible enemies for units, adding them to the target list.
+            obstacle_list = []
+            safe.move_target = None
+            for mine in goldmines:
+                obstacle_list.append(mine)
+            for obs in Main.obstacles:
+                obstacle_list.append(obs)
+            safe_units = safe.getUnits()
+            enemy_units = enemy.getUnits()
+            enemy_towers = enemy.getTowers()
+            n = len(safe_units)
+            for i in range(n):
+                safe_units[i].moveList = []
+                if type(safe_units[i]) == UvsU:
+                    for j in range(len(enemy_units)):
+                        safe_units[i].moveList.append(enemy_units[j])
+                if type(safe_units[i]) == UvsB:
+                    for m in enemy_towers:
+                        safe_units[i].moveList.append(m)
+                if type(safe_units[i]) == UvsO:
+                    for m in obstacle_list:
+                        safe_units[i].moveList.append(m)
 
-    elif side_menu_button == "GoldMine":
-        add_gold_mine(screen)
+        def findTargetforUnits(safe, enemy, goldmines):
+            # Parameters: safe - the current player; enemy - second player; goldmines - the list of gold mines.
+            # The function defines possible targets for units withing the attack range.
+            safe_units = safe.getUnits()
+            enemy_units = enemy.getUnits()
+            enemy_towers = enemy.getTowers()
+            obstacle_list = []
+            for mine in goldmines:
+                obstacle_list.append(mine)
+            for obs in Main.obstacles:
+                obstacle_list.append(obs)
+            unitLength = len(safe_units)
+            for i in range(unitLength):
+                safe_units[i].targetList = []
+                safe_units[i].current_target = None
+                if type(safe_units[i]) == UvsU:
+                    for enemy in enemy_units:
+                        if safe_units[i].hitbox.colliderect(enemy.hitbox) == True:
+                                safe_units[i].targetList.append(enemy)
+                if type(safe_units[i]) == UvsB:
+                    for enemy in enemy_towers:
+                        if safe_units[i].hitbox.colliderect(enemy.hitbox) == True:
+                            safe_units[i].targetList.append(enemy)
+                if type(safe_units[i]) == UvsO:
+                    for obs in obstacle_list:
+                        if safe_units[i].hitbox.colliderect(obs.hitbox) == True:
+                            safe_units[i].targetList.append(obs)
+            
+        def currentUnitTarget(unit_list):
+            # Parameters: unit_list - the list of units. 
+            # The function defines the target of the current turn, adds it to the current target list.  
+            for unit in unit_list:
+                unit.current_target = None
+                if type(unit) == UvsU or type(unit) == UvsB or type(unit) == UvsO:
+                    for target in unit.targetList:
+                        if unit.current_target == None:
+                            unit.current_target = target
+                            if unit.current_target.health < 0:
+                                unit.targetList.remove(target)
+                        if unit.current_target.pos[0] <= target.pos[0]:
+                            unit.current_target = target
+                    if len(unit.targetList) == 0:
+                        unit.current_target = None
+            
+        def shootUnits(unit_list):
+            # Parameters: unit_list - the list of units.
+            # The function makes units attack the objects.   
+            for unit in unit_list:
+                if type(unit) == UvsU or type(unit) == UvsB or type(unit) == UvsO:
+                    if unit.current_target != None:
+                        unit.attack(type(unit))
+                        if unit.current_target.health <0:
+                            unit.current_target = None
 
-    elif side_menu_button == "Turn":
-        pygame.font.init()
-        my_font = pygame.font.SysFont('Comic Sans MS', 30)
-        if turn == player1:
-            next_turn = "TURN OF Player 1"
-        else:
-            next_turn = "TURN OF Player 2"
-        text_surface = my_font.render(next_turn, False, (0, 0, 0))
-        screen.blit(text_surface, (0, 0))  #It displays just for a moment.
-        turnSwitch(turn)
-        if (turn == player1):
-            return player2
-        else:
-            return player1
-
-    elif side_menu_button in ["BasicUnit", "vsObstacles", "vsTowers", "vsUnits"]:
-        player.addUnit(side_menu_button)
-towers = []
-turn = player1
-#Game cycle
-while is_game:
-
-    clock.tick(FPS)
-    screen.blit(bg_img, (0, 0))
-    castle1.draw_castle()
-    castle1.draw_health_bar()
-    castle2.draw_castle()
-    castle2.draw_health_bar()
-    sideMenu.draw(screen)
-    # create_grid()
-    game_map.draw_tiles()
-    for obstacle in obstacles:
-        obstacle.draw()
-        obstacle.draw_health_bar()
-    pos = pygame.mouse.get_pos()
-    pygame.font.init()
-    my_font = pygame.font.SysFont('Comic Sans MS', 20)
-    next_turn = "Your amount of Gold: " + str(turn.gold)
-    text_surface = my_font.render(next_turn, False, (0, 0, 0))
-    if turn == player1:
-        screen.blit(text_surface, (400, 0))
-    else:
-        screen.blit(text_surface, (0, 600))
-
-    if moving_object:
-        moving_object.move(pos[0], pos[1])
-        collide = False
-        for tower in player1.getTowers() + player2.getTowers():
-            if tower.collide(moving_object):
-                collide = True
-
-    for event in pygame.event.get():
-        if event.type == QUIT:
-            is_game = False
-        elif event.type == MOUSEBUTTONUP:
-            if moving_object:
-                not_allowed = False
-                for tower in towers:
-                    if tower.collide(moving_object):
-                        not_allowed = True
-
-                if not not_allowed:
-                    if turn == player1:
-                        if "tower" in moving_object.getType().lower():
-                            player1.tower_list.append(moving_object)
-                        else:
-                            player1.getGoldMines().append(moving_object)
-                    else:
-                        if "tower" in moving_object.getType().lower():
-                            player2.tower_list.append(moving_object)
-                        else:
-                            player2.getGoldMines().append(moving_object)
-
-                    moving_object.moving = False
-                    moving_object = None
-
-
-        # draw images at positions
-        if event.type == MOUSEBUTTONDOWN:
-            side_menu_button = sideMenu.get_clicked(event.pos[0], event.pos[1])
-            if turn == player1:
-                rt = buttons(side_menu_button, player1)
+        def create_tower(name, x, y, screen):
+            # Parameters: name - name of the button; x - x position; y - y position; screen - the screen. 
+            # Creates a tower object and adds it to tower list.
+            tower = None
+            if turn == Main.player1:
+                color = Main.player1.color
             else:
-                rt = buttons(side_menu_button, player2)
-            if rt is not None:
-                turn = rt
-        #print(turn)
+                color = Main.player2.color
+            if name == "BasicTower" and turn.checkCost("BasicTower") == True:
+                tower = Tower.createTower((x, y), Main.tower_images, screen, color)
+            elif name == "FireTower" and turn.checkCost("FireTower") == True:
+                tower = FireTower.createTower((x, y), Main.fire_tower_images, screen, color)
+            elif name == "SlowingTower" and turn.checkCost("SlowingTower") == True:
+                tower = IceTower.createTower((x, y), Main.ice_tower_images, screen, color)
+            else:
+                return None
+            return tower
 
-    #Find possible targets for units and towers
-    units = player1.getUnits() + player2.getUnits()
-    towers = player1.getTowers() + player2.getTowers()
-    goldmines = player1.getGoldMines() + player2.getGoldMines()
+        def upgrade_tower(turn):
+            # Parameters: turn - the current player.
+            # The function upgrades the first ready to be upgraded basic tower.
+            for tower in turn.getTowers():
+                if type(tower) != FireTower and type(tower) != IceTower:
+                    if tower.maxUp == 0:
+                        break
+                    if turn.checkCost("UpgradeTower") == True:
+                        tower.upgrade()
 
+        def add_tower(name, screen):
+            # Parameters: name - the name of the clicked button; screen - the screen.
+            # Checks if the tower can be created. If yes, calls create_tower function. If no, prints an error
+            global obj
+            x, y = pygame.mouse.get_pos()
+            try:
+                obj = create_tower(name, x, y, screen)
+                if obj != None:
+                    Main.moving_object = obj
+                    obj.moving = True
+            except Exception as e:
+                print(str(e) + " NOT VALID NAME")
 
+        def add_gold_mine(screen):
+            # Parameters: screen - the screen.
+            # Checks if the gold mine can be created. If yes, creats it. If no, prints the error.
+            global obj
+            x, y = pygame.mouse.get_pos()
+            if turn == Main.player1:
+                color = Main.player1.color
+            else:
+                color = Main.player2.color
+            try:
+                if turn.checkCost("GoldMine") == True:
+                    obj = GoldMine((x, y), screen, color)
+                    Main.moving_object = obj
+                    obj.moving = True
+            except Exception as e:
+                print(str(e) + " NOT VALID NAME")
 
-    for tower in towers:
-        tower.draw_tower()
-        tower.draw_health_bar()
+        def addGolds(goldmineList, player):
+            # Parameters: goldmineList - the list of gold mines; player - the player name
+            # Adds additional to the player according to his gold mines.
+            for mine in goldmineList:
+                mine.addGold(player)
 
-    for unit in units:
-        unit.draw()
-        unit.draw_health_bar()
+        def castlePos(turn):
+            # Parameters: turn - the current player. 
+            # Return: current player`s castle position.
+            if turn == Main.player1:
+                return Main.player1.getCastlePos()
+            else:
+                return Main.player2.getCastlePos()
 
-    for mine in goldmines:
-        mine.draw()
-        mine.draw_health_bar()
+        def targeting():
+            # Calls function for units and towers to define enemies.
+            findTargetforUnits(Main.player1, Main.player2, Main.player2.getGoldMines())
+            findTargetforUnits(Main.player2, Main.player1, Main.player1.getGoldMines())
+            findTargetforTowers(Main.player1.getUnits(),Main.player2.getTowers())
+            findTargetforTowers(Main.player2.getUnits(),Main.player1.getTowers())
+            currentUnitTarget(Main.player1.getUnits())
+            currentUnitTarget(Main.player2.getUnits())
+            currentTowerTarget(towers)
 
+        def turnSwitch(current_turn):
+            # Parameters: current_turn - the current player.
+            # Switches turn to another player.
+            if current_turn == Main.player2:
+                Main.player1.gold += 200
+                Main.player2.gold += 200
+                addGolds(Main.player1.getGoldMines(), Main.player1)
+                addGolds(Main.player2.getGoldMines(), Main.player2)
+            findMoveforUnits(Main.player1, Main.player2, Main.player2.getGoldMines())
+            findMoveforUnits(Main.player2, Main.player1, Main.player1.getGoldMines())
+            for unit in Main.player1.getUnits():
+                if type(unit) == UvsU or type(unit) == UvsB or type(unit) == UvsO:
+                    if (len(unit.moveList) > 0):
+                        unit.move(Main.obstacles)
+                else:
+                    unit.move(Main.player2.castle_pos, Main.obstacles)
 
-    pygame.display.flip()
-    pygame.display.update()
-    if castle1.isDead() or castle2.isDead():
-        is_game = False
-if castle1.isDead():
-    print("Player 2 Won!!!!")
-elif castle2.isDead():
-    print("Player 1 Won!!!")
-print("Game Finished!!!")
-pygame.quit()
+            for unit in Main.player2.getUnits():
+                if type(unit) == UvsU or type(unit) == UvsB or type(unit) == UvsO:
+                    if (len(unit.moveList) > 0):
+                        unit.move(Main.obstacles)
+                else:
+                    unit.move(Main.player1.castle_pos,Main.obstacles)
+            targeting()
+            #Attack
+            shootUnits(Main.player1.getUnits())
+            shootUnits(Main.player2.getUnits())
+            shootTowers(Main.player1.getTowers())
+            shootTowers(Main.player2.getTowers())
+            #Draw bullets
+            displayBullets(towers)
+            #Delete bullets and dead objects from the game
+            clearBullets(towers)
+            clearObjects(Main.player1, Main.player2, Main.player1.getGoldMines())
+            clearObjects(Main.player2, Main.player1, Main.player2.getGoldMines())
 
+        def buttons(side_menu_button, player):
+            #Parameters: side_menu_button - the name of the button from the side menu; player - the current player.
+            #Vertical menu implementation, draws and clears the buttons.
+            if side_menu_button == "BackT":
+                sideMenu.clear_btn("BasicTower")
+                sideMenu.clear_btn("FireTower")
+                sideMenu.clear_btn("SlowingTower")
+                sideMenu.clear_btn("UpgradeTower")
+                sideMenu.add_btn(Main.imager.getTowerImage(0, 0, 0), "Towers", 0)
+                sideMenu.add_btn(Main.imager.getUnitImage(0, 0), "Units", 0)
+                sideMenu.add_btn(pygame.transform.scale(pygame.image.load('Images/Gold.png').convert_alpha(), (100, 80)), "Gold", 0)
+                sideMenu.add_btn(pygame.transform.scale(pygame.image.load('Images/mainmenu.png').convert_alpha(), (120, 50)), "Menu", 0)
+                sideMenu.clear_btn("BackT")
+                sideMenu.add_btn(pygame.transform.scale(pygame.image.load('Images/turn.png').convert_alpha(), (120, 50)), "Turn", 0)
+            elif side_menu_button == "BackG":
+                sideMenu.clear_btn("GoldMine")
+                sideMenu.clear_btn("BackG")
+                sideMenu.add_btn(Main.imager.getTowerImage(0, 0, 0), "Towers", 0)
+                sideMenu.add_btn(Main.imager.getUnitImage(0, 0), "Units", 0)
+                sideMenu.add_btn(pygame.transform.scale(pygame.image.load('Images/Gold.png').convert_alpha(), (100, 80)), "Gold", 0)
+                sideMenu.add_btn(pygame.transform.scale(pygame.image.load('Images/turn.png').convert_alpha(), (120, 50)), "Turn", 0)
+                sideMenu.add_btn(pygame.transform.scale(pygame.image.load('Images/mainmenu.png').convert_alpha(), (120, 50)), "Menu", 0)
+            elif side_menu_button == "BackU":
+                sideMenu.clear_btn("BasicUnit")
+                sideMenu.clear_btn("vsObstacles")
+                sideMenu.clear_btn("vsTowers")
+                sideMenu.clear_btn("vsUnits")
+                sideMenu.add_btn(Main.imager.getTowerImage(0, 0, 0), "Towers", 0)
+                sideMenu.add_btn(Main.imager.getUnitImage(0, 0), "Units", 0)
+                sideMenu.add_btn(pygame.transform.scale(pygame.image.load('Images/Gold.png').convert_alpha(), (100, 80)), "Gold", 0)
+                sideMenu.clear_btn("BackU")
+                sideMenu.add_btn(pygame.transform.scale(pygame.image.load('Images/turn.png').convert_alpha(), (120, 50)), "Turn", 0)
+                sideMenu.add_btn(pygame.transform.scale(pygame.image.load('Images/mainmenu.png').convert_alpha(), (120, 50)), "Menu", 0)
+            elif side_menu_button == "Towers":
+                sideMenu.clear_btn("Towers")
+                sideMenu.clear_btn("Units")
+                sideMenu.clear_btn("Gold")
+                sideMenu.clear_btn("Turn")
+                sideMenu.clear_btn("Menu")
+                sideMenu.add_btn(pygame.transform.scale(pygame.image.load('Images/back.png').convert_alpha(), (50, 50)), "BackT", 0)
+                sideMenu.add_btn(Main.imager.getTowerImage(0, 0, 0), "BasicTower", 500)
+                sideMenu.add_btn(Main.imager.getTowerImage(0, 1, 0), "FireTower", 600)
+                sideMenu.add_btn(Main.imager.getTowerImage(2, 2, 0), "SlowingTower", 800)
+                sideMenu.add_btn(Main.imager.getTowerImage(1, 1, 0), "UpgradeTower", 200)
+            elif side_menu_button == "Units":
+                sideMenu.clear_btn("Towers")
+                sideMenu.clear_btn("Units")
+                sideMenu.clear_btn("Gold")
+                sideMenu.clear_btn("Turn")
+                sideMenu.clear_btn("Menu")
+                sideMenu.add_btn(pygame.transform.scale(pygame.image.load('Images/back.png').convert_alpha(), (50, 50)), "BackU", 0)
+                sideMenu.add_btn(Main.imager.getUnitImage(0, 0), "BasicUnit", 500)
+                sideMenu.add_btn(Main.imager.getUnitImage(1, 0), "vsObstacles", 500)
+                sideMenu.add_btn(Main.imager.getUnitImage(3, 0), "vsTowers", 700)
+                sideMenu.add_btn(Main.imager.getUnitImage(2, 0), "vsUnits", 700)
+            elif side_menu_button == "Gold":
+                sideMenu.clear_btn("Towers")
+                sideMenu.clear_btn("Units")
+                sideMenu.clear_btn("Turn")
+                sideMenu.clear_btn("Gold")
+                sideMenu.clear_btn("Menu")
+                sideMenu.add_btn(pygame.transform.scale(pygame.image.load('Images/back.png').convert_alpha(), (50, 50)), "BackG", 0)
+                sideMenu.add_btn(pygame.transform.scale(pygame.image.load('Images/Gold.png').convert_alpha(), (100, 80)), "GoldMine", 400)
+            elif side_menu_button == "BasicTower" or side_menu_button == "FireTower" or side_menu_button == "SlowingTower":
+                add_tower(side_menu_button, Main.screen)
+            elif side_menu_button == "UpgradeTower":
+                upgrade_tower(player)
+            elif side_menu_button == "GoldMine":
+                add_gold_mine(Main.screen)
+            elif side_menu_button == "Turn":
+                pygame.font.init()
+                my_font = pygame.font.SysFont('Comic Sans MS', 30)
+                if turn == Main.player1:
+                    next_turn = "TURN OF Player 1"
+                else:
+                    next_turn = "TURN OF Player 2"
+                text_surface = my_font.render(next_turn, False, (0, 0, 0))
+                Main.screen.blit(text_surface, (0, 0))  #It displays just for a moment.
+                turnSwitch(turn)
+                if (turn == Main.player1):
+                    return Main.player2
+                else:
+                    return Main.player1
+            elif side_menu_button in ["BasicUnit", "vsObstacles", "vsTowers", "vsUnits"]:
+                player.addUnit(side_menu_button)
+            elif side_menu_button == "Menu":
+                Main.main_menu()
+
+        # Main Game cycle
+        while is_game:
+            Main.clock.tick(Main.FPS)
+            Main.screen.blit(Main.bg_img, (0, 0))
+            Main.castle1.draw_castle()
+            Main.castle1.draw_health_bar()
+            Main.castle2.draw_castle()
+            Main.castle2.draw_health_bar()
+            sideMenu.draw(Main.screen)
+            Main.game_map.draw_tiles()
+            for obs in Main.obstacles:
+                obs.draw()
+                obs.draw_health_bar()
+            pos = pygame.mouse.get_pos()
+            my_font = pygame.font.SysFont('Comic Sans MS', 20)
+            next_turn = "Your amount of Gold: " + str(turn.gold)
+            text_surface = my_font.render(next_turn, False, (0, 0, 0))
+            if turn == Main.player1:
+                Main.screen.blit(text_surface, (400, 0))
+            else:
+                Main.screen.blit(text_surface, (0, 600))
+            if Main.moving_object:
+                Main.moving_object.move(pos[0], pos[1])
+                collide = False
+                for tower in Main.player1.getTowers() + Main.player2.getTowers():
+                    if tower.collide(Main.moving_object):
+                        collide = True
+            for event in pygame.event.get():
+                if event.type == QUIT:
+                    Main.main_menu()
+                elif event.type == MOUSEBUTTONUP:
+                    if Main.moving_object != None:
+                        not_allowed = False
+                        for tower in towers:
+                            if tower.collide(Main.moving_object):
+                                not_allowed = True
+                        if not not_allowed:
+                            if turn == Main.player1:
+                                if "tower" in Main.moving_object.getType().lower():
+                                    Main.player1.tower_list.append(Main.moving_object)
+                                else:
+                                    Main.player1.getGoldMines().append(Main.moving_object)
+                            else:
+                                if "tower" in Main.moving_object.getType().lower():
+                                    Main.player2.tower_list.append(Main.moving_object)
+                                else:
+                                    Main.player2.getGoldMines().append(Main.moving_object)
+                            Main.moving_object.moving = False
+                            Main.moving_object = None
+                # draw images at positions
+                elif event.type == MOUSEBUTTONDOWN:
+                    side_menu_button = sideMenu.get_clicked(event.pos[0], event.pos[1])
+                    if turn == Main.player1:
+                        rt = buttons(side_menu_button, Main.player1)
+                    else:
+                        rt = buttons(side_menu_button, Main.player2)
+                    if rt is not None:
+                        turn = rt
+            #Find possible targets for units and towers
+            units = Main.player1.getUnits() + Main.player2.getUnits()
+            towers = Main.player1.getTowers() + Main.player2.getTowers()
+            for tower in towers:
+                tower.draw_tower()
+                tower.draw_health_bar()
+            for unit in units:
+                unit.draw()
+                unit.draw_health_bar()
+            for mine in Main.player1.getGoldMines():
+                mine.draw()
+                mine.draw_health_bar()
+            for mine in Main.player2.getGoldMines():
+                mine.draw()
+                mine.draw_health_bar()
+            pygame.display.flip()
+            pygame.display.update()
+            if Main.castle1.isDead() or Main.castle2.isDead():
+                is_game = False
+        if Main.castle1.isDead():
+            print("Player 2 Won!!!!")
+            Main.clean()
+            Main.win(2)
+        else:
+            print("Player 1 Won!!!")
+            Main.clean()
+            Main.win(1)
+Main.main_menu()
