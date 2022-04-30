@@ -1,8 +1,9 @@
 from __future__ import annotations
 import pygame
-from imageCreator import ImageCreator
+import math
 
 DEFAULT_HIT = 2
+
 
 class Obstacle:
     @classmethod
@@ -51,15 +52,16 @@ class Obstacle:
     def updateRect(self):
         self.rect.x, self.rect.y = self.pos
 
-    def getType(self):
+    @staticmethod
+    def getType():
         return "Hurdle"
 
     def reduceHealth(self, reduce_amount: int = DEFAULT_HIT) -> None:
-        '''
+        """
         The function that makes tower take a hit
         :param reduce_amount: int
         :return:
-        '''
+        """
         self.setHealth(self.health - reduce_amount)
         if self.isDead():
             self.remove()
@@ -70,7 +72,6 @@ class Obstacle:
     def draw_health_bar(self):
         """
         draw health bar above unit
-        :param win: surface
         :return: None
         """
 
@@ -87,3 +88,18 @@ class Obstacle:
         x, y, z = [(0, 0, 0), (0, 255, 0), (255, 255, 0)]
         draw_health_bar(self.screen, health_rect.topleft, health_rect.size,
                         x, y, z, self.health / self.max_health)
+
+    def collide(self, movingObject):
+        x2 = movingObject.pos[0]
+        y2 = movingObject.pos[1]
+        dis = math.sqrt((x2 - self.pos[0]) ** 2 + (y2 - self.pos[1]) ** 2)
+        if dis >= 100:
+            return False
+        else:
+            return True
+
+    @property
+    def isInappropriate(self) -> bool:
+        if self.pos[0] > 600 - 25 or self.pos[1] > 600 - 35 or self.pos[0] < 50 or self.pos[1] < 50:
+            return True
+        return False
