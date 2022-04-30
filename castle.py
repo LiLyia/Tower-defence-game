@@ -1,4 +1,5 @@
 import pygame
+import math
 
 
 class Castle:
@@ -12,6 +13,7 @@ class Castle:
         self.rect.x, self.rect.y = pos
         self.screen = screen
         self.color = color
+        self.pos = pos
 
     #         ----------Draw castle ------------------
     '''In draw_castle function when the health of castle decrease the images changes accordingly'''
@@ -19,11 +21,11 @@ class Castle:
     def draw_castle(self):
         # to check which image should be used when health dropped
         if self.health <= 600:
-            self.img = self.imager.getCastleImage(1,self.player_number)
+            self.img = self.imager.getCastleImage(1, self.player_number)
         elif self.health <= 300:
-            self.img = self.imager.getCastleImage(2,self.player_number)
+            self.img = self.imager.getCastleImage(2, self.player_number)
         else:
-            self.img = self.imager.getCastleImage(0,self.player_number)
+            self.img = self.imager.getCastleImage(0, self.player_number)
 
         self.screen.blit(self.img, self.rect)
 
@@ -32,7 +34,6 @@ class Castle:
     def draw_health_bar(self):
         """
         draw health bar above unit
-        :param win: surface
         :return: None
         """
         def draw_health_bar(screen, pos, size, borderC, backC, healthC, progress):
@@ -45,12 +46,39 @@ class Castle:
 
         health_rect = pygame.Rect(0, 0, self.img.get_width(), 7)
         health_rect.midbottom = self.rect.centerx, self.rect.top
-        x,y,z = self.color
-        draw_health_bar(self.screen, health_rect.topleft, health_rect.size,
-                x,y,z, self.health/self.max_health)
+        x, y, z = self.color
+        draw_health_bar(self.screen, health_rect.topleft, health_rect.size, x, y, z, self.health/self.max_health)
 
-    def reduceHealth(self, hit_amount = 50):
+    def reduceHealth(self, hit_amount=50):
         self.health -= hit_amount
 
     def isDead(self):
         return self.health <= 0
+
+    def collide(self, movingObject):
+        x2 = movingObject.pos[0]
+        y2 = movingObject.pos[1]
+        dis = math.sqrt((x2 - self.pos[0]) ** 2 + (y2 - self.pos[1]) ** 2)
+        if dis >= 100:
+            return False
+        else:
+            return True
+
+    def updateRect(self):
+        self.rect.x, self.rect.y = self.pos
+
+    def move(self, x, y):
+        """
+        moves tower to given x and y
+        :param x: int
+        :param y: int
+        :return: None
+        """
+        self.pos = (x, y)
+        self.updateRect()
+
+    @property
+    def isInappropriate(self) -> bool:
+        if self.pos[0] > 600 - 25 or self.pos[1] > 600 - 35 or self.pos[0] < 50 or self.pos[1] < 50:
+            return True
+        return False
