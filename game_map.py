@@ -1,5 +1,3 @@
-import pygame
-from pygame.locals import *
 from obstacle import *
 
 
@@ -25,9 +23,9 @@ class GameMap:
                         self.tiles_position_list.append(hurdle)
 
                     else:
-
                         pos = (col_cnt * tile_size, row_cnt * tile_size)
-                        obj_obstacle= Obstacle.createObstacle(pos=pos, screen=screen, imager= imager, tile_size=tile_size, image_number=tile-1)
+                        obj_obstacle = Obstacle.createObstacle(pos=pos, screen=screen, imager=imager,
+                                                               tile_size=tile_size, image_number=tile-1)
                         self.obstacles.append(obj_obstacle)
                 col_cnt += 1
             row_cnt += 1
