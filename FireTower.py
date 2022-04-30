@@ -1,9 +1,7 @@
 from __future__ import annotations
-import pygame
 import unit
 from projectile import *
 import math
-import projectile
 # -------FireTower Basic Features-------------------------#
 '''
 @Elbir Erberk
@@ -28,21 +26,22 @@ Implementing FireTower
 
 
 class FireTower:
-    '''
+    """
     The function that creates the tower
      without the need for other constant values
-    '''
+    """
 
     @classmethod
-    def createTower(cls, pos: tuple[int], image_list: list[[pygame.Surface]], screen: pygame.Surface, color) -> FireTower:
-        return cls(pos=pos, image_list=image_list, screen=screen, color = color)
+    def createTower(cls, pos: tuple[int, int], image_list: list[[pygame.Surface]],
+                    screen: pygame.Surface, color) -> FireTower:
+        return cls(pos=pos, image_list=image_list, screen=screen, color=color)
 
-    def __init__(self, pos: tuple[int],
+    def __init__(self, pos: tuple[int, int],
                  image_list: list[[pygame.Surface]],
                  screen: pygame.Surface,
-                 color: list[tuple(int, int, int)],
+                 color: list[tuple[int, int, int]],
                  damage: int = DEFAULT_DAMAGE,
-                 range: int = DEFAULT_RANGE,
+                 tower_range: int = DEFAULT_RANGE,
                  scale: float = DEFAULT_SCALE,
                  price: int = DEFAULT_TOWER_PRICE,
                  health: int = DEFAULT_TOWER_HEALTH,
@@ -63,18 +62,18 @@ class FireTower:
         temp_image: pygame.Surface = image_list[self.level][self.healthLevel]  # How the Tower will look is determined by its Level and Health.
         self._towerImage: pygame.Surface = self.scaleImage(temp_image, scale)
 
-        self._pos: tuple[int] = pos
+        self._pos: tuple[int, int] = pos
         self._rect = self.towerImage.get_rect()
         self._rect.x, self._rect.y = pos
 
-        self._range = range
+        self._range = tower_range
         self._damage = damage
         self.hitbox = pygame.Rect(self._pos[0] - 35, self._pos[1] - 25, 100, 100)
-        self.targetList = [] #for the enemies
-        self.bulletList = []#for the bullets
+        self.targetList = []  # for the enemies
+        self.bulletList = []  # for the bullets
         self.current_target = None
         self.current_cd = 0
-        self.cd = 300 #post-shot standby cooldown
+        self.cd = 300  # post-shot standby cooldown
         self.color = color
     # Constructors
 
@@ -97,8 +96,8 @@ class FireTower:
         self._damage = damage
 
     # Ramge for Attacking
-    def setRange(self, range) -> None:
-        self._range = range
+    def setRange(self, range_tower) -> None:
+        self._range = range_tower
 
     def setPos(self, pos):
         self._pos = pos
@@ -136,7 +135,7 @@ class FireTower:
         return self.scaleImage(self.towerList[self.level][self.healthLevel])
 
     @property
-    def pos(self) -> tuple[int]:
+    def pos(self) -> tuple[int, int]:
         return self._pos
 
     '''
@@ -189,7 +188,7 @@ class FireTower:
     Tower = <25HP -> healthLevel = 2
     '''
 
-    def declareHealthLevel(self) -> int:
+    def declareHealthLevel(self) -> None:
         if self.health > self.maxHealth / 2:
             self.setHealthLevel(0)
         elif self.health > self.maxHealth / 4:
@@ -197,7 +196,8 @@ class FireTower:
         else:
             self.setHealthLevel(2)
 
-    def scaleImage(self, img: pygame.Surface, scale: float = DEFAULT_SCALE) -> pygame.Surface:
+    @staticmethod
+    def scaleImage(img: pygame.Surface, scale: float = DEFAULT_SCALE) -> pygame.Surface:
         width = img.get_width()
         height = img.get_height()
         return pygame.transform.scale(img, (int(width * scale), int(height * scale)))
@@ -225,27 +225,24 @@ class FireTower:
         else:
             enemy.health -= self.damage
 
-
     def check_cd(self):
         if self.current_cd > 0:
             return False
         return True
-
     
     def shoot(self):
-        if self.check_cd() and self.current_target != None:
-            self.bulletList.append(Projectile(self.pos[0],self.pos[1],self.current_target,self.damage))
+        if self.check_cd() and self.current_target is not None:
+            self.bulletList.append(Projectile(self.pos[0], self.pos[1], self.current_target, self.damage))
             self.current_cd = self.cd
-        else :
+        else:
             self.current_cd -= 1
         for i in self.bulletList:
-            if self.current_target != None :
+            if self.current_target is not None:
                 i.drawToTarget()
                 i.hitEnemy()
-                if self.current_target.health  - self.damage < 0 :
+                if self.current_target.health - self.damage < 0:
                     self.current_target = None
-                    self.bulletList = []#reset enemy
-
+                    self.bulletList = []  # reset enemy
 
     def move(self, x, y):
         """
@@ -260,24 +257,22 @@ class FireTower:
     def collide(self, otherTower):
         x2 = otherTower.pos[0]
         y2 = otherTower.pos[1]
-
         dis = math.sqrt((x2 - self.pos[0]) ** 2 + (y2 - self.pos[1]) ** 2)
         if dis >= 100:
             return False
         else:
             return True
 
-
     def updateRect(self):
         self.rect.x, self.rect.y = self.pos
 
-    def getType(self):
+    @staticmethod
+    def getType():
         return "FireTower"
 
     def draw_health_bar(self):
         """
         draw health bar above unit
-        :param win: surface
         :return: None
         """
         def draw_health_bar(screen, pos, size, borderC, backC, healthC, progress):
@@ -290,9 +285,11 @@ class FireTower:
 
         health_rect = pygame.Rect(0, 0, self.towerImage.get_width()*3, 7)
         health_rect.midbottom = self.rect.centerx, self.rect.top
-        x,y,z = self.color
-        draw_health_bar(self.screen, health_rect.topleft, health_rect.size,
-                x,y,z, self.health/self.maxHealth)
+        x, y, z = self.color
+        draw_health_bar(self.screen, health_rect.topleft, health_rect.size, x, y, z, self.health/self.maxHealth)
 
-
-
+    @property
+    def isInappropriate(self) -> bool:
+        if self.pos[0] > 600 - 25 or self.pos[1] > 600 - 35 or self.pos[0] < 50 or self.pos[1] < 50:
+            return True
+        return False
