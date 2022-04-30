@@ -1,6 +1,4 @@
 from __future__ import annotations
-import pygame
-import unit
 from projectile import *
 import math
 
@@ -9,19 +7,21 @@ DEFAULT_TOWER_PRICE: int = 200
 DEFAULT_TOWER_HEALTH: int = 600
 DEFAULT_UPGRADE_PERCENT: float = 0.15
 DEFAULT_LEVEL: int = 0
-DEFAULT_SCALE = 0.09
-DEFAULT_HIT : int = 20
+DEFAULT_SCALE: float = 0.09
+DEFAULT_HIT: int = 20
+DEFAULT_SLOW_RATE_UPGRADE_PERCENT: float = 0.15
 
 
 class IceTower:
-    '''
+    """
         The function that creates the tower
          without the need for other constant values
-        '''
+    """
 
     @classmethod
-    def createTower(cls, pos: tuple[int], image_list: list[[pygame.Surface]], screen: pygame.Surface, color) -> IceTower:
-        return cls(pos=pos, image_list=image_list, screen=screen, color = color)
+    def createTower(cls, pos: tuple[int, int], image_list: list[[pygame.Surface]],
+                    screen: pygame.Surface, color) -> IceTower:
+        return cls(pos=pos, image_list=image_list, screen=screen, color=color)
 
     def __init__(self, pos: tuple[int, int],
                  image_list: list[[pygame.Surface]],
@@ -46,7 +46,7 @@ class IceTower:
         temp_image: pygame.Surface = image_list[self.level][self.healthLevel]  # How the Tower will look is determined by its Level and Health.
         self._towerImage: pygame.Surface = self.scaleImage(temp_image, scale)
 
-        self._pos: tuple[int] = pos
+        self._pos: tuple[int, int] = pos
         self._rect = self.towerImage.get_rect()
         self._rect.x, self._rect.y = pos
         self.hitbox = pygame.Rect(self._pos[0] - 35, self._pos[1] - 25, 100, 100)
@@ -66,15 +66,6 @@ class IceTower:
 
     def setHealthLevel(self, health_level) -> None:  # Set the health level for image
         self._health_level = health_level
-
-    def setDamage(self, damage) -> None:  # Set damage of Attack Tower
-        self._damage = damage
-
-    """def setSlowRate(self,slow_rate):
-        self.slowRate = self.slowRate * (1+slow_rate)"""
-
-
-
 
     def setPos(self, pos):
         self._pos = pos
@@ -112,7 +103,7 @@ class IceTower:
         return self.scaleImage(self.towerList[self.level][self.healthLevel])
 
     @property
-    def pos(self) -> tuple[int]:
+    def pos(self) -> tuple[int, int]:
         return self._pos
 
     '''
@@ -123,11 +114,6 @@ class IceTower:
     def rect(self) -> pygame.Rect:
         return self._rect
 
-    @property
-    def slowRate(self):
-        return self.slowRate
-
-
     def reduceHealth(self, reduce_amount: int = DEFAULT_HIT) -> None:
         self.setHealth(self.health - reduce_amount)
 
@@ -135,11 +121,9 @@ class IceTower:
         return not self.health > 0
 
     def upgrade(self, upgrade_percent: float = DEFAULT_UPGRADE_PERCENT):
-        self.setSlowRate(DEFAULT_SLOW_RATE_UPGRADE_PERCENT)
         self.setLevel(self.level + 1)
         self.setMaxHealth(self.maxHealth * (1 + upgrade_percent))
         self.setHealth(self.health * (1 + upgrade_percent))
-        self.isSlowed = False
 
     def move(self, x, y):
         """
@@ -150,17 +134,21 @@ class IceTower:
         """
         self._pos = (x, y)
         self.updateRect()
+        self.updateHitbox()
 
     def updateRect(self):
         self.rect.x, self.rect.y = self.pos
 
-    def getType(self):
+    def updateHitbox(self):
+        self.hitbox = pygame.Rect(self._pos[0] - 35, self._pos[1] - 25, 100, 100)
+
+    @staticmethod
+    def getType():
         return "SlowingTower"
 
     def collide(self, otherTower):
         x2 = otherTower.pos[0]
         y2 = otherTower.pos[1]
-
         dis = math.sqrt((x2 - self.pos[0]) ** 2 + (y2 - self.pos[1]) ** 2)
         if dis >= 100:
             return False
@@ -170,7 +158,8 @@ class IceTower:
     def remove(self):
         self.screen.fill((255, 255, 255))
 
-    def scaleImage(self, img: pygame.Surface, scale: float = DEFAULT_SCALE) -> pygame.Surface:
+    @staticmethod
+    def scaleImage(img: pygame.Surface, scale: float = DEFAULT_SCALE) -> pygame.Surface:
         width = img.get_width()
         height = img.get_height()
         return pygame.transform.scale(img, (int(width * scale), int(height * scale)))
@@ -180,11 +169,9 @@ class IceTower:
         self.hitbox = pygame.Rect(self._pos[0] - 35, self._pos[1] - 25, 100, 100)
         pygame.draw.rect(self.screen, (255, 0, 0), self.hitbox, 1)
 
-   
     def draw_health_bar(self):
         """
         draw health bar above unit
-        :param win: surface
         :return: None
         """
         def draw_health_bar(screen, pos, size, borderC, backC, healthC, progress):
@@ -197,6 +184,11 @@ class IceTower:
 
         health_rect = pygame.Rect(0, 0, self.towerImage.get_width()*3, 7)
         health_rect.midbottom = self.rect.centerx, self.rect.top
-        x,y,z = self.color
-        draw_health_bar(self.screen, health_rect.topleft, health_rect.size,
-                x,y,z, self.health/self.maxHealth)
+        x, y, z = self.color
+        draw_health_bar(self.screen, health_rect.topleft, health_rect.size, x, y, z, self.health/self.maxHealth)
+
+    @property
+    def isInappropriate(self) -> bool:
+        if self.pos[0] > 600 - 25 or self.pos[1] > 600 - 35 or self.pos[0] < 50 or self.pos[1] < 50:
+            return True
+        return False
