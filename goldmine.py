@@ -1,7 +1,10 @@
 import pygame
+import math
+
 
 class GoldMine:
-    def __init__(self, pos, screen, color, gold = 50, image_path='Images/Gold.png', scale=0.3, health=300, max_health=300, price=200):
+    def __init__(self, pos, screen, color, gold=50, image_path='Images/Gold.png', scale=0.3,
+                 health=300, max_health=300, price=200):
         self.health = health
         self.max_health = max_health
         self.price = price
@@ -19,7 +22,7 @@ class GoldMine:
         self.rect = self.img.get_rect()
         self.rect.x, self.rect.y = pos
         self.screen = screen
-        self.hitbox = pygame.Rect(self.pos[0]+3, self.pos[1]+8, 40, 40) #Hitbox area for the units
+        self.hitbox = pygame.Rect(self.pos[0]+3, self.pos[1]+8, 40, 40)  # Hitbox area for the units
 
     def draw(self):
         """
@@ -31,7 +34,6 @@ class GoldMine:
     def draw_health_bar(self):
         """
         draw health bar above unit
-        :param win: surface
         :return: None
         """
         def draw_health_bar(screen, pos, size, borderC, backC, healthC, progress):
@@ -44,9 +46,8 @@ class GoldMine:
 
         health_rect = pygame.Rect(0, 0, self.img.get_width(), 7)
         health_rect.midbottom = self.rect.centerx, self.rect.top
-        x,y,z = self.color
-        draw_health_bar(self.screen, health_rect.topleft, health_rect.size,
-                x,y,z, self.health/self.max_health)
+        x, y, z = self.color
+        draw_health_bar(self.screen, health_rect.topleft, health_rect.size, x, y, z, self.health/self.max_health)
 
     def remove(self):
         """
@@ -54,7 +55,7 @@ class GoldMine:
         """
         self.screen.fill((255, 255, 255))
 
-    def addGold(self,player):
+    def addGold(self, player):
         player.gold += self.gold_amount
 
     def move(self, x, y):
@@ -70,7 +71,8 @@ class GoldMine:
     def updateRect(self):
         self.rect.x, self.rect.y = self.pos
 
-    def getType(self):
+    @staticmethod
+    def getType():
         return "GoldMine"
 
     def reduceHealth(self, damage):
@@ -83,4 +85,19 @@ class GoldMine:
             self.health -= damage
         else:
             self.health = 0
+
+    def collide(self, movingObject):
+        x2 = movingObject.pos[0]
+        y2 = movingObject.pos[1]
+        dis = math.sqrt((x2 - self.pos[0]) ** 2 + (y2 - self.pos[1]) ** 2)
+        if dis >= 100:
+            return False
+        else:
+            return True
+
+    @property
+    def isInappropriate(self) -> bool:
+        if self.pos[0] > 600 - 25 or self.pos[1] > 600 - 35 or self.pos[0] < 50 or self.pos[1] < 50:
+            return True
+        return False
         
