@@ -82,3 +82,7 @@ class Castle:
         if self.pos[0] > 600 - 25 or self.pos[1] > 600 - 35 or self.pos[0] < 50 or self.pos[1] < 50:
             return True
         return False
+
+    @staticmethod
+    def getType():
+        return "Castle"
