@@ -117,7 +117,53 @@ class TESTGAME(unittest.TestCase):
         self.assertEqual(actual_pos,expected_pos)
         #####################
 
+    # Test for the FireTower
 
+    def test_firetower(self):
+        #####################
+        fire_tower_images = [[pygame.image.load('Images/Towers/firetower.png'),
+                              pygame.image.load('Images/Towers/firetower.png'),
+                              pygame.image.load('Images/Towers/firetower.png')]]
+
+
+        firetower1 = FireTower.FireTower.createTower((350,400),fire_tower_images,screen,[(0, 0, 0), (255, 0, 0), (0, 255, 0)])
+        self.assertEqual(firetower1.health,600)
+        self.assertEqual(firetower1._price,150)
+        self.assertEqual(firetower1.range,60)
+        self.assertEqual(firetower1.damage,110)
+        self.assertEqual(firetower1.cd,300)
+
+        actual_currentTarget = firetower1.current_target
+        expected_currentTarget = None
+        self.assertEqual(actual_currentTarget,expected_currentTarget)
+        #####################
+
+        #####################
+        actual_cd = firetower1.check_cd()
+        expected_cd = True
+        self.assertEqual(actual_cd,expected_cd)
+        #####################
+
+        #####################
+        actual_collide = firetower1.collide(unit.Unit((300,450),screen,game_map_data,[(0, 0, 0), (255, 0, 0), (0, 255, 0)]))
+        expected_collide = True
+        self.assertEqual(actual_collide,expected_collide)
+        #####################
+
+        #####################
+        actual_type = firetower1.getType()
+        expected_type = "FireTower"
+        self.assertEqual(actual_type,expected_type)
+        #####################
+        if firetower1.pos[0] > 600 - 25 or firetower1.pos[1] > 600 - 35 or firetower1.pos[0] < 50 or firetower1.pos[1] < 50:
+            actual_pos = False
+
+        else :
+            actual_pos = True
+
+        expected_pos = True
+        self.assertEqual(actual_pos,expected_pos)
+        #####################
 
     # Test for the Units
     def test_unit(self):
