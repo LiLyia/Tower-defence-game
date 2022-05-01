@@ -6,11 +6,22 @@ import pygame
 from obstacle import Obstacle
 from gui_button import Button
 
-
+##################################################################
 SCREEN_HEIGHT, SCREEN_WIDTH = 650, 850
 screen = pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 imager = imageCreator.ImageCreator.createImageCreator('Images')
+game_map_data = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],[1, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],[1, 0, 0, 0, 0, 0, 5, 4, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1],
+            [1, 0, 2, 2, 0, 0, 0, 0, 0, 3, 2, 0, 1],
+            [1, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        ]
+##################################################################
 
 class TESTGAME(unittest.TestCase):
 
@@ -105,6 +116,59 @@ class TESTGAME(unittest.TestCase):
         expected_pos = True
         self.assertEqual(actual_pos,expected_pos)
         #####################
+
+
+
+    # Test for the Units
+    def test_unit(self):
+
+        #####################
+        unit1 = unit.Unit((200,100),screen,game_map_data,[(0, 0, 0), (255, 0, 0), (0, 255, 0)])
+        actual_stopped = unit1.isStopped
+        expected_stopped = False
+        self.assertEqual(actual_stopped,expected_stopped)
+
+        actual_moveTarget = unit1.move_target
+        expected_moveTarget = None
+        self.assertEqual(actual_moveTarget,expected_moveTarget)
+
+        #####################
+
+        #####################
+        unit_uvsu = unit.UvsU(unit1.pos,screen,game_map_data,unit1.color)
+        self.assertEqual(unit_uvsu.health,500) ## 800 at first
+        self.assertEqual(unit_uvsu.max_health, 500) ## 800 at first
+        self.assertEqual(unit_uvsu.price, 100)
+        self.assertEqual(unit_uvsu.attack_range, 50)
+        self.assertEqual(unit_uvsu.cd , 150)
+
+        actual_lastTarget = unit_uvsu.last_target
+        expected_lastTarget = None
+        self.assertEqual(actual_lastTarget,expected_lastTarget)
+
+        actual_currentTarget = unit_uvsu.current_target
+        expected_currenTarget = None
+        self.assertEqual(actual_currentTarget,expected_currenTarget)
+
+        #####################
+        unit_uvso = unit.UvsO(unit1.pos,screen,game_map_data,unit1.color)
+        self.assertEqual(unit_uvso.health, 400)  ## 500 at first
+        self.assertEqual(unit_uvso.max_health, 400)  ## 500 at first
+        self.assertEqual(unit_uvso.price, 100)
+        self.assertEqual(unit_uvso.attack_range, 50)
+        self.assertEqual(unit_uvso.cd, 150)
+        ######################
+
+
+        ######################
+        unit_uvsb = unit.UvsB(unit1.pos,screen,game_map_data,unit1.color)
+        self.assertEqual(unit_uvsb.health, 800)  ## 500 at first
+        self.assertEqual(unit_uvsb.max_health, 800)  ## 500 at first
+        self.assertEqual(unit_uvsb.price, 150) ##100 at first
+        self.assertEqual(unit_uvsb.attack_range, 50)
+        self.assertEqual(unit_uvsb.cd, 150)
+        ######################
+    
 
     
 
