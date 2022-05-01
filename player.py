@@ -120,3 +120,24 @@ class Player:
 
     def getGoldMines(self):
         return self.goldmines_list
+
+    def setCastle(self, castle):
+        x, y = castle.pos
+        x = x - (x % 50)
+        y = y - (y % 50)
+        castle.move(x, y)
+        self.castle = castle
+        self.updateCastlePos()
+
+    def updateCastlePos(self):
+        self.castle_pos = (self.castle.rect.x, self.castle.rect.y)
+
+    def deleteCastle(self):
+        self.castle = None
+
+    def setGameMap(self, game_map_data):
+        self.map_data = game_map_data
+
+    def deleteTowers(self):
+        self.tower_list = []
+        self.tower_pos = []
