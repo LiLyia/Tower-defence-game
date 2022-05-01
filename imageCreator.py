@@ -109,7 +109,7 @@ class ImageCreator:
                     index: int = int(hurdleImageName.split('_')[1][0])
                     self.setHurdleList(index, image)
 
-    def _createCastleImages(self, filePath: str, scale:float = 0.09):
+    def _createCastleImages(self, filePath: str, scale:float = 0.08):
         castleImageNames: list[str] = [x for x in listdir(f'{filePath}/Castle') if
                                        isfile(join(f'{filePath}/Castle', x))]
         for castleImageName in castleImageNames:
