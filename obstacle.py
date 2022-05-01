@@ -23,6 +23,7 @@ class Obstacle:
         self.rect.x, self.rect.y = pos
         self.screen = screen
         self.hitbox = pygame.Rect(self.pos[0] + 3, self.pos[1] + 8, 40, 40)  # Hitbox area for the units
+        self.image_number = image_number
 
     def setHealth(self, health):
         self.health = health
@@ -103,3 +104,7 @@ class Obstacle:
         if self.pos[0] > 600 - 25 or self.pos[1] > 600 - 35 or self.pos[0] < 50 or self.pos[1] < 50:
             return True
         return False
+
+    @property
+    def imageNumber(self):
+        return self.image_number + 1
