@@ -43,3 +43,10 @@ class TESTGAME(unittest.TestCase):
         expected_pos = True
         self.assertEqual(actual_pos,expected_pos)
         #####################
+
+        #####################
+        actual_type = castle1.getType()
+        expected_type = "Castle"
+        self.assertEqual(actual_type,expected_type)
+        #####################
+
