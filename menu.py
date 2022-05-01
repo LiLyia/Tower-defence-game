@@ -161,7 +161,7 @@ class VerticalMenu(Menu):
         self.buttons = []
         self.items = 0
         self.bg = img
-        self.font = pygame.font.SysFont("comicsans", 25)
+        self.font = pygame.font.SysFont("comicsans", 20)
 
     def add_btn(self, img, name, cost):
         """
@@ -170,7 +170,7 @@ class VerticalMenu(Menu):
         :param name: str
         :return: None
         """
-        if name == "BackT" or name == "BackU" or name == "BackG":
+        if name == "BackT" or name == "BackU" or name == "BackG" or name == "BackC":
             btn_x = self.x - 30
             btn_y = self.y + 400
         elif name == "Turn":
@@ -190,7 +190,8 @@ class VerticalMenu(Menu):
         self.buttons.append(VerticalButton(btn_x, btn_y, img, name, cost))
 
     def clear_btn(self, name):
-        if name != "BackT" and name != "BackU" and name != "Turn" and name != "BackG" and name != "Menu":
+        if name != "BackT" and name != "BackU" and name != "Turn" and name != "BackG" \
+                and name != "Menu" and name != "BackC":
             self.items -=1
         self.buttons.remove(VerticalMenu.get_button(self,name))
 
@@ -214,12 +215,14 @@ class VerticalMenu(Menu):
         win.blit(self.bg, (self.x - self.bg.get_width()/2, self.y-120))
 
         for item in self.buttons:
-            if item.name == "BackU" or item.name == "BackT" or item.name == "BackG":
+            if item.name == "BackU" or item.name == "BackT" or item.name == "BackG" or item.name == "BackC":
                 text = "Back"
             elif item.name == "Turn" or item.name == "Menu":
                 text = ""
             else:
                 text = item.name
+                if self.get_item_cost(item.name) > 0:
+                    text += f' ({self.get_item_cost(item.name)})'
             item.draw(win)
             text = self.font.render(text, 1, (255,255,255))
             win.blit(text, (item.x + item.width/2 - text.get_width()/2 + 7, item.y + item.height + 5))
