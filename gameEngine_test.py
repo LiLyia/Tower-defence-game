@@ -180,6 +180,30 @@ class TESTGAME(unittest.TestCase):
         self.assertEqual(actual_isDead,expected_isDead)
         #####################
 
+        #####################
+        actual_type = icetower1.getType()
+        expected_type = "SlowingTower"
+        self.assertEqual(actual_type,expected_type)
+        #####################
+
+        tempObj = Obstacle.createObstacle((175,250),screen,imager,50,image_number=0,health=200,max_health=200)
+        actual_collide = icetower1.collide(tempObj)
+        expected_collide = True
+        self.assertEqual(actual_collide,expected_collide)
+        #####################
+
+
+        actual_pos_x = icetower1.pos[0]
+        actual_pos_y = icetower1.pos[1]
+        if actual_pos_x > 600-25 or actual_pos_y > 600-25 or actual_pos_x < 50 or actual_pos_y < 50:
+            expected_pos = True
+        else:
+            expected_pos = False
+
+
+        self.assertFalse(expected_pos)
+        #####################
+
     # Test for the Units
     def test_unit(self):
 
