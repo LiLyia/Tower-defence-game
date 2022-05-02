@@ -254,6 +254,33 @@ class TESTGAME(unittest.TestCase):
         self.assertEqual(unit_uvsb.cd, 150)
         ######################
     
+    # Test for the GoldMines
+
+    def test_goldmine(self):
+        ######################
+        goldmine1 = goldmine.GoldMine((250,300),screen,[(0, 0, 0), (255, 0, 0), (0, 255, 0)])
+        self.assertEqual(goldmine1.health,300)
+        self.assertEqual(goldmine1.price,200)
+        self.assertEqual(goldmine1.gold_amount,50) #100 at first
+        ######################
+
+
+        ######################
+        actual_collide = goldmine1.collide(Obstacle.createObstacle((175,250),screen,imager,50,image_number=0,health=200,max_health=200))
+        expected_collide = True
+        self.assertEqual(actual_collide,expected_collide)
+        ######################
+
+        ######################
+        actual_pos_x = goldmine1.pos[0]
+        actual_pos_y = goldmine1.pos[1]
+        if actual_pos_x > 575 or actual_pos_y > 565 or actual_pos_x<50 or actual_pos_y < 50:
+            expected_pos = True
+        else:
+            expected_pos = False
+
+        self.assertFalse(expected_pos)
+        ######################
 
     
 
