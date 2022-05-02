@@ -147,6 +147,9 @@ class Main:
                 game_instruction()
             if map_editor.draw_Button(screen):
                 pygame.mixer.music.stop()
+                Main.player1 = Player(Main.screen, Main.game_map_data, Main.castle1, [(0, 0, 0), (255, 0, 0), (0, 255, 0)])
+                Main.player2 = Player(Main.screen, Main.game_map_data, Main.castle2, [(0, 0, 0), (0, 0, 255), (255, 0, 0)])
+                Main.turn = Main.player1
                 editor =  MapEditor(Main.imager, screen, Main.turn, Main.player1, Main.player2, Main.tower_images,
                  Main.fire_tower_images, Main.ice_tower_images, Main.tile_size, clock, Main.bg_img)
                 Main.player1, Main.player2, Main.turn, Main.towers, Main.obstacles = editor.run()
