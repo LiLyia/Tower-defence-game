@@ -21,13 +21,10 @@ variables:
 cache:
   paths:
     - .cache/pip
-    - venv/
 
 before_script:
   - python --version  # For debugging
-  - pip install virtualenv
-  - virtualenv venv
-  - source venv/bin/activate
+  - pip install virtualenv pygame
 
 test:
   script:
