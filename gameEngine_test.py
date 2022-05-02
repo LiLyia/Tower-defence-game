@@ -318,5 +318,78 @@ class TESTGAME(unittest.TestCase):
             expected_pos = False
 
         self.assertFalse(expected_pos)
+
+     # Test for the Player
+
+    def test_player(self):
+        ######################
+        player1 = player.Player(self,game_map_data,Castle(imager, (150, 100), screen, 0, [(0, 0, 0), (255, 0, 0), (0, 255, 0)]),[(0, 0, 0), (255,   0, 0), (0, 255, 0)])
+        self.assertEqual(player1.gold,500)
+        ######################
+
+        ######################
+        actual_costForBasic = player1.checkCost(tower.Tower.price)
+        actual_costForFire =player1.checkCost(FireTower.FireTower.price)
+        actual_costForUpgrade = player1.checkCost(200)
+        actual_costForSlowing = player1.checkCost(ice_tower.IceTower.price)
+        actual_costForGoldMine = player1.checkCost(player1.getGoldMines())
+
+        expected_costForBasic = 200
+        expected_costForFire = 200
+        expected_costForIce = 200
+        expected_costForUpgrade = 200
+        expected_costForGoldMine = 100
+        ######################
+
+        ######################
+        if actual_costForGoldMine -expected_costForGoldMine >= 0:
+            expected_Gold = True
+        else :
+            expected_Gold = False
+
+        self.assertFalse(expected_Gold)
+        ######################
+
+        ######################
+        if actual_costForSlowing - expected_costForIce>= 0:
+            expected_Slow = True
+        else :
+            expected_Slow = False
+
+        self.assertFalse(expected_Slow)
+        ######################
+
+        ######################
+        if actual_costForBasic - expected_costForBasic >=0:
+            expected_Basic = True
+        else :
+            expected_Basic = False
+
+        self.assertFalse(expected_Basic)
+        ######################
+
+        ######################
+        if actual_costForFire -expected_costForFire >= 0:
+            expected_Fire = True
+        else:
+            expected_Fire = False
+
+        self.assertFalse(expected_Fire)
+        ######################
+
+        ######################
+        if actual_costForUpgrade -expected_costForUpgrade >= 0 :
+            expected_upgrade = True
+        else :
+            expected_upgrade = False
+
+        self.assertFalse(expected_upgrade)
+        ######################
+
+        ######################
+        actual_delete =player1.deleteCastle()
+        expected_delete = None
+        self.assertEqual(actual_delete,expected_delete)
+        ######################
     
 
