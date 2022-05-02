@@ -165,6 +165,21 @@ class TESTGAME(unittest.TestCase):
         self.assertEqual(actual_pos,expected_pos)
         #####################
 
+    # Test for the IceTower
+    def test_iceTower(self):
+
+        #####################
+        ice_tower_images = [[pygame.image.load('Images/Towers/slowertower.png')]]
+        icetower1 = ice_tower.IceTower.createTower((200,300),ice_tower_images,screen,[(0, 0, 0), (255, 0, 0), (0, 255, 0)])
+        self.assertEqual(icetower1.health,600)
+        self.assertEqual(icetower1.price,200)
+        self.assertEqual(icetower1.level,0)
+        #####################
+        actual_isDead = icetower1.isDead()
+        expected_isDead = False
+        self.assertEqual(actual_isDead,expected_isDead)
+        #####################
+
     # Test for the Units
     def test_unit(self):
 
