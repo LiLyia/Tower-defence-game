@@ -10,7 +10,8 @@ from gui_button import Button
 ##################################################################
 SCREEN_HEIGHT, SCREEN_WIDTH = 650, 850
 screen = pygame.init()
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+screen = pygame.display.set_mode(size=(0,0),flags=0,depth=0,display=0,vsync=0)
+#screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 imager = imageCreator.ImageCreator.createImageCreator('Images')
 game_map_data = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],[1, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],[1, 0, 0, 0, 0, 0, 5, 4, 0, 0, 0, 0, 1],
             [1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1],
