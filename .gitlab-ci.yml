@@ -24,7 +24,7 @@ cache:
 
 before_script:
   - python --version  # For debugging
-  - pip install virtualenv pygame
+  - pip install pygame
 
 test:
   script:
