@@ -43,16 +43,13 @@ class Projectile:
         self.hitbox = pygame.Rect(self.x,self.y,40,40)
 
     def hitEnemy(self):
-        if self.hitbox.colliderect(self.target.hitbox):
-            self.target.health -= self.damage
-            self.status = True
-            if self.target.health - self.damage <0 :
-                self.target.health = 0
-                self.status = False
+        if (self.target.health - self.damage) < 0:
+            self.target.health = 0
+            self.status = False
+        else:
+            self.target.reduceHealth(self.damage)
+
     def hitTower(self):
-        #if self.hitbox.colliderect(self.target.hitbox):
-            #self.target.health -= self.damage
-            #self.status = True
         if (self.target.health - self.damage) < 0:
             self.target.setHealth(0)
             self.status = False
