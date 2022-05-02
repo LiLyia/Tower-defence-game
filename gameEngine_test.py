@@ -1,20 +1,17 @@
 import unittest
 from castle import Castle
 import tower
+import  unit
 import imageCreator
 import pygame
 from obstacle import Obstacle
+import FireTower
+import ice_tower
+import goldmine
+import obstacle
+import player
 from gui_button import Button
 
-
-##################################################################
-SCREEN_HEIGHT, SCREEN_WIDTH = 650, 850
-screen = pygame.display.init()
-screen = pygame.display.set_mode(size=(0,0),flags=0,depth=0,display=0,vsync=0)
-print(pygame.display.list_modes())
-
-#screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-imager = imageCreator.ImageCreator.createImageCreator('Images')
 game_map_data = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],[1, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],[1, 0, 0, 0, 0, 0, 5, 4, 0, 0, 0, 0, 1],
             [1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1],
             [1, 0, 2, 2, 0, 0, 0, 0, 0, 3, 2, 0, 1],
@@ -25,10 +22,16 @@ game_map_data = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],[1, 0, 5, 0, 0, 0, 0, 0
             [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
         ]
-##################################################################
-
+import platform
+if platform.system() == "Windows":
+    
+    SCREEN_HEIGHT, SCREEN_WIDTH = 650, 850
+    screen = pygame.display.init()
+    ##screen = pygame.display.set_mode(size=(0,0),flags=0,depth=0,display=0,vsync=0)
+    print(pygame.display.list_modes())
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    imager = imageCreator.ImageCreator.createImageCreator('Images')
 class TESTGAME(unittest.TestCase):
-
     #Test Function for the Castle
     def test_castle(self):
         #####################
@@ -71,6 +74,7 @@ class TESTGAME(unittest.TestCase):
         self.assertEqual(actual_type,expected_type)
         #####################
 
+
     #Test for the BasicTower
     def test_tower(self):
 
@@ -105,11 +109,13 @@ class TESTGAME(unittest.TestCase):
         self.assertEqual(actual_collide,expected_collide)
         #####################
 
+
         #####################
         actual_type = tower1.getType()
         expected_type = "BasicTower"
         self.assertEqual(actual_type,expected_type)
         #####################
+
 
         #####################
         if tower1.pos[0] > 600 - 25 or tower1.pos[1] > 600 - 35 or tower1.pos[0] < 50 or tower1.pos[1] < 50:
@@ -120,6 +126,7 @@ class TESTGAME(unittest.TestCase):
         expected_pos = True
         self.assertEqual(actual_pos,expected_pos)
         #####################
+
 
     # Test for the FireTower
 
@@ -169,6 +176,9 @@ class TESTGAME(unittest.TestCase):
         self.assertEqual(actual_pos,expected_pos)
         #####################
 
+
+
+
     # Test for the IceTower
     def test_iceTower(self):
 
@@ -207,6 +217,9 @@ class TESTGAME(unittest.TestCase):
 
         self.assertFalse(expected_pos)
         #####################
+
+
+
 
     # Test for the Units
     def test_unit(self):
@@ -257,7 +270,8 @@ class TESTGAME(unittest.TestCase):
         self.assertEqual(unit_uvsb.attack_range, 50)
         self.assertEqual(unit_uvsb.cd, 150)
         ######################
-    
+
+
     # Test for the GoldMines
 
     def test_goldmine(self):
@@ -286,8 +300,6 @@ class TESTGAME(unittest.TestCase):
         self.assertFalse(expected_pos)
         ######################
 
-
-    # Test for the Obstacles
     def test_obstacle(self):
         ######################
         obstacle1 = obstacle.Obstacle.createObstacle((220,120),screen,imager,tile_size=50)
@@ -312,7 +324,7 @@ class TESTGAME(unittest.TestCase):
         self.assertEqual(actual_collide,expected_collide)
         ######################
 
-
+        ######################
         actual_pos_x = obstacle1.pos[0]
         actual_pos_y = obstacle1.pos[1]
 
@@ -322,12 +334,14 @@ class TESTGAME(unittest.TestCase):
             expected_pos = False
 
         self.assertFalse(expected_pos)
+        ######################
 
-     # Test for the Player
+
+    # Test for the Player
 
     def test_player(self):
         ######################
-        player1 = player.Player(self,game_map_data,Castle(imager, (150, 100), screen, 0, [(0, 0, 0), (255, 0, 0), (0, 255, 0)]),[(0, 0, 0), (255,   0, 0), (0, 255, 0)])
+        player1 = player.Player(self,game_map_data,Castle(imager, (150, 100), screen, 0, [(0, 0, 0), (255, 0, 0), (0, 255, 0)]),[(0, 0, 0), (255, 0, 0), (0, 255, 0)])
         self.assertEqual(player1.gold,500)
         ######################
 
@@ -395,5 +409,7 @@ class TESTGAME(unittest.TestCase):
         expected_delete = None
         self.assertEqual(actual_delete,expected_delete)
         ######################
-    
+
+
+
 
