@@ -82,7 +82,9 @@ class Main:
         Main.castle2 = Castle(Main.imager, Main.position_castle2, Main.screen, 1, [(0, 0, 0), (0, 0, 255), (255, 0, 0)])
         Main.player1 = Player(Main.screen, Main.game_map_data, Main.castle1, [(0, 0, 0), (255, 0, 0), (0, 255, 0)])
         Main.player2 = Player(Main.screen, Main.game_map_data, Main.castle2, [(0, 0, 0), (0, 0, 255), (255, 0, 0)])
+        Main.game_map = GameMap(Main.game_map_data, Main.tile_size, Main.screen, imager=Main.imager)
         Main.obstacles = Main.game_map.getObstacles()
+        Main.turn = Main.player1
 
     def win(player):
         # Parameters: player - the number of the player who won.
