@@ -5,6 +5,7 @@ import imageCreator
 import pygame
 from obstacle import Obstacle
 from gui_button import Button
+from pygame.locals import *
 
 ##################################################################
 SCREEN_HEIGHT, SCREEN_WIDTH = 650, 850
