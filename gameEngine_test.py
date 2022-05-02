@@ -282,5 +282,41 @@ class TESTGAME(unittest.TestCase):
         self.assertFalse(expected_pos)
         ######################
 
+
+    # Test for the Obstacles
+    def test_obstacle(self):
+        ######################
+        obstacle1 = obstacle.Obstacle.createObstacle((220,120),screen,imager,tile_size=50)
+        self.assertEqual(obstacle1.health,200)
+        ######################
+
+        ######################
+        actual_type = obstacle1.getType()
+        expected_type = "Hurdle"
+        self.assertEqual(actual_type,expected_type)
+        ######################
+
+        ######################
+        actual_isDead = obstacle1.isDead()
+        expected_isDead= False
+        self.assertEqual(actual_isDead,expected_isDead)
+        ######################
+
+        ######################
+        actual_collide = obstacle1.collide(unit.Unit((200,100),screen,game_map_data,[(0, 0, 0), (255, 0, 0), (0, 255, 0)]))
+        expected_collide = True
+        self.assertEqual(actual_collide,expected_collide)
+        ######################
+
+
+        actual_pos_x = obstacle1.pos[0]
+        actual_pos_y = obstacle1.pos[1]
+
+        if actual_pos_x > 575 or actual_pos_y > 565 or actual_pos_x < 50 or actual_pos_y <50:
+            expected_pos=  True
+        else :
+            expected_pos = False
+
+        self.assertFalse(expected_pos)
     
 
