@@ -9,8 +9,7 @@ from gui_button import Button
 
 ##################################################################
 SCREEN_HEIGHT, SCREEN_WIDTH = 650, 850
-screen = pygame.init()
-
+screen = pygame.display.init()
 screen = pygame.display.set_mode(size=(0,0),flags=0,depth=0,display=0,vsync=0)
 print(pygame.display.list_modes())
 
