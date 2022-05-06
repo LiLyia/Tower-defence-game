@@ -28,7 +28,9 @@ class Button:
 
         # For getting the position of mouse
         position = pygame.mouse.get_pos()
-
+        if self.text == "Load" or self.text == "Delete":
+            self.btn_width = 200
+            self.btn_height = 40
         # For creating the Pygame rectangular area of the object (Button)
         button_rect = Rect(self.x, self.y, self.btn_width, self.btn_height)
         # For checking the Mouse over
@@ -56,5 +58,8 @@ class Button:
         # add text to button
         text_img = self.font.render(self.text, True, self.text_color)
         text_len = text_img.get_width()
-        screen.blit(text_img, (self.x + int(self.btn_width / 2) - int(text_len / 2), self.y + 25))
+        if self.text == "Load" or self.text == "Delete":
+            screen.blit(text_img, (self.x + int(self.btn_width / 2) - int(text_len / 2), self.y + 10))
+        else:
+            screen.blit(text_img, (self.x + int(self.btn_width / 2) - int(text_len / 2), self.y + 25))
         return action
