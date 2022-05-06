@@ -1,3 +1,4 @@
+from json import load
 from pygame import mixer
 from game_instructions import game_instruction
 from gui_button import Button
@@ -49,6 +50,11 @@ class Main:
     castle1 = Castle(imager, position_castle1, screen, 0, [(0, 0, 0), (255, 0, 0), (0, 255, 0)])
     castle2 = Castle(imager, position_castle2, screen, 1, [(0, 0, 0), (0, 0, 255), (255, 0, 0)])
     tile_size = 50
+    editor = None
+    map_count = 1
+    map_number = 1
+    map_files = []
+    file_dict = {}
     # -----------------Game Map---------------------
     game_map_data = [
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -125,13 +131,14 @@ class Main:
         # ----------------Background music--------------
         mixer.music.load('Music/background.wav')
         mixer.music.play(1)
-        pygame.mixer.music.set_volume(0.05)
+        pygame.mixer.music.set_volume(0.03)
         # Using Button class
         Continue_game = Button(240, 80, "Continue")
         Start_game = Button(240, 155, "New game")
-        instruction = Button(240, 230, "Instructions")
-        map_editor = Button(240, 305, "Map editor")
-        quit_button = Button(240, 380, "Quit")
+        Load_map = Button(240, 230, "Load map")
+        instruction = Button(240, 305, "Instructions")
+        map_editor = Button(240, 380, "Map editor")
+        quit_button = Button(240, 455, "Quit")
         is_game = True
         while is_game:
             clock.tick(FPS)
@@ -143,16 +150,29 @@ class Main:
                 pygame.mixer.music.stop()
                 Main.clean()
                 Main.game_start()
+            if Load_map.draw_Button(screen):
+                Main.load_maps()
+
             if instruction.draw_Button(screen):
                 game_instruction()
             if map_editor.draw_Button(screen):
+                new_map = None
                 pygame.mixer.music.stop()
+                #Main.map_count += 1
                 Main.player1 = Player(Main.screen, Main.game_map_data, Main.castle1, [(0, 0, 0), (255, 0, 0), (0, 255, 0)])
                 Main.player2 = Player(Main.screen, Main.game_map_data, Main.castle2, [(0, 0, 0), (0, 0, 255), (255, 0, 0)])
                 Main.turn = Main.player1
-                editor =  MapEditor(Main.imager, screen, Main.turn, Main.player1, Main.player2, Main.tower_images,
-                 Main.fire_tower_images, Main.ice_tower_images, Main.tile_size, clock, Main.bg_img)
-                Main.player1, Main.player2, Main.turn, Main.towers, Main.obstacles = editor.run()
+                Main.editor =  MapEditor(Main.imager, screen, Main.turn, Main.player1, Main.player2, Main.tower_images,
+                 Main.fire_tower_images, Main.ice_tower_images, Main.tile_size, clock, Main.bg_img, Main.map_count, Main.map_number)
+                try:
+                    Main.player1, Main.player2, Main.turn, Main.towers, Main.obstacles, new_map = Main.editor.run()
+                except:
+                    print("Exited map editor")
+                
+                if new_map != None:
+                    Main.map_count += 1
+                    Main.map_number += 1
+                    Main.map_files.append(new_map)
                 if Main.player1.castle is None or Main. player2.castle is None:
                     Main.player1.setCastle(Main.castle1)
                     Main.player2.setCastle(Main.castle2)
@@ -166,12 +186,95 @@ class Main:
                     pygame.quit()
                     sys.exit()
             pygame.display.update()
+    def load_maps():
+        # Paramteres: no parameters.
+        # Creates a screen with the list of saved maps.
+        screen = pygame.init()
+        SCREEN_HEIGHT, SCREEN_WIDTH = 850, 650
+        screen = pygame.display.set_mode((SCREEN_HEIGHT, SCREEN_WIDTH))
+        pygame.display.set_caption("Defence Tower")
+        #  -----------Adjusting the Frame of the Game------------#
+        clock = pygame.time.Clock()
+        FPS = 60
+        # -----------BG Image---------------------#
+        bg_img = pygame.image.load("Images/Background/bg_2.png")
+        bg_img = pygame.transform.scale(bg_img, (SCREEN_HEIGHT, SCREEN_WIDTH))
+        
+        menu_button = Button(240, 455, "Main menu")
+        
+        if Main.map_files != None:
+                y = 50
+                
+                for file in Main.map_files:
+                    #print(file)
+                    my_font = pygame.font.SysFont('Comic Sans MS', 30)
+                    load_button =  Button(300, y, "Load")
+                    delete_button = Button(550, y, "Delete")
+                    Main.file_dict[file] = (load_button, delete_button)
+                    y += 60
+        while True:
+            clock.tick(FPS)
+            screen.blit(bg_img, (0, 0))
+            if Main.map_files != None:
+                y = 50
+                for file in Main.map_files:
+                    text_surface = my_font.render(file, False, (255, 255, 255))
+                    screen.blit(text_surface, (150, y))
+                    y += 60
+                new_dict = Main.file_dict
+                for key in list(new_dict):
+                    if new_dict[key][0].draw_Button(screen):
+                        Main.load_map(key)
+                    if new_dict[key][1].draw_Button(screen):
+                        print("trying to delete map")
+                        Main.delete_map(key)
+            if menu_button.draw_Button(screen):
+                Main.main_menu()
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    Main.main_menu()
+            pygame.display.update()
+    def delete_map(file_name):
+        # Parameters: file_name - the name of a file that needs to be removed.
+        # Deletes a file that the user chose to delete.
+        Main.map_number -= 1
+        found = 0
+        for i in Main.file_dict:
+            if file_name == i:
+                found = 1
+            if found == 1:
+                Main.file_dict[i][0].y -= 60
+                Main.file_dict[i][1].y -= 60
+        Main.file_dict.pop(file_name)
+        for i in Main.file_dict:
+            print(i)
+        Main.map_files.remove(file_name)
+
+    def load_map(file_name):
+        # Parameters: file_name - the name of a file that needs to be removed.
+        # Loads a map by creating a new game with it.
+        new_file = open(file_name, "r")
+        x, y = new_file.readline().split()
+        Main.position_castle1 = int(x), int(y)
+        x, y = new_file.readline().split()
+        Main.position_castle2 = int(x), int(y)
+        Main.castle1 = Castle(Main.imager, Main.position_castle1, Main.screen, 0, [(0, 0, 0), (255, 0, 0), (0, 255, 0)])
+        Main.castle2 = Castle(Main.imager, Main.position_castle2, Main.screen, 1, [(0, 0, 0), (0, 0, 255), (255, 0, 0)])
+        Main.player1 = Player(Main.screen, Main.game_map_data, Main.castle1, [(0, 0, 0), (255, 0, 0), (0, 255, 0)])
+        Main.player2 = Player(Main.screen, Main.game_map_data, Main.castle2, [(0, 0, 0), (0, 0, 255), (255, 0, 0)])
+        Main.obstacles = []
+        amount = int(new_file.readline())
+        for i in range(amount):
+            x, y = new_file.readline().split()
+            pos = int(x), int(y)
+            Main.obstacles.append(Obstacle.createObstacle(pos, Main.screen, Main.imager, Main.tile_size, random.choice([1, 2, 3, 4])))
+        Main.turn = Main.player1
+        Main.game_start()
 
     def game_start():
         # Parameters: no parameters.
         # Creates the game.
         is_game = True
-
         sideMenu = menu.VerticalMenu(750, 120, pygame.transform.scale(pygame.image.load('Images/menu.png')
                                                                       .convert_alpha(), (200, 650)))
         sideMenu.add_btn(Main.imager.getTowerImage(0, 0, 0), "Towers", 0)
