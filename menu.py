@@ -176,7 +176,7 @@ class VerticalMenu(Menu):
         elif name == "Turn":
             btn_x = self.x - 60
             btn_y = self.y + 350
-        elif name == "Menu":
+        elif name == "Menu" or name == "Save":
             btn_x = self.x - 60
             btn_y = self.y + 420
         elif name == "BasicTower" or name == "FireTower" or name == "SlowingTower" or name == "UpgradeTower" or name == "Towers":
@@ -191,7 +191,7 @@ class VerticalMenu(Menu):
 
     def clear_btn(self, name):
         if name != "BackT" and name != "BackU" and name != "Turn" and name != "BackG" \
-                and name != "Menu" and name != "BackC":
+                and name != "Menu" and name != "BackC" and name != "Save":
             self.items -=1
         self.buttons.remove(VerticalMenu.get_button(self,name))
 
@@ -217,7 +217,7 @@ class VerticalMenu(Menu):
         for item in self.buttons:
             if item.name == "BackU" or item.name == "BackT" or item.name == "BackG" or item.name == "BackC":
                 text = "Back"
-            elif item.name == "Turn" or item.name == "Menu":
+            elif item.name == "Turn" or item.name == "Menu" or item.name == "Save":
                 text = ""
             else:
                 text = item.name
