@@ -384,16 +384,16 @@ class Main:
             enemy_towers = enemy.getTowers()
             n = len(safe_units)
             for i in range(n):
-                safe_units[i].moveList = []
+                safe_units[i].setMoveList([])
                 if type(safe_units[i]) == UvsU:
                     for j in range(len(enemy_units)):
-                        safe_units[i].moveList.append(enemy_units[j])
+                        safe_units[i].appendMoveList(enemy_units[j])
                 if type(safe_units[i]) == UvsB:
                     for m in enemy_towers:
-                        safe_units[i].moveList.append(m)
+                        safe_units[i].appendMoveList(m)
                 if type(safe_units[i]) == UvsO:
                     for m in obstacle_list:
-                        safe_units[i].moveList.append(m)
+                        safe_units[i].appendMoveList(m)
 
         def findTargetforUnits(safe, enemy, goldmines):
             # Parameters: safe - the current player; enemy - second player; goldmines - the list of gold mines.
@@ -408,36 +408,37 @@ class Main:
                 obstacle_list.append(obs)
             unitLength = len(safe_units)
             for i in range(unitLength):
-                safe_units[i].targetList = []
-                safe_units[i].current_target = None
+                if type(safe_units[i]) == UvsU or type(safe_units[i]) == UvsB or type(safe_units[i]) == UvsO:
+                    safe_units[i].setTargetList([])
+                    safe_units[i].setCurrentTarget(None)
                 if type(safe_units[i]) == UvsU:
                     for enemy in enemy_units:
                         if safe_units[i].hitbox.colliderect(enemy.hitbox):
-                            safe_units[i].targetList.append(enemy)
+                            safe_units[i].appendTargetList(enemy)
                 if type(safe_units[i]) == UvsB:
                     for enemy in enemy_towers:
                         if safe_units[i].hitbox.colliderect(enemy.hitbox):
-                            safe_units[i].targetList.append(enemy)
+                            safe_units[i].appendTargetList(enemy)
                 if type(safe_units[i]) == UvsO:
                     for obs in obstacle_list:
                         if safe_units[i].hitbox.colliderect(obs.hitbox):
-                            safe_units[i].targetList.append(obs)
+                            safe_units[i].appendTargetList(obs)
 
         def currentUnitTarget(unit_list):
             # Parameters: unit_list - the list of units. 
             # The function defines the target of the current turn, adds it to the current target list.  
             for unit in unit_list:
-                unit.current_target = None
                 if type(unit) == UvsU or type(unit) == UvsB or type(unit) == UvsO:
+                    unit.setCurrentTarget(None)
                     for target in unit.targetList:
                         if unit.current_target is None:
-                            unit.current_target = target
+                            unit.setCurrentTarget(target)
                             if unit.current_target.health < 0:
-                                unit.targetList.remove(target)
+                                unit.removeTargetList(target)
                         if unit.current_target.pos[0] <= target.pos[0]:
-                            unit.current_target = target
+                            unit.setCurrentTarget(target)
                     if len(unit.targetList) == 0:
-                        unit.current_target = None
+                        unit.setCurrentTarget(None)
 
         def shootUnits(unit_list):
             # Parameters: unit_list - the list of units.
@@ -445,9 +446,9 @@ class Main:
             for unit in unit_list:
                 if type(unit) == UvsU or type(unit) == UvsB or type(unit) == UvsO:
                     if unit.current_target is not None:
-                        unit.attack(type(unit))
+                        unit.attack()
                         if unit.current_target.health < 0:
-                            unit.current_target = None
+                            unit.setCurrentTarget(None)
 
         def create_tower(name, x, y, screen):
             # Parameters: name - name of the button; x - x position; y - y position; screen - the screen. 
