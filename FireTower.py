@@ -68,7 +68,7 @@ class FireTower:
 
         self._range = tower_range
         self._damage = damage
-        self.hitbox = pygame.Rect(self._pos[0] - 35, self._pos[1] - 25, 100, 100)
+        self._hitbox = pygame.Rect(self._pos[0] - 35, self._pos[1] - 25, 100, 100)
         self.targetList = []  # for the enemies
         self.bulletList = []  # for the bullets
         self.current_target = None
@@ -99,7 +99,7 @@ class FireTower:
     def setRange(self, range_tower) -> None:
         self._range = range_tower
 
-    def setPos(self, pos):
+    def setPos(self, pos): #Changes the position of the tower
         self._pos = pos
 
     @property
@@ -123,57 +123,62 @@ class FireTower:
         return self._health_level
 
     @property
-    def screen(self) -> pygame.Surface:
+    def screen(self) -> pygame.Surface: # Returns the pygame screen
         return self._screen
 
     @property
-    def towerList(self) -> list[[pygame.Surface]]:
+    def towerList(self) -> list[[pygame.Surface]]: #Returns the list of tower images
         return self.image_list
 
     @property
-    def towerImage(self) -> pygame.Surface:
+    def towerImage(self) -> pygame.Surface: # Returns the image of the tower
         return self.scaleImage(self.towerList[self.level][self.healthLevel])
 
     @property
-    def pos(self) -> tuple[int, int]:
+    def pos(self) -> tuple[int, int]: # Returns the current position of the tower
         return self._pos
 
-    '''
-    rect function returns the position of the tower
-    '''
-
     @property
-    def rect(self) -> pygame.Rect:
+    def rect(self) -> pygame.Rect: # Returns the current rectangle position of the tower
         return self._rect
 
     # ---------Extras for Attack Tower---------#
     @property
-    def damage(self) -> int:
+    def damage(self) -> int: # Returns the damage of the tower
         return self._damage
 
     @property
-    def range(self) -> int:
+    def range(self) -> int: # Returns the damage range of the tower
         return self._range
 
+    @property
+    def hitbox(self) -> int:  # Returns the hitbox
+        return self._hitbox
+
     def reduceHealth(self, reduce_amount: int = DEFAULT_HIT) -> None:
+        """
+        Reduces the amount of health.
+        :param: reduce_amount - damage
+        :return: None
+        """
         self.setHealth(self.health - reduce_amount)
         self.declareHealthLevel()
 
     def isDead(self) -> bool:
+        """
+        Checks if the tower does not have health.
+        :return: bool
+        """
         return not self.health > 0
 
     # According to the percentages given, the tower's health, range, level, and
     # level-appropriate picture are determined here.
 
-    def upgrade(self, upgrade_percent: float = DEFAULT_UPGRADE_PERCENT):
-        self.setDamage(self.damage * (1 + DEFAULT_DAMAGE_UPGRADE_PERCENT))
-        self.setRange(self.range * (1 + DEFAULT_RANGE_UPGRAGE_PERCENT))
-        self.setLevel(self.level + 1)
-        self.setMaxHealth(self.maxHealth * (1 + upgrade_percent))
-        self.setHealth(self.health * (1 + upgrade_percent))
-        self.declareHealthLevel()
-
     def remove(self):
+        """
+        Removes the tower from the screen
+        :return: None
+        """
         self._screen.fill((255, 255, 255))
 
     '''
@@ -198,39 +203,50 @@ class FireTower:
 
     @staticmethod
     def scaleImage(img: pygame.Surface, scale: float = DEFAULT_SCALE) -> pygame.Surface:
+        """
+        Scales the image size of the tower.
+        :param: img - tower image, scale - the scales for image.
+        :return: pygame.image
+        """
         width = img.get_width()
         height = img.get_height()
         return pygame.transform.scale(img, (int(width * scale), int(height * scale)))
 
-    '''
-    Adds the tower to the Map
-    '''
-
     def draw_tower(self):
+        """
+        Draws the tower to the map.
+        :return: None
+        """
         self.screen.blit(self.towerImage, self.rect)
-        self.hitbox = pygame.Rect(self._pos[0] - 35, self._pos[1] - 25, 100, 100)
-        pygame.draw.rect(self.screen, (255, 0, 0), self.hitbox, 1)
+        self._hitbox = pygame.Rect(self._pos[0] - 35, self._pos[1] - 25, 100, 100)
+        pygame.draw.rect(self.screen, (255, 0, 0), self._hitbox, 1)
 
     # Functions to be used for attack.
     # Extra features will be added for Shooting and Hitbox
-
-    '''
-    reduceHealth function defined to reduce the enemy's health
-    or kill enemys
-    '''
-
     def reduceHealthEnemy(self, enemy: unit):
+        """
+        reduceHealth function defined to reduce the enemy's health
+        or kill enemys
+        """
         if (enemy.health - self.damage) < 0:
             enemy.health = 0
         else:
             enemy.health -= self.damage
 
     def check_cd(self):
+        """
+        Checks if the current cd is positive.
+        :return: None 
+        """
         if self.current_cd > 0:
             return False
         return True
     
     def shoot(self):
+        """
+        Attacks the current target
+        :return: None
+        """
         if self.check_cd() and self.current_target is not None:
             self.bulletList.append(Projectile(self.pos[0], self.pos[1], self.current_target, self.damage))
             self.current_cd = self.cd
@@ -255,6 +271,10 @@ class FireTower:
         self.updateRect()
 
     def collide(self, otherTower):
+        """
+        Checks if the towers collide or not.
+        :return: bool
+        """
         x2 = otherTower.pos[0]
         y2 = otherTower.pos[1]
         dis = math.sqrt((x2 - self.pos[0]) ** 2 + (y2 - self.pos[1]) ** 2)
@@ -264,10 +284,18 @@ class FireTower:
             return True
 
     def updateRect(self):
+        """
+        Changes the _rect.
+        :return: None
+        """
         self.rect.x, self.rect.y = self.pos
 
     @staticmethod
     def getType():
+        """
+        Returns the class name.
+        :return: string
+        """
         return "FireTower"
 
     def draw_health_bar(self):
@@ -290,6 +318,10 @@ class FireTower:
 
     @property
     def isInappropriate(self) -> bool:
+        """
+        Checks if the position is correct.
+        :return: bool
+        """
         if self.pos[0] > 600 - 25 or self.pos[1] > 600 - 35 or self.pos[0] < 50 or self.pos[1] < 50:
             return True
         return False
