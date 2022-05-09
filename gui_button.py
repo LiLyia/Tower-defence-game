@@ -9,6 +9,7 @@ class Button:
 
     # constructor of Button class(x,y at which position our button will start)
     def __init__(self, x, y, text):
+        pygame.init()
         self.x = x
         self.y = y
         self.text = text
