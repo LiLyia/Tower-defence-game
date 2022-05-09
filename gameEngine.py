@@ -206,7 +206,6 @@ class Main:
         for i in range(1, 6):
             file_name = "map_" + str(i) + ".txt"
             file_nickname = "map_" + str(i)
-            print("The file exist: ", path.exists(file_name))
             if path.exists(file_name):
                 Main.mapList.append(file_nickname)
         Main.editor.setMapList(Main.mapList)
@@ -232,7 +231,6 @@ class Main:
                     if new_dict[key][0].draw_Button(screen):
                         Main.load_map(key)
                     if new_dict[key][1].draw_Button(screen):
-                        print("trying to delete map")
                         Main.delete_map(key)
             if menu_button.draw_Button(screen):
                 Main.main_menu()
@@ -251,8 +249,6 @@ class Main:
                 Main.file_dict[i][0].y -= 60
                 Main.file_dict[i][1].y -= 60
         Main.file_dict.pop(file_name)
-        for i in Main.file_dict:
-            print(i)
         Main.mapList.remove(file_name)
         Main.editor.setMapList(Main.mapList)
         file_nickame = file_name + ".txt"
