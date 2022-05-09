@@ -11,12 +11,12 @@ from datetime import datetime
 
 class MapEditor:
     def __init__(self, imager, screen, turn, player1, player2, tower_images,
-                 fire_tower_images, ice_tower_images, tile_size, clock, bg_img, count, limit):
+                 fire_tower_images, ice_tower_images, tile_size, clock, bg_img):
         self.__createMapData()
         self.tile_size = tile_size
         self.imager = imager
-        self.count = count
-        self.limit = limit
+        #self.count = count
+        #self.limit = limit
         self.screen = screen
         self.turn = turn
         self.player1 = player1
@@ -29,12 +29,18 @@ class MapEditor:
         self.clock = clock
         self.bg_img = bg_img
         self.towers = []
+        self._mapList = []
+        self.available = {"1", "2", "3", "4", "5"}
         self.moving_object = None
         self.side_menu = menu.VerticalMenu(750, 120, pygame.transform
                                            .scale(pygame.image.load('Images/menu.png').convert_alpha(), (200, 650)))
         self.mainButtons()
 
     def __createMapData(self):
+        """
+        Creates the matrix of the map
+        :return: None
+        """
         self.game_map_data = [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -51,12 +57,31 @@ class MapEditor:
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
         ]
 
-    def buttons(self, side_menu_button, player):
-        # Parameters: side_menu_button - the name of the button from the side menu; player - the current player.
-        # Vertical menu implementation, draws and clears the buttons.
+    @property
+    def mapList(self):
+        """
+        Returns the list of targets.
+        :return: array
+        """
+        return self._mapList
+
+    def setMapList(self, maps):
+        """
+        Changes the list of the maps.
+        :param: maps - the list of the maps
+        :return: None
+        """
+        self._mapList = maps
+
+    def buttons(self, side_menu_button):
+        """
+        Creates buttons.
+        :param: side_menu_button - the name of the clicked button
+        :return: Player
+        """
         if side_menu_button == "Castle":
             self.add_castle(self.screen)
-        elif side_menu_button == "Hurdle": #type(side_menu_button) == str and "hurdle" in side_menu_button:
+        elif side_menu_button == "Hurdle":
             self.addObstacle(self.screen)
         elif side_menu_button == "Turn":
             if self.turn == self.player1:
@@ -67,6 +92,10 @@ class MapEditor:
             return "MAIN"
 
     def mainButtons(self):
+        """
+        Adds buttons to the side menu.
+        :return: None
+        """
         self.side_menu.add_btn(pygame.transform.scale(self.imager.getCastleImage(0, 0), (120, 80)), "Castle", 0)
         self.side_menu.add_btn(pygame.transform.scale(pygame.image.load('Images/turn.png')
                                                       .convert_alpha(), (120, 50)), "Turn", 0)
@@ -76,12 +105,21 @@ class MapEditor:
             pygame.transform.scale(pygame.image.load('Images/mainmenu.png').convert_alpha(), (120, 50)), "Save", 0)
 
     def clearMainButtons(self):
+        """
+        Clears the buttons from the side menu.
+        :return: None
+        """
         self.side_menu.clear_btn("Castles")
         self.side_menu.clear_btn("Turn")
         self.side_menu.clear_btn("Obstacles")
         self.side_menu.clear_btn("Save")
 
     def addObstacle(self, screen):
+        """
+        Creates hurdles.
+        :param: screen - pygame surface
+        :return: None
+        """
         x, y = pygame.mouse.get_pos()
         try:
             self.moving_object = Obstacle.createObstacle(pos=(x, y), screen=screen, imager=self.imager, tile_size=self.tile_size, image_number=1)
@@ -90,6 +128,11 @@ class MapEditor:
             print(str(e) + "Cannot create an obstacle")
 
     def add_castle(self, screen):
+        """
+        Places a castle.
+        :param: screen - pygame surface
+        :return: None
+        """
         x, y = pygame.mouse.get_pos()
         try:
             obj = self.__create_castle(x, y, screen)
@@ -100,8 +143,11 @@ class MapEditor:
             print(str(e) + " NOT VALID NAME")
 
     def __create_castle(self, x, y, screen):
-        # Parameters: name - name of the button; x - x position; y - y position; screen - the screen.
-        # Creates a tower object and adds it to tower list.
+        """
+        Creates a castle object.
+        :param: screen - pygame surface
+        :return: Castle
+        """
         if self.turn == self.player1:
             color = self.player1.color
             castle = Castle(self.imager, (x, y), screen, 0, color)
@@ -111,10 +157,22 @@ class MapEditor:
         return castle
 
     def save(self):
-        if self.player1.castle != None and self.player1.castle != None and self.limit <= 5:
-            file_name = "map_" + str(self.count)
-            print(str(datetime.now()))
-            new_file = open(file_name, "w+")
+        """
+        Saves the created map.
+        :return: string
+        """
+        if self.player1.castle != None and self.player1.castle != None:
+            file_name = "None"
+            arr = ""
+            for map in self._mapList:
+                arr += map[4]
+            for i in self.available:
+                if i not in arr:
+                    file_name = "map_" + i
+            file_nickname = file_name + ".txt"
+            for map in self._mapList:
+                print(map)
+            new_file = open(file_nickname, "w+")
             new_file.write(str(self.player1.castle_pos[0])+" "+str(self.player1.castle_pos[1]))
             new_file.write('\n')
             new_file.write(str(self.player2.castle_pos[0])+" "+str(self.player2.castle_pos[1]))
@@ -125,21 +183,15 @@ class MapEditor:
                 new_file.write(str(obstacle.pos[0])+" "+str(obstacle.pos[1]))
                 new_file.write('\n')
             new_file.close()
-            print(self.count)
             return file_name
         return None
 
-    @staticmethod
-    def upgrade_tower(turn):
-        # Parameters: turn - the current player.
-        # The function upgrades the first ready to be upgraded basic tower.
-        for tower in turn.getTowers():
-            if type(tower) != FireTower and type(tower) != IceTower:
-                if tower.maxUp == 0:
-                    break
-                tower.upgrade()
-
     def updateObstacles(self, obstacle):
+        """
+        Updates the hurdles.
+        :param: obstacle - hurdle object
+        :return: None
+        """
         x = obstacle.pos[0] // self.tile_size
         y = obstacle.pos[1] // self.tile_size
         self.game_map_data[x][y] = obstacle.image_number
@@ -148,6 +200,10 @@ class MapEditor:
         self.player2.setGameMap(game_map_data=self.game_map_data)
 
     def run(self):
+        """
+        Main function.
+        :return: None
+        """
         self.player1.deleteCastle()
         self.player2.deleteCastle()
         self.player1.deleteTowers()
@@ -179,7 +235,7 @@ class MapEditor:
                 self.moving_object.move(pos[0], pos[1])
             for event in pygame.event.get():
                 if event.type == QUIT:
-                    return #self.player1, self.player2, self.turn, self.towers, self.obstacles, None
+                    return
                 elif event.type == MOUSEBUTTONUP:
                     if self.moving_object is not None:
                         not_allowed = False
@@ -210,10 +266,7 @@ class MapEditor:
                 # draw images at positions
                 elif event.type == MOUSEBUTTONDOWN:
                     side_menu_button = self.side_menu.get_clicked(event.pos[0], event.pos[1])
-                    if self.turn == self.player1:
-                        rt = self.buttons(side_menu_button, self.player1)
-                    else:
-                        rt = self.buttons(side_menu_button, self.player2)
+                    rt = self.buttons(side_menu_button)
                     if rt == "MAIN":
                         result = MapEditor.save(self)
                         return self.player1, self.player2, self.turn, self.towers, self.obstacles, result
