@@ -50,12 +50,25 @@ class Castle:
         draw_health_bar(self.screen, health_rect.topleft, health_rect.size, x, y, z, self.health/self.max_health)
 
     def reduceHealth(self, hit_amount=50):
+        """
+        The function that makes castle take a hit
+        :param reduce_amount: int
+        :return: None
+        """
         self.health -= hit_amount
 
     def isDead(self):
+        """
+        Checks if the castle does not have health.
+        :return: bool
+        """
         return self.health <= 0
 
     def collide(self, movingObject):
+        """
+        Checks if the objects collide or not.
+        :return: bool
+        """
         x2 = movingObject.pos[0]
         y2 = movingObject.pos[1]
         dis = math.sqrt((x2 - self.pos[0]) ** 2 + (y2 - self.pos[1]) ** 2)
@@ -65,6 +78,10 @@ class Castle:
             return True
 
     def updateRect(self):
+        """
+        Changes the _rect.
+        :return: None
+        """
         self.rect.x, self.rect.y = self.pos
 
     def move(self, x, y):
@@ -79,10 +96,18 @@ class Castle:
 
     @property
     def isInappropriate(self) -> bool:
+        """
+        Checks if the position is correct.
+        :return: bool
+        """
         if self.pos[0] > 600 - 25 or self.pos[1] > 600 - 35 or self.pos[0] < 50 or self.pos[1] < 50:
             return True
         return False
 
     @staticmethod
     def getType():
+        """
+        Returns the class name.
+        :return: string
+        """
         return "Castle"
