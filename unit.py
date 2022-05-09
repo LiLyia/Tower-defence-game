@@ -40,8 +40,16 @@ class Unit:
     def move(self, enemy_pos, obstacles, block = True):
         """
         Make the unit move only 1 block according to the path it has.
+        :param: enemy_pos - the position of the enemy
+        :param: obstacles: the list of obstacles
+        :return: tuple
         """
         def create_coord(matrix):
+            """
+            Creates the tuple of coordinates
+            :param: matrix - the matrix
+            :return: tuple
+            """
             return (matrix[0] * 50, matrix[1] * 50)
 
         if(self.isStopped):
@@ -177,6 +185,7 @@ class Unit:
 
     def get_pos(self):
         """
+        Returns the position of the unit
         :return pos: Current position of the unit
         """
         return self._pos
@@ -211,6 +220,7 @@ class Unit:
     def draw(self):
         """
         Draws the unit with the given images
+        :return: None
         """
         self._screen.blit(self.img, self.rect)
 
@@ -221,6 +231,17 @@ class Unit:
         :return: None
         """
         def draw_health_bar(screen, pos, size, borderC, backC, healthC, progress):
+            """
+            Draws the health bar.
+            :param: screen - the pygame surface
+            :param: pos - the position of the unit
+            :param: size - the size of the health bar
+            :param: borderC - the color of the rectangle borders
+            :param: backC - the color of the rectangle background
+            :param: healthC - the color of the player
+            :param: progress - the amount of health in the rectangle
+            :return: None
+            """
             pygame.draw.rect(screen, backC, (*pos, *size))
             pygame.draw.rect(screen, borderC, (*pos, *size), 1)
             innerPos = (pos[0] + 1, pos[1] + 1)
@@ -237,6 +258,7 @@ class Unit:
     def remove(self):
         """
         Make the unit disappear from the game.
+        :return: None
         """
         self._screen.fill((255, 255, 255))
 
@@ -303,12 +325,18 @@ class AttackingUnit(Unit):
 
     @property
     def targetList(self):
-        
+        """
+        Returns the list of targets.
+        :return: array
+        """
         return self._targetList
 
     @property
     def current_target(self):
-
+        """
+        Returns the current target.
+        :return: object
+        """
         return self._current_target
 
     def setCurrentTarget(self, value):
@@ -372,6 +400,8 @@ class AttackingUnit(Unit):
     def move(self,obstacles, find=True, block = True):
         """
         Make the unit move only 1 block according to the path it has.
+        :param: obstacles - the list of obstacles
+        :return: None- 
         """
         if(self._moveList == []):
             return
@@ -402,8 +432,15 @@ class UvsU(AttackingUnit):
     def move(self,obstacles, block = True):
         """
         Make the unit move only 1 block according to the path it has.
+        :param: obstacles - the list of obstacles
+        :return: None- 
         """
         def create_coord(matrix):
+            """
+            Creates the tuple of coordinates
+            :param: matrix - the matrix
+            :return: tuple
+            """
             return (matrix[0] * 50, matrix[1] * 50)
 
         if(self._moveList == [] or self.isStopped):
@@ -478,6 +515,8 @@ class UvsO(AttackingUnit):
     def move(self,obstacles):
         """
         Make the unit move only 1 block according to the path it has.
+        :param: obstacles - the list of obstacles
+        :return: None- 
         """
         self._hitbox = pygame.Rect(self._pos[0], self._pos[1], 100, 100)
         if self.move_target == None or self.move_target not in self._moveList:
