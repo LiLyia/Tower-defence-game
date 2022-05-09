@@ -17,7 +17,12 @@ class Projectile:
         self.rect = self.image.get_rect()
         self.path = self.calculatePoints(src,dest,5)
         self.path_x = 0
+
     def calculatePoints(self,src,dest,count):
+        """
+        Calculates the path for bullets.
+        :return: array
+        """
         points = []
         dX = dest[0]-src[0]
         dY =  dest[1]-src[1]
@@ -29,6 +34,10 @@ class Projectile:
         return points
 
     def drawToTarget(self):
+        """
+        Draws bullets to the target.
+        :return: None
+        """
         if self.path_x >= len(self.path):
 
             dest = (self.target.pos[0]+ 20, self.target.pos[1]+20)
@@ -42,14 +51,12 @@ class Projectile:
         self.path_x+= 1
         self.hitbox = pygame.Rect(self.x,self.y,40,40)
 
-    def hitEnemy(self):
-        if (self.target.health - self.damage) < 0:
-            self.target.health = 0
-            self.status = False
-        else:
-            self.target.reduceHealth(self.damage)
 
-    def hitTower(self):
+    def hitEnemy(self):
+        """
+        Reduces the enemy health by self damage.
+        :return: None
+        """
         if (self.target.health - self.damage) < 0:
             self.target.setHealth(0)
             self.status = False
@@ -57,6 +64,10 @@ class Projectile:
             self.target.reduceHealth(self.damage)
 
     def drawBullets(self,screen):
+        """
+        Draws bullets.
+        :return: None
+        """
         screen.blit(self.image,(self.x,self.y))
 
     def scaleImage(self, img: pygame.Surface, scale: float = DEFAULT_SCALE) -> pygame.Surface:
