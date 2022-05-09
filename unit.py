@@ -13,19 +13,19 @@ Only the position and the screen is required to create it.
 
 class Unit:
     def __init__(self, pos: tuple[int], 
-                 screen, game_map_data,color, image_path='Images/Units/soldier.png', scale=0.05, health=800, max_health=800, price=100):
-        self.health = health
-        self.max_health = max_health
-        self.price = price
-        self.color = color
+                 screen, game_map_data,color, image_path='Images/Units/soldier.png', scale=0.05, health=500, max_health=500, price=100):
+        self._health = health
+        self._max_health = max_health
+        self._price = price
+        self._color = color
         self.isStopped = False
 
         self.game_map_data = game_map_data
-        self.pos = pos
+        self._pos = pos
         self.img = pygame.image.load(image_path)
-        self.path = []
-        self.moveList = []
-        self.move_target = None
+        self._path = []
+        self._moveList = []
+        self._move_target = None
 
         # Scale the image
         self.width = self.img.get_width()
@@ -34,8 +34,8 @@ class Unit:
 
         self.rect = self.img.get_rect()
         self.rect.x, self.rect.y = pos
-        self.screen = screen
-        self.hitbox = pygame.Rect(self.pos[0]+3, self.pos[1]+8, 100, 100) #Hitbox area for the units
+        self._screen = screen
+        self._hitbox = pygame.Rect(self.pos[0]+3, self.pos[1]+8, 100, 100) #Hitbox area for the units
 
     def move(self, enemy_pos, obstacles, block = True):
         """
@@ -56,8 +56,8 @@ class Unit:
         if (enemy_pos == self.pos):
             return
 
-        if self.path == [] or self.path[-1] != enemy_pos:
-            self.path = []
+        if self._path == [] or self._path[-1] != enemy_pos:
+            self._path = []
 
             returned_path = self.findPath(enemy_pos,obstacles,block)
 
@@ -65,38 +65,137 @@ class Unit:
                 return
             else:
                 for i in returned_path:
-                    self.path.append(create_coord(i[::-1]))
+                    self._path.append(create_coord(i[::-1]))
 
-        goal_pos = self.path[0]
-        if (self.pos[0] < goal_pos[0]):
+        goal_pos = self._path[0]
+        if (self._pos[0] < goal_pos[0]):
             self.rect.x += 50
-        elif(self.pos[0] > goal_pos[0]):
+        elif(self._pos[0] > goal_pos[0]):
             self.rect.x -= 50
-        if(self.pos[1] < goal_pos[1]):
+        if(self._pos[1] < goal_pos[1]):
             self.rect.y += 50
-        elif(self.pos[1] > goal_pos[1]):
+        elif(self._pos[1] > goal_pos[1]):
             self.rect.y -= 50
-        self.pos = (self.rect.x, self.rect.y)
-        self.path.pop(0)
-        self.hitbox = pygame.Rect(self.pos[0], self.pos[1], 100, 100)
+        self._pos = (self.rect.x, self.rect.y)
+        self._path.pop(0)
+        self._hitbox = pygame.Rect(self.pos[0], self.pos[1], 100, 100)
 
-    def heal(self):
+    @property
+    def health(self) -> int:
         """
-        Extra feature that can be added afterwards
+        Returns the health of unit
+        :return: int
         """
-        if (self.health + 100) <= self.max_health:
-            self.health += 100
-        else:
-            self.health = self.max_health
+        return self._health
+
+    @property
+    def maxHealth(self) -> int:
+        """
+        Returns the maximum health of unit
+        :return: int
+        """
+        return self._max_health
+
+    @property
+    def screen(self) -> pygame.Surface:
+        """
+        Returns the screen of the game
+        :return:
+        """
+        return self._screen
+
+    @property
+    def pos(self) -> tuple[int, int]:
+        """
+        Returns the position of unit
+        :return: tuple[int]
+        """
+        return self._pos
+    @property
+    def hitbox(self):
+        """
+        Returns the hitbox
+        :return: pygame.Rect
+        """
+        return self._hitbox
+
+    @property
+    def price(self) -> int:
+        """
+        Returns the price of unit
+        :return: int
+        """
+        return self._price
+
+    @property
+    def move_target(self):
+        """
+        Returns the target for moving
+        :return: object
+        """
+        return self._move_target
+
+    @property
+    def moveList(self):
+        """
+        Returns the list of targets for moving
+        :return: array
+        """
+        return self._moveList
+
+    def setMoveTarget(self, value):
+        """
+        Changes the _move_target.
+        :param value: array
+        :return: None
+        """
+        self._move_target = value
+
+    def setMoveList(self, value):
+        """
+        Changes the _moveList.
+        :param value: object
+        :return: None
+        """
+        self._moveList = value
+
+    def appendMoveList(self, value):
+        """
+        Appends a value to the _moveList.
+        :param value: object
+        :return: None
+        """
+        self._moveList.append(value)
+
+    def setPos(self, value):
+        """
+        Changes the _pos.
+        :param value: tuple
+        :return: None
+        """
+        self._pos = value
 
     def get_pos(self):
         """
         :return pos: Current position of the unit
         """
-        return self.pos
+        return self._pos
 
     def setStopped(self, bool):
+        """
+        Changes the isStopped.
+        :param value: boolean
+        :return: None
+        """
         self.isStopped = bool
+
+    def setHealth(self, value):
+        """
+        Changes the _health.
+        :param value: int
+        :return: None
+        """
+        self._health = value
 
     def reduceHealth(self, damage):
         """
@@ -104,17 +203,16 @@ class Unit:
         :param damage: enemy damage
         :return: None
         """
-        if self.health - damage > 0:
-            self.health -= damage
+        if self._health - damage > 0:
+            self._health -= damage
         else:
-            self.health = 0
-
+            self._health = 0
 
     def draw(self):
         """
         Draws the unit with the given images
         """
-        self.screen.blit(self.img, self.rect)
+        self._screen.blit(self.img, self.rect)
 
     def draw_health_bar(self):
         """
@@ -132,15 +230,15 @@ class Unit:
 
         health_rect = pygame.Rect(0, 0, self.img.get_width(), 7)
         health_rect.midbottom = self.rect.centerx, self.rect.top
-        x,y,z = self.color
-        draw_health_bar(self.screen, health_rect.topleft, health_rect.size,
-                x,y,z, self.health/self.max_health)
+        x,y,z = self._color
+        draw_health_bar(self._screen, health_rect.topleft, health_rect.size,
+                x,y,z, self._health/self._max_health)
 
     def remove(self):
         """
         Make the unit disappear from the game.
         """
-        self.screen.fill((255, 255, 255))
+        self._screen.fill((255, 255, 255))
 
     def findPath(self, castle_pos, obstacles, block):
         """
@@ -149,7 +247,7 @@ class Unit:
         :return next available step's coordinates
         """
 
-        unit_pos = (int(self.pos[0] / 50), int(self.pos[1] / 50))
+        unit_pos = (int(self._pos[0] / 50), int(self._pos[1] / 50))
         end = (int(castle_pos[0] / 50), int(castle_pos[1] / 50))
 
         w, h = pygame.display.get_surface().get_size()
@@ -188,64 +286,111 @@ class AttackingUnit(Unit):
                  price=100,
                  damage=50,
                  attack_range=50):
-        self.pos = pos
-        self.damage = damage
-        self.attack_range = attack_range
-        self.targetList = []
-        self.attackList = []
+        self._pos = pos
+        self._damage = damage
+        self._attack_range = attack_range
+        self._targetList = []
+        self._attackList = []
+        self._moveList = []
 
         self.last_target = None
-        self.current_target = None
+        self._current_target = None
 
         self.current_cd = 0
         self.cd = 150
-        self.hitbox = pygame.Rect(self.pos[0], self.pos[1], 50, 50)
+        self._hitbox = pygame.Rect(self._pos[0], self._pos[1], 50, 50)
         Unit.__init__(self, pos, screen, game_map_data, color, image_path, scale, health, max_health, price)
 
-    def attack(self, type):
+    @property
+    def targetList(self):
+        
+        return self._targetList
+
+    @property
+    def current_target(self):
+
+        return self._current_target
+
+    def setCurrentTarget(self, value):
         """
-        Attack and reduceHealth of the enemy if is in attack_range.
-        :param enemy: is of type Unit.
+        Changes the _current_target.
+        :param value: object
         :return: None
         """
-        for e in self.attackList:
+        self._current_target = value
+
+    def setTargetList(self, value):
+        """
+        Changes the _targetList.
+        :param value: array
+        :return: None
+        """
+        self._targetList = value
+
+    def appendTargetList(self, value):
+        """
+        Appends a value to the _targetList.
+        :param value: object
+        :return: None
+        """
+        self._targetList.append(value)
+
+    def removeTargetList(self, value):
+        """
+        Removes a value from the _targetList.
+        :param value: object
+        :return: None
+        """
+        self._targetList.remove(value)
+
+    def setHitbox(self, value):
+        """
+        Changes the _hitbox.
+        :param value: pygame.Rect
+        :return: None
+        """
+        self._hitbox = value
+
+    def attack(self):
+        """
+        Attack and reduceHealth of the enemy if is in attack_range.
+        :return: None
+        """
+        for e in self._attackList:
             if e.target.health <= 0:
-                self.attackList.remove(e)
+                self._attackList.remove(e)
                 self.current_cd = -1
-        if self.current_cd <= 0 and self.current_target != None:
-            self.attackList.append(Projectile(self.pos[0],self.pos[1],self.current_target,self.damage))
+        if self.current_cd <= 0 and self._current_target != None:
+            self._attackList.append(Projectile(self._pos[0],self._pos[1],self._current_target,self._damage))
             self.current_cd = self.cd
         else:
             self.current_cd -= 1
-        for e in self.attackList:
-            if type == UvsB:
-                if self.current_target != None:
-                    e.hitTower()
-            else:
-                if self.current_target != None:
-                    e.hitEnemy()
+        for e in self._attackList:
+            if self._current_target != None:
+                e.hitEnemy()
 
     def move(self,obstacles, find=True, block = True):
         """
         Make the unit move only 1 block according to the path it has.
         """
-        if(self.moveList == []):
+        if(self._moveList == []):
             return
         if find:
             closest = None
             closest_num = 999999
-            x, y = self.pos
-            for k in self.moveList:
+            x, y = self._pos
+            for k in self._moveList:
                 q, w = k.pos
                 num = abs(x - q) + abs(y - w)
                 if (num < closest_num):
                     closest_num = num
                     closest = k
-            self.move_target = closest
+            self.setMoveTarget(closest)
 
-        self.hitbox = pygame.Rect(self.pos[0], self.pos[1], 100, 100)
+        self._hitbox = pygame.Rect(self._pos[0], self._pos[1], 100, 100)
         super().move(self.move_target.pos, obstacles, block)
 
+    
 
 """
  UvsU is subclass of AttackingUnit. Meaning UnitvsUnit, it can attack and destroy the enemy units.
@@ -261,22 +406,22 @@ class UvsU(AttackingUnit):
         def create_coord(matrix):
             return (matrix[0] * 50, matrix[1] * 50)
 
-        if(self.moveList == [] or self.isStopped):
+        if(self._moveList == [] or self.isStopped):
             return
 
         closest = None
         closest_num = 999999
-        x, y = self.pos
-        for k in self.moveList:
+        x, y = self._pos
+        for k in self._moveList:
             q, w = k.pos
             num = abs(x - q) + abs(y - w)
             if (num < closest_num):
                 closest_num = num
                 closest = k
-        self.move_target = closest
+        self.setMoveTarget(closest)
 
         x,y = self.move_target.pos
-        isTrue = ((x+30 >= self.pos[0] and x<= self.pos[0]) or (x-30 <= self.pos[0] and x>= self.pos[0])) and ( (y+30 >= self.pos[1] and y<= self.pos[1]) or (y-30 <= self.pos[1] and y>= self.pos[1]))
+        isTrue = ((x+30 >= self._pos[0] and x<= self._pos[0]) or (x-30 <= self._pos[0] and x>= self._pos[0])) and ( (y+30 >= self._pos[1] and y<= self._pos[1]) or (y-30 <= self._pos[1] and y>= self._pos[1]))
         x = x - (x % 50)
         y = y - (y % 50)
         castle_pos = (x,y)
@@ -293,16 +438,16 @@ class UvsU(AttackingUnit):
 
             goal_pos = create_coord(returned_path[1][::-1])
 
-            if (self.pos[0] < goal_pos[0]):
+            if (self._pos[0] < goal_pos[0]):
                 self.rect.x += 50
-            elif(self.pos[0] > goal_pos[0]):
+            elif(self._pos[0] > goal_pos[0]):
                 self.rect.x -= 50
-            if(self.pos[1] < goal_pos[1]):
+            if(self._pos[1] < goal_pos[1]):
                 self.rect.y += 50
-            elif(self.pos[1] > goal_pos[1]):
+            elif(self._pos[1] > goal_pos[1]):
                 self.rect.y -= 50
-            self.pos = (self.rect.x, self.rect.y)
-        self.hitbox = pygame.Rect(self.pos[0], self.pos[1], 100, 100)
+            self.setPos((self.rect.x, self.rect.y))
+        self.setHitbox(pygame.Rect(self._pos[0], self._pos[1], 100, 100))
 
 
 
@@ -317,7 +462,7 @@ class UvsB(AttackingUnit):
         """
         Make the unit move only 1 block according to the path it has.
         """
-        if self.move_target == None or self.move_target not in self.moveList:
+        if self.move_target == None or self.move_target not in self._moveList:
             super().move(obstacles)
         else:
             super().move(obstacles, find=False)
@@ -334,8 +479,8 @@ class UvsO(AttackingUnit):
         """
         Make the unit move only 1 block according to the path it has.
         """
-        self.hitbox = pygame.Rect(self.pos[0], self.pos[1], 100, 100)
-        if self.move_target == None or self.move_target not in self.moveList:
+        self._hitbox = pygame.Rect(self._pos[0], self._pos[1], 100, 100)
+        if self.move_target == None or self.move_target not in self._moveList:
             super().move(obstacles, block=False)
         else:
             super().move(obstacles, find=False, block = False)
