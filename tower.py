@@ -58,7 +58,7 @@ class Tower:
         self._pos: tuple[int, int] = pos
         self._rect: pygame.Rect = self.towerImage.get_rect()
         self._rect.x, self._rect.y = pos
-        self.hitbox = pygame.Rect(self._pos[0]-35, self._pos[1]-15, 100, 100)
+        self._hitbox = pygame.Rect(self._pos[0]-35, self._pos[1]-15, 100, 100)
         self.color = color
 
     def setHealth(self, health: int) -> None:
@@ -197,11 +197,19 @@ class Tower:
         """
         return self._pos
 
+    @property
+    def hitbox(self) -> int:
+        """
+        Returns the hitbox
+        :return: pygame.Rect
+        """
+        return self._hitbox
+
     def reduceHealth(self, reduce_amount: int = DEFAULT_HIT) -> None:
         """
         The function that makes tower take a hit
         :param reduce_amount: int
-        :return:
+        :return: None
         """
         self.setHealth(self.health - reduce_amount)
         self.declareHealthLevel()
@@ -262,9 +270,9 @@ class Tower:
     def draw_tower(self) -> None:
         """
         The function for drawing the tower to the map
-        :return:
+        :return: None
         """
-        self.hitbox = pygame.Rect(self._pos[0] - 35, self._pos[1] - 25, 100, 100)
+        self._hitbox = pygame.Rect(self._pos[0] - 35, self._pos[1] - 25, 100, 100)
         self.screen.blit(self.towerImage, self.rect)
 
     def move(self, x, y):
@@ -279,6 +287,10 @@ class Tower:
         self.updateHitBox()
 
     def collide(self, remainObject):
+        """
+        Checks if the towers collide or not.
+        :return: bool
+        """
         x2 = remainObject.pos[0]
         y2 = remainObject.pos[1]
         dis = math.sqrt((x2 - self.pos[0]) ** 2 + (y2 - self.pos[1]) ** 2)
@@ -288,13 +300,25 @@ class Tower:
             return True
 
     def updateRect(self):
+        """
+        Changes the _rect.
+        :return: None
+        """
         self.rect.x, self.rect.y = self.pos
     
     def updateHitBox(self):
-        self.hitbox = pygame.Rect(self._pos[0]-35, self._pos[1]-15, 100, 100)
+        """
+        Changes the _hitbox.
+        :return: None
+        """
+        self._hitbox = pygame.Rect(self._pos[0]-35, self._pos[1]-15, 100, 100)
 
     @staticmethod
     def getType():
+        """
+        Returns the class name.
+        :return: string
+        """
         return "BasicTower"
 
     def draw_health_bar(self):
@@ -317,6 +341,10 @@ class Tower:
 
     @property
     def isInappropriate(self) -> bool:
+        """
+        Checks if the position is correct.
+        :return: bool
+        """
         if self.pos[0] > 600 - 25 or self.pos[1] > 600 - 35 or self.pos[0] < 50 or self.pos[1] < 50:
             return True
         return False
